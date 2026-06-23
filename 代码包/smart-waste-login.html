@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>登录 - 生活垃圾智能分类与投放辅助系统</title>
+<!-- Tailwind CSS (本地) -->
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<!-- Iconify 图标 -->
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+        }
+        .bg-gradient-green {
+            background: linear-gradient(180deg, #2E9E62 0%, #47B87C 100%);
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2E9E62;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease;
+        }
+        .error-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</head>
+<body class="bg-[#F0F2F5] min-h-screen flex">
+<!-- 模块 1：左侧宣传栏 (576px) -->
+<div class="hidden lg:flex w-[576px] h-screen bg-gradient-green flex-col items-center justify-between py-20 px-12 text-white relative flex-shrink-0">
+<!-- Logo 组件 -->
+<div class="flex flex-col items-center gap-4">
+<div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg">
+<svg fill="none" height="40" viewbox="0 0 24 24" width="40" xmlns="http://www.w3.org/2000/svg">
+<path d="M19 6L18.0067 18.9126C17.9298 19.9121 17.0945 20.6667 16.0917 20.6667H7.90827C6.90547 20.6667 6.07021 19.9121 5.99329 18.9126L5 6" stroke="#2E9E62" stroke-linecap="round" stroke-width="2"></path>
+<path d="M10 11V16" stroke="#2E9E62" stroke-linecap="round" stroke-width="2"></path>
+<path d="M14 11V16" stroke="#2E9E62" stroke-linecap="round" stroke-width="2"></path>
+<path d="M21 6H3" stroke="#2E9E62" stroke-linecap="round" stroke-width="2"></path>
+<path d="M15 6V3.4C15 3.17909 14.8209 3 14.6 3H9.4C9.17909 3 9 3.17909 9 3.4V6" stroke="#2E9E62" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+<h1 class="text-2xl font-bold tracking-wider text-center">生活垃圾智能分类与投放辅助系统</h1>
+</div>
+<!-- 插画组件 -->
+<div class="relative w-full max-w-sm aspect-square flex items-center justify-center">
+<!-- 模拟垃圾桶插画 -->
+<div class="flex gap-4 items-end">
+<!-- 可回收物 -->
+<div class="w-16 h-28 bg-blue-500 rounded-t-md relative flex flex-col items-center justify-center border-2 border-white/20">
+<iconify-icon class="text-white text-2xl" icon="mdi:recycle"></iconify-icon>
+<div class="absolute -bottom-6 text-xs font-medium">可回收物</div>
+</div>
+<!-- 厨余垃圾 -->
+<div class="w-16 h-28 bg-green-600 rounded-t-md relative flex flex-col items-center justify-center border-2 border-white/20">
+<iconify-icon class="text-white text-2xl" icon="mdi:food-apple"></iconify-icon>
+<div class="absolute -bottom-6 text-xs font-medium">厨余垃圾</div>
+</div>
+<!-- 有害垃圾 -->
+<div class="w-16 h-28 bg-red-500 rounded-t-md relative flex flex-col items-center justify-center border-2 border-white/20">
+<iconify-icon class="text-white text-2xl" icon="mdi:skull-crossbones"></iconify-icon>
+<div class="absolute -bottom-6 text-xs font-medium">有害垃圾</div>
+</div>
+<!-- 其他垃圾 -->
+<div class="w-16 h-28 bg-gray-600 rounded-t-md relative flex flex-col items-center justify-center border-2 border-white/20">
+<iconify-icon class="text-white text-2xl" icon="mdi:delete-empty"></iconify-icon>
+<div class="absolute -bottom-6 text-xs font-medium">其他垃圾</div>
+</div>
+</div>
+<!-- 手机拍照框模拟 -->
+<div class="absolute top-0 right-0 w-32 h-56 border-4 border-white rounded-2xl bg-white/10 backdrop-blur-sm flex flex-col items-center justify-center shadow-2xl rotate-12 transform hover:rotate-0 transition-transform duration-500">
+<div class="w-20 h-20 border-2 border-dashed border-white/60 rounded-lg flex items-center justify-center">
+<iconify-icon class="text-white text-4xl animate-pulse" icon="mdi:camera-iris"></iconify-icon>
+</div>
+<div class="mt-4 text-[10px] bg-green-500 px-2 py-0.5 rounded-full">识别中...</div>
+</div>
+</div>
+<!-- 标语文本 -->
+<div class="text-center">
+<h2 class="text-xl font-medium mb-2">AI 智能识别，轻松做好垃圾分类</h2>
+<p class="text-sm text-white/80">助力社区智慧环卫精细化管理</p>
+</div>
+</div>
+<!-- 模块 2：右侧登录区域 -->
+<div class="flex-1 flex items-center justify-center p-6 bg-white lg:bg-transparent">
+<div class="w-full max-w-[520px] bg-white rounded-xl shadow-xl lg:shadow-2xl p-10">
+<h3 class="text-2xl font-bold text-gray-800 text-center mb-8">用户登录</h3>
+<form class="space-y-6" id="loginForm" onsubmit="return false;">
+<!-- 手机号输入框 -->
+<div class="space-y-1">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#2E9E62] transition-colors">
+<iconify-icon class="text-xl" icon="mdi:cellphone"></iconify-icon>
+</div>
+<input class="block w-full h-[44px] pl-11 pr-4 bg-[#F5F7FA] border border-transparent focus:border-[#2E9E62] focus:bg-white rounded-lg outline-none transition-all text-gray-700" id="phone" placeholder="请输入注册手机号" type="text"/>
+</div>
+<p class="text-red-500 text-xs hidden" id="phoneError">请输入正确的11位手机号</p>
+</div>
+<!-- 密码输入框 -->
+<div class="space-y-1">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#2E9E62] transition-colors">
+<iconify-icon class="text-xl" icon="mdi:lock-outline"></iconify-icon>
+</div>
+<input class="block w-full h-[44px] pl-11 pr-12 bg-[#F5F7FA] border border-transparent focus:border-[#2E9E62] focus:bg-white rounded-lg outline-none transition-all text-gray-700" id="password" placeholder="请输入登录密码" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600" onclick="togglePassword()" type="button">
+<iconify-icon class="text-xl" icon="mdi:eye-off-outline" id="eyeIcon"></iconify-icon>
+</button>
+</div>
+<p class="text-red-500 text-xs hidden" id="passwordError">密码不能为空</p>
+</div>
+<!-- 辅助行 -->
+<div class="flex items-center justify-between text-sm">
+<label class="flex items-center cursor-pointer group">
+<input class="hidden peer" id="rememberMe" type="checkbox"/>
+<div class="w-4 h-4 border border-gray-300 rounded peer-checked:bg-[#2E9E62] peer-checked:border-[#2E9E62] flex items-center justify-center mr-2 transition-all">
+<iconify-icon class="text-white text-xs" icon="mdi:check"></iconify-icon>
+</div>
+<span class="text-gray-500 group-hover:text-gray-700">记住账号，一键登录</span>
+</label>
+<a class="text-[#2E9E62] hover:underline" href="javascript:void(0)" onclick="forgotPassword()">忘记密码</a>
+</div>
+<!-- 功能按钮 -->
+<button class="w-full h-[46px] bg-[#2E9E62] hover:bg-[#268c55] active:scale-[0.98] text-white font-medium rounded-lg shadow-lg shadow-green-100 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed" id="loginBtn" type="submit">
+                    登录
+                </button>
+</form>
+<!-- 底部跳转 -->
+<div class="mt-8 text-center text-sm text-gray-500">
+                暂无账号？<a class="text-[#2E9E62] font-medium hover:underline" href="javascript:void(0)" onclick="showModal('registerModal')">立即注册</a>
+</div>
+</div>
+</div>
+<!-- 弹窗 1：登录加载弹窗 -->
+<div class="fixed inset-0 z-50 flex items-center justify-center hidden" id="loadingModal">
+<div class="absolute inset-0 bg-black/40"></div>
+<div class="relative bg-white rounded-xl p-8 flex flex-col items-center gap-4 shadow-2xl w-[300px]">
+<div class="loading-spinner"></div>
+<p class="text-gray-600 font-medium">正在验证账号信息...</p>
+</div>
+</div>
+<!-- 弹窗 2：错误提示弹窗 -->
+<div class="fixed inset-0 z-50 flex items-center justify-center hidden" id="errorModal">
+<div class="absolute inset-0 bg-black/40" onclick="closeModal('errorModal')"></div>
+<div class="relative bg-white rounded-xl p-8 flex flex-col items-center text-center shadow-2xl w-[360px]">
+<div class="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4">
+<iconify-icon class="text-red-500 text-3xl" icon="mdi:alert-circle"></iconify-icon>
+</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">登录失败</h4>
+<p class="text-gray-500 mb-6">账号/密码错误，请重新输入</p>
+<button class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors" onclick="closeModal('errorModal')">
+                确认
+            </button>
+</div>
+</div>
+<!-- 弹窗 3：注册跳转弹窗 -->
+<div class="fixed inset-0 z-50 flex items-center justify-center hidden" id="registerModal">
+<div class="absolute inset-0 bg-black/40" onclick="closeModal('registerModal')"></div>
+<div class="relative bg-white rounded-xl p-8 flex flex-col items-center text-center shadow-2xl w-[360px]">
+<div class="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mb-4">
+<iconify-icon class="text-[#2E9E62] text-3xl" icon="mdi:account-plus"></iconify-icon>
+</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">注册提示</h4>
+<p class="text-gray-500 mb-6">该手机号未注册，是否前往注册？</p>
+<div class="flex gap-4 w-full">
+<button class="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition-colors" onclick="closeModal('registerModal')">
+                    取消
+                </button>
+<button class="flex-1 py-2.5 bg-[#2E9E62] text-white rounded-lg font-medium hover:bg-[#268c55] transition-colors" onclick="handleRegister()">
+                    前往注册
+                </button>
+</div>
+</div>
+</div>
+<script>
+        const phoneInput = document.getElementById('phone');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const phoneError = document.getElementById('phoneError');
+        const passwordError = document.getElementById('passwordError');
+        const rememberMe = document.getElementById('rememberMe');
+
+        // 初始化：检查记住账号
+        window.onload = () => {
+            const savedPhone = localStorage.getItem('saved_waste_phone');
+            if (savedPhone) {
+                phoneInput.value = savedPhone;
+                rememberMe.checked = true;
+            }
+        };
+
+        // 密码显隐切换
+        function togglePassword() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            const eyeIcon = document.getElementById('eyeIcon');
+            eyeIcon.setAttribute('icon', type === 'password' ? 'mdi:eye-off-outline' : 'mdi:eye-outline');
+        }
+
+        // 手机号校验
+        phoneInput.onblur = () => {
+            const val = phoneInput.value.trim();
+            if (!/^1[3-9]\d{9}$/.test(val)) {
+                phoneError.classList.remove('hidden');
+                phoneInput.classList.add('border-red-400');
+            } else {
+                phoneError.classList.add('hidden');
+                phoneInput.classList.remove('border-red-400');
+            }
+        };
+
+        // 密码校验
+        passwordInput.onblur = () => {
+            if (passwordInput.value.trim() === '') {
+                passwordError.classList.remove('hidden');
+                passwordInput.classList.add('border-red-400');
+            } else {
+                passwordError.classList.add('hidden');
+                passwordInput.classList.remove('border-red-400');
+            }
+        };
+
+        // 忘记密码
+        function forgotPassword() {
+            alert('请联系系统管理员重置密码\n管理员电话：010-8888****');
+        }
+
+        // 登录逻辑
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            
+            const phoneVal = phoneInput.value.trim();
+            const passwordVal = passwordInput.value.trim();
+
+            // 基础校验
+            let hasError = false;
+            if (!/^1[3-9]\d{9}$/.test(phoneVal)) {
+                phoneError.classList.remove('hidden');
+                hasError = true;
+            }
+            if (passwordVal === '') {
+                passwordError.classList.remove('hidden');
+                hasError = true;
+            }
+
+            if (hasError) {
+                const card = document.querySelector('.bg-white.rounded-xl');
+                card.classList.add('error-shake');
+                setTimeout(() => card.classList.remove('error-shake'), 500);
+                return;
+            }
+
+            // 模拟登录请求
+            showModal('loadingModal');
+            
+            setTimeout(() => {
+                closeModal('loadingModal');
+                
+                if (phoneVal === '13800138000' && passwordVal === '123456') {
+                    // 记住账号逻辑
+                    if (rememberMe.checked) {
+                        localStorage.setItem('saved_waste_phone', phoneVal);
+                    } else {
+                        localStorage.removeItem('saved_waste_phone');
+                    }
+                    alert('登录成功！正在进入系统...');
+                    // window.location.href = 'dashboard.html';
+                } else if (phoneVal !== '13800138000') {
+                    showModal('registerModal');
+                } else {
+                    showModal('errorModal');
+                }
+            }, 1500);
+        };
+
+        // 注册跳转模拟
+        function handleRegister() {
+            closeModal('registerModal');
+            alert('即将跳转到注册页面...');
+        }
+
+        // 弹窗通用控制
+        function showModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>
