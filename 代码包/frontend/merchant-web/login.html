@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>商户登录 - 智能垃圾分类监管与积分运营系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+
+    .login-wrapper {
+      position: relative; width: 100%; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 40%, #0d5e3a 100%);
+      overflow: hidden;
+    }
+
+    .login-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .bg-shape { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15; }
+    .shape-1 { width: 500px; height: 500px; background: #e6a23c; top: -150px; right: -100px; animation: float1 8s ease-in-out infinite; }
+    .shape-2 { width: 400px; height: 400px; background: #409eff; bottom: -120px; left: -80px; animation: float2 10s ease-in-out infinite; }
+    .shape-3 { width: 300px; height: 300px; background: #67c23a; top: 40%; left: 45%; animation: float3 12s ease-in-out infinite; }
+    @keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-30px,20px) scale(1.05); } }
+    @keyframes float2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-20px) scale(1.08); } }
+    @keyframes float3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-15px,-15px) scale(1.06); } }
+
+    .login-card {
+      position: relative; z-index: 1; display: flex;
+      width: 960px; min-height: 540px; border-radius: 20px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.35); overflow: hidden;
+    }
+
+    .login-brand {
+      width: 420px; flex-shrink: 0;
+      background: linear-gradient(160deg, #1a5a8a 0%, #0d4a7a 30%, #0b3a60 70%, #082a48 100%);
+      display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
+    }
+    .brand-overlay {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(64,158,255,0.2) 0%, transparent 50%),
+        radial-gradient(circle at 70% 20%, rgba(230,162,60,0.15) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .brand-content { position: relative; z-index: 2; text-align: center; padding: 40px 30px; color: #fff; }
+    .brand-icon { margin-bottom: 24px; }
+    .brand-icon svg { width: 90px; height: 90px; }
+    .brand-title { font-size: 22px; font-weight: 700; line-height: 1.5; margin: 0 0 10px; letter-spacing: 2px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    .brand-subtitle { font-size: 10px; font-weight: 400; opacity: 0.7; letter-spacing: 1.5px; margin: 0 0 32px; text-transform: uppercase; }
+    .brand-features { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+    .feature-item { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(255,255,255,0.1); border-radius: 10px; font-size: 13px; font-weight: 500; backdrop-filter: blur(4px); transition: background 0.3s; }
+    .feature-item:hover { background: rgba(255,255,255,0.18); }
+    .feature-icon { font-size: 18px; opacity: 0.9; }
+
+    .login-form-area { flex: 1; padding: 50px 44px; background: #fff; display: flex; flex-direction: column; justify-content: center; }
+    .form-header { margin-bottom: 32px; }
+    .form-header h2 { font-size: 26px; font-weight: 700; color: #1a1a1a; margin: 0 0 8px; }
+    .form-header p { font-size: 14px; color: #909399; margin: 0; }
+
+    .form-item { margin-bottom: 22px; }
+    .form-item label { display: block; margin-bottom: 6px; font-size: 14px; color: #606266; font-weight: 500; }
+    .input-wrap { position: relative; }
+    .input-wrap input {
+      width: 100%; height: 44px; padding: 0 14px 0 38px; font-size: 14px;
+      border: 1px solid #dcdfe6; border-radius: 8px; outline: none;
+      transition: border-color 0.3s; background: #fff;
+    }
+    .input-wrap input:focus { border-color: #409eff; box-shadow: 0 0 0 2px rgba(64,158,255,0.1); }
+    .input-wrap .input-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; color: #c0c4cc; pointer-events: none;
+    }
+    .input-wrap .toggle-pwd {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; color: #c0c4cc; cursor: pointer; user-select: none;
+    }
+    .input-wrap .toggle-pwd:hover { color: #409eff; }
+    .error-msg { font-size: 12px; color: #f56c6c; margin-top: 4px; min-height: 16px; }
+
+    .captcha-row { display: flex; gap: 12px; }
+    .captcha-img {
+      width: 120px; height: 44px; border-radius: 8px; background: #f5f7fa;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      border: 1px dashed #dcdfe6; flex-shrink: 0; transition: border-color 0.3s;
+      font-size: 12px; color: #909399; user-select: none; overflow: hidden;
+    }
+    .captcha-img:hover { border-color: #409eff; }
+    .captcha-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+
+    .form-options { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    .form-options label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #606266; cursor: pointer; }
+    .form-options input[type="checkbox"] { accent-color: #409eff; width: 14px; height: 14px; }
+    .form-options .apply-link { font-size: 13px; color: #409eff; text-decoration: none; cursor: pointer; }
+    .form-options .apply-link:hover { text-decoration: underline; }
+
+    .login-btn {
+      width: 100%; height: 46px; border-radius: 8px; font-size: 16px; font-weight: 600;
+      letter-spacing: 4px; cursor: pointer; border: none; color: #fff;
+      background: linear-gradient(135deg, #409eff 0%, #2d8cf0 100%);
+      transition: all 0.3s;
+    }
+    .login-btn:hover { background: linear-gradient(135deg, #5cadff 0%, #409eff 100%); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(64,158,255,0.35); }
+    .login-btn:active { transform: translateY(0); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .login-btn .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .form-footer { text-align: center; font-size: 12px; color: #c0c4cc; margin-top: 16px; }
+    .login-footer { position: absolute; bottom: 20px; z-index: 1; font-size: 12px; color: rgba(255,255,255,0.35); text-align: center; width: 100%; }
+
+    .toast {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;
+      padding: 12px 24px; border-radius: 8px; font-size: 14px; color: #fff;
+      animation: toastIn 0.3s ease; pointer-events: none;
+    }
+    .toast.success { background: #67c23a; }
+    .toast.error { background: #f56c6c; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    @media (max-width: 1000px) {
+      .login-card { width: 90%; flex-direction: column; min-height: auto; }
+      .login-brand { width: 100%; padding: 30px 20px; }
+      .brand-title { font-size: 18px; }
+      .brand-features { display: none; }
+      .login-form-area { padding: 30px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-bg">
+      <div class="bg-shape shape-1"></div>
+      <div class="bg-shape shape-2"></div>
+      <div class="bg-shape shape-3"></div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-overlay"></div>
+        <div class="brand-content">
+          <div class="brand-icon">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="8 4"/>
+              <rect x="18" y="22" width="20" height="20" rx="3" stroke="white" stroke-width="2.5" fill="none"/>
+              <rect x="42" y="22" width="20" height="20" rx="3" stroke="white" stroke-width="2.5" fill="none"/>
+              <rect x="18" y="46" width="20" height="14" rx="3" stroke="white" stroke-width="2.5" fill="none"/>
+              <rect x="42" y="46" width="20" height="14" rx="3" stroke="white" stroke-width="2.5" fill="none"/>
+              <circle cx="52" cy="32" r="4" fill="rgba(255,255,255,0.8)"/>
+              <path d="M40 60L34 68H46L40 60Z" fill="rgba(255,255,255,0.6)"/>
+            </svg>
+          </div>
+          <h1 class="brand-title">智能垃圾分类<br/>商户管理平台</h1>
+          <p class="brand-subtitle">Intelligent Waste Sorting<br/>Merchant Management Platform</p>
+          <div class="brand-features">
+            <div class="feature-item"><span class="feature-icon">📦</span><span>商品管理</span></div>
+            <div class="feature-item"><span class="feature-icon">🧾</span><span>订单核销</span></div>
+            <div class="feature-item"><span class="feature-icon">🎁</span><span>积分兑换</span></div>
+            <div class="feature-item"><span class="feature-icon">📊</span><span>数据统计</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-form-area">
+        <div class="form-header">
+          <h2>商户登录</h2>
+          <p>欢迎回来，请登录您的商户账号</p>
+        </div>
+
+        <form class="login-form" id="loginForm" autocomplete="off">
+          <div class="form-item">
+            <label>商户账号</label>
+            <div class="input-wrap">
+              <span class="input-icon">🏪</span>
+              <input type="text" id="username" placeholder="请输入商户账号" autocomplete="off" />
+            </div>
+            <div class="error-msg" id="usernameError"></div>
+          </div>
+
+          <div class="form-item">
+            <label>密码</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="password" placeholder="请输入密码" autocomplete="off" />
+              <span class="toggle-pwd" id="togglePwd" title="显示/隐藏密码">👁️</span>
+            </div>
+            <div class="error-msg" id="passwordError"></div>
+          </div>
+
+          <div class="form-item" id="captchaGroup">
+            <label>图形验证码</label>
+            <div class="captcha-row">
+              <div class="input-wrap" style="flex:1">
+                <span class="input-icon">🔑</span>
+                <input type="text" id="captchaCode" placeholder="请输入图形验证码" maxlength="4" autocomplete="off" />
+              </div>
+              <div class="captcha-img" id="captchaImg" title="看不清？点击刷新">
+                <span id="captchaPlaceholder">加载中...</span>
+              </div>
+            </div>
+            <div class="error-msg" id="captchaError"></div>
+          </div>
+
+          <div class="form-options">
+            <label><input type="checkbox" id="rememberMe" /> 记住我</label>
+            <a class="apply-link" id="applyLink" title="还没有账号？申请入驻">申请入驻</a>
+          </div>
+
+          <button type="submit" class="login-btn" id="loginBtn">登 录</button>
+          <div class="form-footer">垃圾分类商户服务平台</div>
+        </form>
+      </div>
+    </div>
+    <div class="login-footer">&copy; 2026 智能垃圾分类监管与积分运营系统 v1.0</div>
+  </div>
+
+  <!-- 申请入驻弹窗 -->
+  <div class="apply-overlay" id="applyOverlay" style="display:none;">
+    <div class="apply-modal">
+      <div class="apply-header">
+        <h3>商户入驻申请</h3>
+        <span class="apply-close" id="applyClose">✕</span>
+      </div>
+      <form id="applyForm" autocomplete="off">
+        <div class="form-item">
+          <label>商户名称 <span style="color:#f56c6c">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">🏪</span>
+            <input type="text" id="applyShopName" placeholder="请输入商户名称" autocomplete="off" />
+          </div>
+          <div class="error-msg" id="applyShopNameError"></div>
+        </div>
+        <div class="form-item">
+          <label>联系人 <span style="color:#f56c6c">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="applyContact" placeholder="请输入联系人姓名" autocomplete="off" />
+          </div>
+          <div class="error-msg" id="applyContactError"></div>
+        </div>
+        <div class="form-item">
+          <label>联系电话 <span style="color:#f56c6c">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">📞</span>
+            <input type="text" id="applyPhone" placeholder="请输入联系电话" autocomplete="off" />
+          </div>
+          <div class="error-msg" id="applyPhoneError"></div>
+        </div>
+        <div class="form-item">
+          <label>登录密码 <span style="color:#f56c6c">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="applyPassword" placeholder="请设置登录密码（至少6位）" autocomplete="off" />
+          </div>
+          <div class="error-msg" id="applyPasswordError"></div>
+        </div>
+        <div class="form-item">
+          <label>确认密码 <span style="color:#f56c6c">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="applyPassword2" placeholder="请再次输入密码" autocomplete="off" />
+          </div>
+          <div class="error-msg" id="applyPassword2Error"></div>
+        </div>
+        <button type="submit" class="login-btn" id="applyBtn">提 交 申 请</button>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    /* 申请入驻弹窗样式 */
+    .apply-overlay {
+      position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .apply-modal {
+      width: 440px; max-height: 85vh; overflow-y: auto;
+      background: #fff; border-radius: 14px; padding: 32px 36px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .apply-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;
+    }
+    .apply-header h3 { font-size: 18px; font-weight: 600; color: #1a1a1a; margin: 0; }
+    .apply-close { font-size: 18px; color: #909399; cursor: pointer; padding: 4px; transition: color 0.3s; }
+    .apply-close:hover { color: #f56c6c; }
+  </style>
+
+  <script>
+    // 自动适配 API 地址
+    var BACKEND_HOST = localStorage.getItem('backend_host') || window.location.hostname;
+    if (window.location.port === '8082' || window.location.protocol === 'file:') {
+      var API_BASE = window.location.protocol === 'file:'
+        ? 'http://127.0.0.1:8082/api/v1'
+        : '/api/v1';
+    } else {
+      var API_BASE = 'http://' + BACKEND_HOST + ':8082/api/v1';
+    }
+    console.log('API_BASE:', API_BASE);
+    var captchaToken = '';
+
+    var usernameInput = document.getElementById('username');
+    var passwordInput = document.getElementById('password');
+    var captchaInput = document.getElementById('captchaCode');
+    var captchaImg = document.getElementById('captchaImg');
+    var captchaPlaceholder = document.getElementById('captchaPlaceholder');
+    var rememberMe = document.getElementById('rememberMe');
+    var loginBtn = document.getElementById('loginBtn');
+    var togglePwd = document.getElementById('togglePwd');
+
+    // 恢复记住的用户名
+    var savedUser = localStorage.getItem('garbage_merchant_remember_user');
+    if (savedUser) { usernameInput.value = savedUser; rememberMe.checked = true; }
+
+    // 加载验证码
+    refreshCaptcha();
+
+    // 密码显隐
+    togglePwd.addEventListener('click', function() {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text'; togglePwd.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password'; togglePwd.textContent = '👁️';
+      }
+    });
+
+    captchaImg.addEventListener('click', refreshCaptcha);
+
+    function showToast(msg, type) {
+      var t = document.createElement('div');
+      t.className = 'toast ' + type; t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(function() { t.remove(); }, 2500);
+    }
+
+    function clearErrors() {
+      document.getElementById('usernameError').textContent = '';
+      document.getElementById('passwordError').textContent = '';
+      document.getElementById('captchaError').textContent = '';
+    }
+
+    function refreshCaptcha() {
+      if (captchaPlaceholder) captchaPlaceholder.textContent = '加载中...';
+      fetch(API_BASE + '/common/captcha')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.code === 200) {
+            captchaToken = data.data.captchaToken;
+            var oldImg = captchaImg.querySelector('img');
+            if (oldImg) oldImg.remove();
+            var img = document.createElement('img');
+            img.src = data.data.captchaImage;
+            captchaImg.appendChild(img);
+            if (captchaPlaceholder) captchaPlaceholder.style.display = 'none';
+            captchaInput.value = '';
+          }
+        })
+        .catch(function() { showToast('无法连接后端服务', 'error'); });
+    }
+
+    // 登录提交
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault(); clearErrors();
+      var username = usernameInput.value.trim();
+      var password = passwordInput.value;
+      var code = captchaInput.value.trim();
+      var valid = true;
+
+      if (!username) { document.getElementById('usernameError').textContent = '请输入商户账号'; valid = false; }
+      if (!password) { document.getElementById('passwordError').textContent = '请输入密码'; valid = false; }
+      if (!code) { document.getElementById('captchaError').textContent = '请输入图形验证码'; valid = false; }
+      if (!valid) return;
+
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<span class="spinner"></span>登录中...';
+
+      fetch(API_BASE + '/merchant/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password, captchaToken: captchaToken, captchaCode: code })
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          loginBtn.disabled = false;
+          loginBtn.textContent = '登 录';
+          if (data.code === 200) {
+            localStorage.setItem('merchant_token', data.data.token);
+            localStorage.setItem('merchant_refresh_token', data.data.refreshToken);
+            localStorage.setItem('merchant_info', JSON.stringify(data.data));
+            if (rememberMe.checked) {
+              localStorage.setItem('garbage_merchant_remember_user', username);
+            } else {
+              localStorage.removeItem('garbage_merchant_remember_user');
+            }
+            showToast('登录成功！欢迎 ' + data.data.username, 'success');
+          } else {
+            showToast(data.message || '登录失败', 'error');
+            refreshCaptcha();
+          }
+        })
+        .catch(function() {
+          loginBtn.disabled = false; loginBtn.textContent = '登 录';
+          showToast('网络错误，请确认后端已启动', 'error');
+          refreshCaptcha();
+        });
+    });
+
+    // 申请入驻弹窗逻辑
+    var applyOverlay = document.getElementById('applyOverlay');
+    var applyLink = document.getElementById('applyLink');
+    var applyClose = document.getElementById('applyClose');
+
+    applyLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      clearApplyErrors();
+      applyOverlay.style.display = 'flex';
+    });
+
+    applyClose.addEventListener('click', function() {
+      applyOverlay.style.display = 'none';
+    });
+
+    applyOverlay.addEventListener('click', function(e) {
+      if (e.target === applyOverlay) { applyOverlay.style.display = 'none'; }
+    });
+
+    function clearApplyErrors() {
+      ['applyShopNameError','applyContactError','applyPhoneError','applyPasswordError','applyPassword2Error'].forEach(function(id) {
+        document.getElementById(id).textContent = '';
+      });
+    }
+
+    document.getElementById('applyForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      clearApplyErrors();
+
+      var shopName = document.getElementById('applyShopName').value.trim();
+      var contact = document.getElementById('applyContact').value.trim();
+      var phone = document.getElementById('applyPhone').value.trim();
+      var password = document.getElementById('applyPassword').value;
+      var password2 = document.getElementById('applyPassword2').value;
+      var valid = true;
+
+      if (!shopName) { document.getElementById('applyShopNameError').textContent = '请输入商户名称'; valid = false; }
+      if (!contact) { document.getElementById('applyContactError').textContent = '请输入联系人姓名'; valid = false; }
+      if (!phone) { document.getElementById('applyPhoneError').textContent = '请输入联系电话'; valid = false; }
+      else if (!/^1[3-9]\d{9}$/.test(phone)) { document.getElementById('applyPhoneError').textContent = '请输入正确的手机号'; valid = false; }
+      if (!password) { document.getElementById('applyPasswordError').textContent = '请设置登录密码'; valid = false; }
+      else if (password.length < 6) { document.getElementById('applyPasswordError').textContent = '密码长度至少6位'; valid = false; }
+      if (!password2) { document.getElementById('applyPassword2Error').textContent = '请再次输入密码'; valid = false; }
+      else if (password !== password2) { document.getElementById('applyPassword2Error').textContent = '两次输入的密码不一致'; valid = false; }
+      if (!valid) return;
+
+      var applyBtn = document.getElementById('applyBtn');
+      applyBtn.disabled = true;
+      applyBtn.innerHTML = '<span class="spinner"></span>提交中...';
+
+      fetch(API_BASE + '/merchant/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shopName: shopName, contact: contact, phone: phone, password: password })
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          applyBtn.disabled = false;
+          applyBtn.textContent = '提 交 申 请';
+          if (data.code === 200) {
+            showToast('申请已提交，请等待管理员审核', 'success');
+            applyOverlay.style.display = 'none';
+            document.getElementById('applyForm').reset();
+          } else {
+            showToast(data.message || '申请提交失败', 'error');
+          }
+        })
+        .catch(function() {
+          applyBtn.disabled = false;
+          applyBtn.textContent = '提 交 申 请';
+          showToast('网络错误，请确认后端已启动', 'error');
+        });
+    });
+  </script>
+</body>
+</html>
