@@ -1,6 +1,6 @@
 """短信验证码服务"""
 import random
-from .extensions import redis_client
+from ..extensions import redis_client
 
 SMS_EXPIRE = 300       # 5分钟
 SMS_INTERVAL = 60      # 重发间隔

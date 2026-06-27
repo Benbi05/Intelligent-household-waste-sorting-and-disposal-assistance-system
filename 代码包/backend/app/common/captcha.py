@@ -3,7 +3,7 @@ import io
 import base64
 import random
 import string
-from .extensions import redis_client
+from ..extensions import redis_client
 
 try:
     from PIL import Image, ImageDraw, ImageFont

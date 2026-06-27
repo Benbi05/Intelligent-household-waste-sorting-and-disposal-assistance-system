@@ -1,4 +1,4 @@
-"""¶©µ¥ÒµÎñ£º¶Ò»»¡¢ºËÏú¡¢¿â´æ"""
+"""è®¢å•ä¸šåŠ¡ï¼šå…‘æ¢ã€æ ¸é”€ã€åº“å­˜"""
 import uuid, random, string
 from datetime import datetime, timedelta
 from ..dao.point_account_dao import PointAccountDAO
@@ -40,7 +40,7 @@ def create_order(user_id: int, commodity_id: int, quantity: int, idempotent_key:
         verifyCode=verify_code, idempotentKey=f"{user_id}:{idempotent_key}",
         orderStatus="unverified", expireTime=datetime.utcnow() + timedelta(days=30))
     PointRecordDAO.create(userId=user_id, changeAmount=-total_points, recordType="spend",
-                          reason=f"¶Ò»» {commodity.commodityName} x{quantity}", relatedId=order_id)
+                          reason=f"å…‘æ¢ {commodity.commodityName} x{quantity}", relatedId=order_id)
     db.session.commit()
     return {"ok": True, "error_code": 0, "orderId": order_id, "verifyCode": verify_code,
             "deductPoint": total_points, "expireTime": order.expireTime.isoformat()}
@@ -61,7 +61,7 @@ def cancel_order(user_id: int, order_id: str) -> dict:
     CommodityDAO.model.query.filter_by(id=order.commodityId).update(
         {"stock": CommodityDAO.model.stock + order.quantity})
     PointRecordDAO.create(userId=user_id, changeAmount=order.pointCost, recordType="refund",
-                          reason=f"¶©µ¥ {order_id} È¡ÏûÍË»Ø", relatedId=order_id)
+                          reason=f"è®¢å• {order_id} å–æ¶ˆé€€å›", relatedId=order_id)
     db.session.commit()
     return {"ok": True, "error_code": 0, "returnedPoint": order.pointCost}
 

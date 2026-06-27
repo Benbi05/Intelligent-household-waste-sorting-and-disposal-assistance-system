@@ -6,15 +6,18 @@ from flask import request, g, current_app
 from .response import fail
 
 
-def generate_token(user_id, role='resident'):
+def generate_token(user_id=None, role='resident', device_id=None):
     """生成 JWT access token（2小时有效）"""
     expires = current_app.config['JWT_ACCESS_TOKEN_EXPIRES']
     payload = {
-        'user_id': user_id,
         'role': role,
         'iat': datetime.utcnow(),
         'exp': datetime.utcnow() + expires,
     }
+    if role == 'device':
+        payload['device_id'] = device_id or user_id
+    else:
+        payload['user_id'] = user_id
     return jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
 
 
