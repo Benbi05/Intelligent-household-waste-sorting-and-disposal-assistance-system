@@ -1,6 +1,6 @@
 """短信验证码服务"""
 import random
-from .extensions import redis_client
+from ..extensions import redis_client
 
 SMS_EXPIRE = 300       # 5分钟
 SMS_INTERVAL = 60      # 重发间隔
@@ -36,7 +36,7 @@ def verify(phone: str, code: str) -> bool:
     """校验验证码，成功则删除"""
     key = f'sms:code:{phone}'
     stored = redis_client.get(key)
-    if stored and stored == code:
+    if stored and stored.decode() == code:
         redis_client.delete(key)
         return True
     return False

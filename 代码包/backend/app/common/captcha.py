@@ -3,7 +3,7 @@ import io
 import base64
 import random
 import string
-from .extensions import redis_client
+from ..extensions import redis_client
 
 try:
     from PIL import Image, ImageDraw, ImageFont
@@ -41,5 +41,5 @@ def verify(token: str, code: str) -> bool:
     stored = redis_client.get(key)
     if stored:
         redis_client.delete(key)
-        return stored == code.lower()
+        return stored.decode() == code.lower()
     return False
