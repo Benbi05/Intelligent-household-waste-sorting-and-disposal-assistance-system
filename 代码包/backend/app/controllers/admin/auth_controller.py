@@ -2,7 +2,10 @@
 from flask import Blueprint, request
 from ...common.response import success, fail
 from ...common.auth import admin_required
+<<<<<<< HEAD
 from ...common.captcha import verify as verify_captcha
+=======
+>>>>>>> afcaa8037da20aa8cdddb7e0f6b7429075c6e41f
 from ...services.auth_service import admin_login, refresh_access_token, logout
 
 bp = Blueprint('admin_auth', __name__)
@@ -12,12 +15,17 @@ def login():
     body = request.get_json(silent=True) or {}
     username = body.get('username', '')
     password = body.get('password', '')
+<<<<<<< HEAD
     captcha_token = body.get('captchaToken', '')
     captcha_code = body.get('captchaCode', '')
     if not username or not password:
         return fail(400, '请输入用户名和密码')
     if not verify_captcha(captcha_token, captcha_code):
         return fail(1003, '图形验证码错误')
+=======
+    if not username or not password:
+        return fail(400, '请输入用户名和密码')
+>>>>>>> afcaa8037da20aa8cdddb7e0f6b7429075c6e41f
     result = admin_login(username, password)
     if result['ok']:
         return success({
