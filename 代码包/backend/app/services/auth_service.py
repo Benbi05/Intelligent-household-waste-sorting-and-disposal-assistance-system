@@ -87,7 +87,7 @@ def admin_login(username: str, password: str) -> dict:
     admin = AdministratorDAO.get_one(username=username)
     if not admin or not check_password(password, admin.passwordHash):
         record_login_fail("admin", username)
-        return {"ok": False, "error_code": 5001}
+        return {"ok": False, "error_code": 5001, "message": "用户名或密码错误"}
     reset_login_fail("admin", username)
     token = generate_token(admin.userId, admin.role)
     refresh = generate_refresh_token(admin.userId, admin.role)
@@ -107,12 +107,12 @@ def merchant_login(username: str, password: str) -> dict:
     merchant = MerchantDAO.get_one(username=username)
     if not merchant:
         record_login_fail("merchant", username)
-        return {"ok": False, "error_code": 6005}
+        return {"ok": False, "error_code": 6005, "message": "用户名或密码错误"}
     if not check_password(password, merchant.passwordHash):
         record_login_fail("merchant", username)
-        return {"ok": False, "error_code": 6005}
+        return {"ok": False, "error_code": 6005, "message": "用户名或密码错误"}
     if merchant.status == "pending":
-        return {"ok": False, "error_code": 6003}
+        return {"ok": False, "error_code": 6003, "message": "商家账号未通过审核"}
     if merchant.status == "disabled":
         return {"ok": False, "error_code": 6004}
     reset_login_fail("merchant", username)
