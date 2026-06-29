@@ -44,6 +44,7 @@
         </template>
         <el-menu-item index="/rules">当前规则</el-menu-item>
         <el-menu-item index="/rules/history">历史版本</el-menu-item>
+        <el-menu-item index="/categories">品类管理</el-menu-item>
       </el-sub-menu>
 
       <el-menu-item index="/statistics">

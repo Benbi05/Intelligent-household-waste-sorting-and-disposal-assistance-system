@@ -52,6 +52,12 @@ const router = createRouter({
           meta: { title: '规则历史' },
         },
         {
+          path: 'categories',
+          name: 'CategoryManage',
+          component: () => import('@/views/point/CategoryManage.vue'),
+          meta: { title: '品类管理' },
+        },
+        {
           path: 'statistics',
           name: 'Statistics',
           component: () => import('@/views/statistics/StatisticsView.vue'),
