@@ -22,3 +22,6 @@ class Device(db.Model):
     lastOnlineTime = db.Column(db.DateTime, default=datetime.utcnow)
     totalDeliveryCount = db.Column(db.Integer, default=0)
     todayDeliveryCount = db.Column(db.Integer, default=0)
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
