@@ -1,1 +1,11 @@
+import request from './request'
 
+/** 获取商家列表 */
+export function getMerchantList(params = {}) {
+  return request.get('/admin/merchants', { params })
+}
+
+/** 审核商家 */
+export function auditMerchant(merchantId, data) {
+  return request.put(`/admin/merchants/${merchantId}/audit`, data)
+}

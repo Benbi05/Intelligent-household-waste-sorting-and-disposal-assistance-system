@@ -1,24 +1,17 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
+// 直连后端 API 地址
+const API_BASE = 'http://10.242.4.144:8082/api/v1'
+
 const service = axios.create({
+  baseURL: API_BASE,
   timeout: 15000,
 })
 
-// 请求拦截器 — 动态拼 API 地址 + 附加 X-Token
+// 请求拦截器 — 附加 X-Token
 service.interceptors.request.use(
   (config) => {
-    // 每次请求时动态检测 API 地址
-    const host = localStorage.getItem('backend_host')
-    if (host) {
-      config.url = 'http://' + host + ':8082/api/v1' + config.url
-    } else if (window.location.protocol === 'file:') {
-      config.url = 'http://127.0.0.1:8082/api/v1' + config.url
-    } else if (window.location.port === '8084' || window.location.port === '5173') {
-      config.url = 'http://' + window.location.hostname + ':8082/api/v1' + config.url
-    }
-    // 否则就是 Flask 同源提供，用相对路径，不处理
-
     const token = localStorage.getItem('admin_token')
     if (token) {
       config.headers['X-Token'] = token
@@ -71,12 +64,11 @@ service.interceptors.response.use(
           config._retry = true
 
           try {
-            const host = localStorage.getItem('backend_host')
-            let base = ''
-            if (host) base = 'http://' + host + ':8082/api/v1'
-            const res = await axios.post(base + '/admin/refresh-token', {}, {
-              headers: { 'X-Refresh-Token': refreshToken },
-            })
+            const res = await axios.post(
+              API_BASE + '/admin/refresh-token',
+              {},
+              { headers: { 'X-Refresh-Token': refreshToken } }
+            )
             if (res.data.code === 200) {
               const { token, refreshToken: newRefresh } = res.data.data
               localStorage.setItem('admin_token', token)
