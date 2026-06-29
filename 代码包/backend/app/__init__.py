@@ -15,14 +15,22 @@ def create_app(env='development'):
     register_error_handlers(app)
     register_blueprints(app)
 
-    # 提供前端静态页面（开发阶段避免 CORS 问题）
-    _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # 提供前端静态页面
+    _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+    # 管理后台（Vue 构建产物）
     @app.route('/admin')
-    @app.route('/admin/login')
-    def serve_admin_login():
-        return send_file(os.path.join(_ROOT, 'frontend', 'admin-web', 'login.html'))
+    @app.route('/admin/<path:subpath>')
+    def serve_admin(subpath=''):
+        return send_file(os.path.join(_BASE, 'admin_dist', 'index.html'))
 
+    # 静态资源（JS/CSS/图片）
+    @app.route('/assets/<path:filename>')
+    def serve_assets(filename):
+        return send_file(os.path.join(_BASE, 'admin_dist', 'assets', filename))
+
+    # 商家登录（纯 HTML）
+    _ROOT = os.path.dirname(_BASE)
     @app.route('/merchant')
     @app.route('/merchant/login')
     def serve_merchant_login():
