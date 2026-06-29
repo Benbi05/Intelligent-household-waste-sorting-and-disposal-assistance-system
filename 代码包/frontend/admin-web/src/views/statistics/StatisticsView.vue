@@ -139,7 +139,9 @@ async function fetchDelivery() {
 async function handleExport() {
   try {
     const res = await exportData()
-    ElMessage.success('导出任务已创建：' + res.data.exportUrl)
+    const url = res.data.exportUrl
+    ElMessage.success('导出成功，正在下载...')
+    window.open(url, '_blank')
   } catch { /* handled */ }
 }
 

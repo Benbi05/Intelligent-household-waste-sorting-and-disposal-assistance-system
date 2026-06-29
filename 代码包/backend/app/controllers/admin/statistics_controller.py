@@ -1,7 +1,7 @@
 """数据统计 - API328~330"""
-from io import BytesIO
+import os, uuid, tempfile
 from flask import Blueprint, request, send_file
-from ...common.response import success
+from ...common.response import success, fail
 from ...common.auth import admin_required
 from ...common.log_helper import log
 from ...services.statistics_service import get_overview
@@ -15,6 +15,15 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
 
 bp = Blueprint("admin_statistics", __name__)
+
+HEADER_FONT = Font(bold=True, color="FFFFFF")
+HEADER_FILL = PatternFill(start_color="2E7D32", end_color="2E7D32", fill_type="solid")
+HEADER_ALIGN = Alignment(horizontal="center")
+
+def _write_header(ws, headers):
+    for col, h in enumerate(headers, 1):
+        c = ws.cell(row=1, column=col, value=h)
+        c.font = HEADER_FONT; c.fill = HEADER_FILL; c.alignment = HEADER_ALIGN
 
 @bp.route("/statistics/overview", methods=["GET"])
 @admin_required
@@ -50,60 +59,38 @@ def delivery_stats():
 def export_data():
     wb = Workbook()
 
-    # ── Sheet 1: 投放记录 ──
-    ws1 = wb.active
-    ws1.title = "投放记录"
-    header_font = Font(bold=True, color="FFFFFF")
-    header_fill = PatternFill(start_color="2E7D32", end_color="2E7D32", fill_type="solid")
-    headers = ["记录ID", "设备ID", "用户ID", "垃圾品类", "大类", "是否正确", "积分变动", "投放时间"]
-    for col, h in enumerate(headers, 1):
-        cell = ws1.cell(row=1, column=col, value=h)
-        cell.font = header_font; cell.fill = header_fill; cell.alignment = Alignment(horizontal="center")
-
+    # Sheet 1: 投放记录
+    ws1 = wb.active; ws1.title = "投放记录"
+    _write_header(ws1, ["记录ID","设备ID","用户ID","垃圾品类","大类","是否正确","积分变动","投放时间"])
     q = DeliveryRecord.query.order_by(DeliveryRecord.deliveryTime.desc()).limit(1000)
-    start = request.args.get("startTime", "")
+    start = request.args.get("startTime","")
     if start:
         try: q = q.filter(DeliveryRecord.deliveryTime >= datetime.fromisoformat(start))
         except ValueError: pass
-    end = request.args.get("endTime", "")
-    if end:
-        try: q = q.filter(DeliveryRecord.deliveryTime <= datetime.fromisoformat(end))
-        except ValueError: pass
-
     for row, r in enumerate(q.all(), 2):
         ws1.cell(row=row, column=1, value=r.recordId)
         ws1.cell(row=row, column=2, value=r.deviceId)
         ws1.cell(row=row, column=3, value=r.userId)
         ws1.cell(row=row, column=4, value=r.garbageCategory)
         ws1.cell(row=row, column=5, value=r.parentType)
-        ws1.cell(row=row, column=6, value="是" if r.isCorrect else "否")
+        ws1.cell(row=row, column=6, value="yes" if r.isCorrect else "no")
         ws1.cell(row=row, column=7, value=r.pointChange)
         ws1.cell(row=row, column=8, value=r.deliveryTime.isoformat() if r.deliveryTime else "")
 
-    # ── Sheet 2: 用户列表 ──
+    # Sheet 2: 用户列表
     ws2 = wb.create_sheet("用户列表")
-    headers2 = ["用户ID", "昵称", "手机号", "状态", "注册时间"]
-    for col, h in enumerate(headers2, 1):
-        cell = ws2.cell(row=1, column=col, value=h)
-        cell.font = header_font; cell.fill = header_fill; cell.alignment = Alignment(horizontal="center")
-
-    users = User.query.filter_by(userType="resident").order_by(User.id.desc()).limit(1000).all()
-    for row, u in enumerate(users, 2):
+    _write_header(ws2, ["用户ID","昵称","手机号","状态","注册时间"])
+    for row, u in enumerate(User.query.filter_by(userType="resident").order_by(User.id.desc()).limit(1000).all(), 2):
         ws2.cell(row=row, column=1, value=u.id)
         ws2.cell(row=row, column=2, value=u.nickName)
         ws2.cell(row=row, column=3, value=u.phone)
         ws2.cell(row=row, column=4, value=u.status)
         ws2.cell(row=row, column=5, value=u.createTime.isoformat() if u.createTime else "")
 
-    # ── Sheet 3: 设备列表 ──
+    # Sheet 3: 设备列表
     ws3 = wb.create_sheet("设备列表")
-    headers3 = ["设备ID", "设备名称", "类型", "区域", "在线状态", "满溢度", "最后在线"]
-    for col, h in enumerate(headers3, 1):
-        cell = ws3.cell(row=1, column=col, value=h)
-        cell.font = header_font; cell.fill = header_fill; cell.alignment = Alignment(horizontal="center")
-
-    devices = Device.query.order_by(Device.lastOnlineTime.desc()).limit(1000).all()
-    for row, d in enumerate(devices, 2):
+    _write_header(ws3, ["设备ID","设备名称","类型","区域","在线状态","满溢度","最后在线"])
+    for row, d in enumerate(Device.query.order_by(Device.lastOnlineTime.desc()).limit(1000).all(), 2):
         ws3.cell(row=row, column=1, value=d.deviceId)
         ws3.cell(row=row, column=2, value=d.deviceName)
         ws3.cell(row=row, column=3, value=d.boxCategory)
@@ -112,10 +99,17 @@ def export_data():
         ws3.cell(row=row, column=6, value=f"{d.fullRate:.0%}" if d.fullRate else "0%")
         ws3.cell(row=row, column=7, value=d.lastOnlineTime.isoformat() if d.lastOnlineTime else "")
 
-    # 输出
-    output = BytesIO()
-    wb.save(output)
-    output.seek(0)
+    # 保存临时文件，返回下载 URL
+    filename = f"export_{uuid.uuid4().hex[:8]}.xlsx"
+    filepath = os.path.join(tempfile.gettempdir(), filename)
+    wb.save(filepath)
     log('statistics_export', None, '导出统计报表')
-    return send_file(output, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                     as_attachment=True, download_name="数据统计报表.xlsx")
+    return success({"exportUrl": f"/api/v1/admin/statistics/download/{filename}"})
+
+@bp.route("/statistics/download/<filename>", methods=["GET"])
+def download_file(filename):
+    filepath = os.path.join(tempfile.gettempdir(), filename)
+    if not os.path.exists(filepath):
+        return fail(404, "文件不存在或已过期")
+    return send_file(filepath, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                     as_attachment=True, download_name="report.xlsx")
