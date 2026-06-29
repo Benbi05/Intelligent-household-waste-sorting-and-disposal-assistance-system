@@ -3,6 +3,7 @@ from flask import Blueprint, request
 from ...common.response import success, fail, paginated
 from ...common.auth import admin_required
 from ...common.validators import get_pagination
+from ...common.log_helper import log
 from ...services.user_service import get_user_list, set_user_status, get_user_info
 
 bp = Blueprint('admin_user', __name__)
@@ -31,4 +32,5 @@ def update_user_status(user_id):
     if status not in ('enable', 'disable'):
         return fail(400, '状态值无效')
     set_user_status(user_id, status)
+    log('user_status', user_id, f'用户 {user_id} 状态改为 {status}')
     return success(None, '状态更新成功')
