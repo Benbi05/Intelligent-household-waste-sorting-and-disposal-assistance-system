@@ -1,37 +1,31 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
-// 直连后端 API 地址
-const API_BASE = 'http://10.242.4.144:8082/api/v1'
+const service = axios.create({ timeout: 15000 })
 
-const service = axios.create({
-  baseURL: API_BASE,
-  timeout: 15000,
-})
+// 请求拦截器 — 动态检测 API 地址 + 附加 X-Token
+service.interceptors.request.use((config) => {
+  const host = localStorage.getItem('backend_host')
+  if (host) {
+    config.url = 'http://' + host + ':8082/api/v1' + config.url
+  } else if (window.location.protocol === 'file:') {
+    config.url = 'http://127.0.0.1:8082/api/v1' + config.url
+  } else if (window.location.port === '8084' || window.location.port === '5173') {
+    config.url = 'http://' + window.location.hostname + ':8082/api/v1' + config.url
+  }
 
-// 请求拦截器 — 附加 X-Token
-service.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('admin_token')
-    if (token) {
-      config.headers['X-Token'] = token
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
+  const token = localStorage.getItem('admin_token')
+  if (token) config.headers['X-Token'] = token
+  return config
+}, (error) => Promise.reject(error))
 
-// 响应拦截器 — 统一错误处理 & 401 自动刷新
+// 响应拦截器
 let isRefreshing = false
 let refreshSubscribers = []
 
 function onRefreshed(newToken) {
   refreshSubscribers.forEach((cb) => cb(newToken))
   refreshSubscribers = []
-}
-
-function addRefreshSubscriber(cb) {
-  refreshSubscribers.push(cb)
 }
 
 service.interceptors.response.use(
@@ -46,29 +40,26 @@ service.interceptors.response.use(
   async (error) => {
     if (error.response) {
       const { status, config } = error.response
-
       if (status === 401 && !config._retry) {
         const refreshToken = localStorage.getItem('admin_refresh_token')
         if (refreshToken) {
           if (isRefreshing) {
             return new Promise((resolve) => {
-              addRefreshSubscriber((newToken) => {
+              refreshSubscribers.push((newToken) => {
                 config.headers['X-Token'] = newToken
                 config._retry = true
                 resolve(service(config))
               })
             })
           }
-
           isRefreshing = true
           config._retry = true
-
           try {
-            const res = await axios.post(
-              API_BASE + '/admin/refresh-token',
-              {},
-              { headers: { 'X-Refresh-Token': refreshToken } }
-            )
+            const host = localStorage.getItem('backend_host')
+            let base = host ? 'http://' + host + ':8082/api/v1' : '/api/v1'
+            const res = await axios.post(base + '/admin/refresh-token', {}, {
+              headers: { 'X-Refresh-Token': refreshToken },
+            })
             if (res.data.code === 200) {
               const { token, refreshToken: newRefresh } = res.data.data
               localStorage.setItem('admin_token', token)
@@ -77,20 +68,15 @@ service.interceptors.response.use(
               config.headers['X-Token'] = token
               return service(config)
             }
-          } catch (e) {
-            // refresh failed
-          }
-
+          } catch (e) {}
           isRefreshing = false
         }
-
         localStorage.removeItem('admin_token')
         localStorage.removeItem('admin_refresh_token')
         localStorage.removeItem('admin_info')
         window.location.href = '/login'
         return Promise.reject(error)
       }
-
       if (status === 403) ElMessage.error('无权限访问')
       else if (status >= 500) ElMessage.error('服务器错误')
     } else if (error.message && error.message.includes('timeout')) {
