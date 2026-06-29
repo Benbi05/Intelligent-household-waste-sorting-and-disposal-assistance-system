@@ -19,7 +19,7 @@ def check_password(password: str, hashed: str) -> bool:
 
 
 LOGIN_MAX_FAIL = 5
-LOGIN_LOCK_MINUTES = 15
+LOGIN_LOCK_SECONDS = 10
 
 
 def check_login_lock(user_type: str, username: str) -> tuple:
@@ -27,14 +27,14 @@ def check_login_lock(user_type: str, username: str) -> tuple:
     fail_count = int(redis_client.get(key) or 0)
     if fail_count >= LOGIN_MAX_FAIL:
         ttl = redis_client.ttl(key)
-        return True, f"账号已锁定，请 {ttl // 60 + 1} 分钟后重试"
+        return True, f"账号已锁定，请 {ttl} 秒后重试"
     return False, ""
 
 
 def record_login_fail(user_type: str, username: str):
     key = f"login:lock:{user_type}:{username}"
     redis_client.incr(key)
-    redis_client.expire(key, LOGIN_LOCK_MINUTES * 60)
+    redis_client.expire(key, LOGIN_LOCK_SECONDS)
 
 
 def reset_login_fail(user_type: str, username: str):
