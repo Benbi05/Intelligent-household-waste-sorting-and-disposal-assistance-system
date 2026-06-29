@@ -23,6 +23,11 @@ def create_app(env='development'):
     def serve_admin_login():
         return send_file(os.path.join(_ROOT, 'frontend', 'admin-web', 'login.html'))
 
+    @app.route('/merchant')
+    @app.route('/merchant/login')
+    def serve_merchant_login():
+        return send_file(os.path.join(_ROOT, 'frontend', 'merchant-web', 'login.html'))
+
     return app
 
 

@@ -30,7 +30,9 @@ def get_point_records(user_id: int, page=1, size=10, record_type="") -> tuple:
 def settle_points(user_id: int, garbage_category: str, is_correct: bool, delivery_id: str) -> dict:
     category = GarbageCategoryDAO.get_one(categoryName=garbage_category)
     if not category:
-        return {"isCorrect": is_correct, "pointChange": 0, "voiceText": "识别完成"}
+        account = PointAccountDAO.get_one(userId=user_id)
+        return {"isCorrect": is_correct, "pointChange": 0,
+                "voiceText": "识别完成", "pointBalance": account.balance if account else 0}
     account = PointAccountDAO.get_one(userId=user_id)
     if not account:
         account = PointAccountDAO.create(userId=user_id, balance=0)

@@ -27,6 +27,7 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    REDIS_URL = 'redis://127.0.0.1:6379/0'
 
 
 config_map = {
