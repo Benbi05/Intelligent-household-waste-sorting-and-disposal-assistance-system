@@ -11,7 +11,7 @@ service.interceptors.request.use((config) => {
   } else if (window.location.protocol === 'file:') {
     config.url = 'http://127.0.0.1:8082/api/v1' + config.url
   } else if (window.location.port === '8084' || window.location.port === '5173') {
-    config.url = 'http://' + window.location.hostname + ':8082/api/v1' + config.url
+    config.url = 'http://127.0.0.1:8082/api/v1' + config.url
   }
 
   const token = localStorage.getItem('admin_token')
