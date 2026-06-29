@@ -2,6 +2,7 @@
 from flask import Blueprint, request
 from ...common.response import success, fail
 from ...common.auth import admin_required
+from ...common.log_helper import log
 from ...models.area import Area
 from ...extensions import db
 
@@ -29,6 +30,7 @@ def create_area():
     area = Area(areaName=name, description=body.get('description', ''))
     db.session.add(area)
     db.session.commit()
+    log('area_create', area.id, f'创建区域: {name}')
     return success({'areaId': area.id}, '创建成功')
 
 @bp.route('/areas/<int:area_id>', methods=['PUT'])
@@ -41,6 +43,7 @@ def update_area(area_id):
     if 'areaName' in body: area.areaName = body['areaName']
     if 'description' in body: area.description = body['description']
     db.session.commit()
+    log('area_update', area_id, f'修改区域: {area.areaName}')
     return success(None, '更新成功')
 
 @bp.route('/areas/<int:area_id>', methods=['DELETE'])
@@ -50,4 +53,5 @@ def delete_area(area_id):
     if not area: return fail(404, '区域不存在')
     db.session.delete(area)
     db.session.commit()
+    log('area_delete', area_id, f'删除区域: {area.areaName}')
     return success(None, '删除成功')

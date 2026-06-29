@@ -77,8 +77,14 @@ service.interceptors.response.use(
         window.location.href = '/login'
         return Promise.reject(error)
       }
-      if (status === 403) ElMessage.error('无权限访问')
-      else if (status >= 500) ElMessage.error('服务器错误')
+      if (status === 400) {
+        const msg = error.response.data?.message || '请求参数错误'
+        ElMessage.error(msg)
+      } else if (status === 403) {
+        ElMessage.error('无权限访问')
+      } else if (status >= 500) {
+        ElMessage.error('服务器错误')
+      }
     } else if (error.message && error.message.includes('timeout')) {
       ElMessage.error('请求超时')
     } else {
