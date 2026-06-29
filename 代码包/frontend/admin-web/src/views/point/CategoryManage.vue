@@ -10,22 +10,22 @@
 
       <SearchBar :placeholder="'搜索品类名称'" @search="onSearch" />
 
-      <DataTable
-        :columns="columns"
-        :data="list"
-        :loading="loading"
-        :total="total"
-        :page="page"
-        :size="size"
-        @page-change="onPageChange"
-      >
-        <template #parentType="{ row }">
-          <el-tag :type="tagType(row.parentType)">{{ row.parentTypeName }}</el-tag>
-        </template>
-        <template #status="{ row }">
-          <StatusTag :status="row.status" />
-        </template>
-        <template #action="{ row }">
+      <DataTable :data="list" :loading="loading" action-width="160">
+        <el-table-column prop="categoryId" label="编号" width="80" />
+        <el-table-column prop="categoryName" label="品类名称" min-width="120" />
+        <el-table-column label="大类" width="90">
+          <template #default="{ row }">
+            <el-tag :type="tagType(row.parentType)" size="small">{{ row.parentTypeName }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="rewardPoint" label="奖励" width="70" />
+        <el-table-column prop="penaltyPoint" label="扣除" width="70" />
+        <el-table-column label="状态" width="70">
+          <template #default="{ row }">
+            <StatusTag :status="row.status" />
+          </template>
+        </el-table-column>
+        <template #actions="{ row }">
           <el-button size="small" @click="openDialog(row)">编辑</el-button>
           <el-popconfirm title="确定删除？" @confirm="handleDelete(row.categoryId)">
             <template #reference>
@@ -34,6 +34,8 @@
           </el-popconfirm>
         </template>
       </DataTable>
+
+      <Pagination :total="total" :page="page" :size="size" @change="onPageChange" />
     </el-card>
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑品类' : '新增品类'" width="500px">
@@ -76,19 +78,10 @@ import { ElMessage } from 'element-plus'
 import { getCategories, createCategory, updateCategory, deleteCategory } from '@/api/category'
 import DataTable from '@/components/table/DataTable.vue'
 import SearchBar from '@/components/search-bar/SearchBar.vue'
+import Pagination from '@/components/pagination/Pagination.vue'
 import StatusTag from '@/components/status-tag/StatusTag.vue'
 
 const typeMap = { recyclable: '可回收物', kitchen: '厨余垃圾', hazardous: '有害垃圾', other: '其他垃圾' }
-
-const columns = [
-  { prop: 'categoryId', label: '编号', width: 80 },
-  { prop: 'categoryName', label: '品类名称' },
-  { prop: 'parentType', label: '大类', width: 100, slot: 'parentType' },
-  { prop: 'rewardPoint', label: '奖励', width: 80 },
-  { prop: 'penaltyPoint', label: '扣除', width: 80 },
-  { prop: 'status', label: '状态', width: 80, slot: 'status' },
-  { label: '操作', width: 160, slot: 'action' },
-]
 
 const list = ref([])
 const total = ref(0)
@@ -109,8 +102,6 @@ const form = reactive({
 const rules = {
   categoryName: [{ required: true, message: '请输入品类名称' }],
   parentType: [{ required: true }],
-  rewardPoint: [{ required: true }],
-  penaltyPoint: [{ required: true }],
 }
 
 function tagType(type) {
