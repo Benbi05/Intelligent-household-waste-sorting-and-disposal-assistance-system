@@ -46,10 +46,16 @@ def register_blueprints(app):
     from .controllers.device.auth_controller import bp as device_auth_bp
     from .controllers.device.status_controller import bp as device_status_bp
 
-    # admin (3) — device/rule/model/statistics/merchant/report/role/log 待合作
+    # admin (9)
     from .controllers.admin.auth_controller import bp as admin_auth_bp
     from .controllers.admin.area_controller import bp as admin_area_bp
     from .controllers.admin.user_controller import bp as admin_user_bp
+    from .controllers.admin.role_controller import bp as admin_role_bp
+    from .controllers.admin.log_controller import bp as admin_log_bp
+    from .controllers.admin.device_controller import bp as admin_device_bp
+    from .controllers.admin.rule_controller import bp as admin_rule_bp
+    from .controllers.admin.statistics_controller import bp as admin_statistics_bp
+    from .controllers.admin.merchant_controller import bp as admin_merchant_bp
 
     # merchant (2) — commodity/order/report/statistics/sub_account/apply 待合作
     from .controllers.merchant.auth_controller import bp as merchant_auth_bp
@@ -70,6 +76,12 @@ def register_blueprints(app):
     app.register_blueprint(admin_auth_bp, url_prefix='/api/v1/admin')
     app.register_blueprint(admin_area_bp, url_prefix='/api/v1/admin')
     app.register_blueprint(admin_user_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(admin_role_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(admin_log_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(admin_device_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(admin_rule_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(admin_statistics_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(admin_merchant_bp, url_prefix='/api/v1/admin')
 
     app.register_blueprint(merchant_auth_bp, url_prefix='/api/v1/merchant')
     app.register_blueprint(merchant_info_bp, url_prefix='/api/v1/merchant')
