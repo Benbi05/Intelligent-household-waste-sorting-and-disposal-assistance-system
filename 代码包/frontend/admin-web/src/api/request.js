@@ -1,26 +1,24 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
-// 自动适配 API 地址
-const BACKEND_HOST = localStorage.getItem('backend_host') || window.location.hostname
-
-function getBaseURL() {
-  // 同源访问（通过 Flask 提供页面）
-  if (window.location.port !== '8084' && window.location.protocol !== 'file:') {
-    return '/api/v1'
-  }
-  // 前端单独跑，指向后端
-  return 'http://' + BACKEND_HOST + ':8082/api/v1'
-}
-
 const service = axios.create({
-  baseURL: getBaseURL(),
   timeout: 15000,
 })
 
-// 请求拦截器 — 附加 X-Token
+// 请求拦截器 — 动态拼 API 地址 + 附加 X-Token
 service.interceptors.request.use(
   (config) => {
+    // 每次请求时动态检测 API 地址
+    const host = localStorage.getItem('backend_host')
+    if (host) {
+      config.url = 'http://' + host + ':8082/api/v1' + config.url
+    } else if (window.location.protocol === 'file:') {
+      config.url = 'http://127.0.0.1:8082/api/v1' + config.url
+    } else if (window.location.port === '8084' || window.location.port === '5173') {
+      config.url = 'http://' + window.location.hostname + ':8082/api/v1' + config.url
+    }
+    // 否则就是 Flask 同源提供，用相对路径，不处理
+
     const token = localStorage.getItem('admin_token')
     if (token) {
       config.headers['X-Token'] = token
@@ -73,11 +71,12 @@ service.interceptors.response.use(
           config._retry = true
 
           try {
-            const res = await axios.post(
-              getBaseURL() + '/admin/refresh-token',
-              {},
-              { headers: { 'X-Refresh-Token': refreshToken } }
-            )
+            const host = localStorage.getItem('backend_host')
+            let base = ''
+            if (host) base = 'http://' + host + ':8082/api/v1'
+            const res = await axios.post(base + '/admin/refresh-token', {}, {
+              headers: { 'X-Refresh-Token': refreshToken },
+            })
             if (res.data.code === 200) {
               const { token, refreshToken: newRefresh } = res.data.data
               localStorage.setItem('admin_token', token)
@@ -87,13 +86,12 @@ service.interceptors.response.use(
               return service(config)
             }
           } catch (e) {
-            // 刷新失败，跳登录
+            // refresh failed
           }
 
           isRefreshing = false
         }
 
-        // 刷新失败或没有 refresh token，清空跳登录
         localStorage.removeItem('admin_token')
         localStorage.removeItem('admin_refresh_token')
         localStorage.removeItem('admin_info')
@@ -101,13 +99,10 @@ service.interceptors.response.use(
         return Promise.reject(error)
       }
 
-      if (status === 403) {
-        ElMessage.error('无权限访问')
-      } else if (status >= 500) {
-        ElMessage.error('服务器错误')
-      }
+      if (status === 403) ElMessage.error('无权限访问')
+      else if (status >= 500) ElMessage.error('服务器错误')
     } else if (error.message && error.message.includes('timeout')) {
-      ElMessage.error('请求超时，请检查网络')
+      ElMessage.error('请求超时')
     } else {
       ElMessage.error('网络错误，请确认后端已启动')
     }
