@@ -69,9 +69,12 @@ async function exportReport(key) {
     const res = await request.get(urls[key] || '/admin/statistics/export')
     if (res.data?.downloadUrl) {
       ElMessage.success('报表生成成功，正在下载')
-      window.open(res.data.downloadUrl, '_blank')
-    } else {
-      ElMessage.success('报表已生成')
+      const a = document.createElement('a')
+      a.href = res.data.downloadUrl
+      a.download = (res.data.reportName || '报表') + '.xlsx'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
     }
   } catch { ElMessage.error('生成失败') }
   loadingKey.value = ''
