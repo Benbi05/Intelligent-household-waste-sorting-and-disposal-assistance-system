@@ -52,7 +52,7 @@ const userStore = useUserStore()
 const appStore = useAppStore()
 
 const roleLabel = computed(() => {
-  const map = { super_admin: '超级管理员', admin: '管理员' }
+  const map = { super_admin: '物业经理', admin: '城管监管' }
   return map[userStore.role] || userStore.role
 })
 

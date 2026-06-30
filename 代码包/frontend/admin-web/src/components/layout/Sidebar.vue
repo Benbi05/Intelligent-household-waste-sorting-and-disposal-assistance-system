@@ -22,22 +22,22 @@
         <template #title>仪表盘</template>
       </el-menu-item>
 
-      <el-menu-item index="/users">
+      <el-menu-item index="/users" v-if="isAdmin">
         <el-icon><User /></el-icon>
         <template #title>用户管理</template>
       </el-menu-item>
 
-      <el-menu-item index="/devices">
+      <el-menu-item index="/devices" v-if="isAdmin">
         <el-icon><Monitor /></el-icon>
         <template #title>设备管理</template>
       </el-menu-item>
 
-      <el-menu-item index="/merchants">
+      <el-menu-item index="/merchants" v-if="isAdmin">
         <el-icon><Shop /></el-icon>
         <template #title>商家审核</template>
       </el-menu-item>
 
-      <el-sub-menu index="rules-group">
+      <el-sub-menu index="rules-group" v-if="isAdmin">
         <template #title>
           <el-icon><Coin /></el-icon>
           <span>积分规则</span>
@@ -52,7 +52,7 @@
         <template #title>数据统计</template>
       </el-menu-item>
 
-      <el-sub-menu index="system-group">
+      <el-sub-menu index="system-group" v-if="isAdmin">
         <template #title>
           <el-icon><Setting /></el-icon>
           <span>系统管理</span>
@@ -73,12 +73,15 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { DataLine, User, Monitor, Shop, Coin, TrendCharts, Setting } from '@element-plus/icons-vue'
+import { useUserStore } from '@/store/user'
 
 defineProps({
   collapsed: { type: Boolean, default: false },
 })
 
 const route = useRoute()
+const userStore = useUserStore()
+const isAdmin = computed(() => userStore.role === 'super_admin')
 const activeMenu = computed(() => '/' + route.path.split('/').slice(1, 3).join('/'))
 </script>
 

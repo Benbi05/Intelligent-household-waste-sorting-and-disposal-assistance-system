@@ -25,37 +25,37 @@ const router = createRouter({
           path: 'users',
           name: 'UserList',
           component: () => import('@/views/user/UserList.vue'),
-          meta: { title: '用户管理' },
+          meta: { title: '用户管理', requiresAdmin: true },
         },
         {
           path: 'users/:userId',
           name: 'UserDetail',
           component: () => import('@/views/user/UserDetail.vue'),
-          meta: { title: '用户详情' },
+          meta: { title: '用户详情', requiresAdmin: true },
         },
         {
           path: 'devices',
           name: 'DeviceList',
           component: () => import('@/views/device/DeviceList.vue'),
-          meta: { title: '设备管理' },
+          meta: { title: '设备管理', requiresAdmin: true },
         },
         {
           path: 'rules',
           name: 'PointRule',
           component: () => import('@/views/point/PointRule.vue'),
-          meta: { title: '积分规则' },
+          meta: { title: '积分规则', requiresAdmin: true },
         },
         {
           path: 'rules/history',
           name: 'RuleHistory',
           component: () => import('@/views/point/RuleHistory.vue'),
-          meta: { title: '规则历史' },
+          meta: { title: '规则历史', requiresAdmin: true },
         },
         {
           path: 'categories',
           name: 'CategoryManage',
           component: () => import('@/views/point/CategoryManage.vue'),
-          meta: { title: '品类管理' },
+          meta: { title: '品类管理', requiresAdmin: true },
         },
         {
           path: 'statistics',
@@ -67,25 +67,25 @@ const router = createRouter({
           path: 'merchants',
           name: 'MerchantAudit',
           component: () => import('@/views/merchant/MerchantAudit.vue'),
-          meta: { title: '商家审核' },
+          meta: { title: '商家审核', requiresAdmin: true },
         },
         {
           path: 'logs',
           name: 'OperationLog',
           component: () => import('@/views/system/OperationLog.vue'),
-          meta: { title: '操作日志' },
+          meta: { title: '操作日志', requiresAdmin: true },
         },
         {
           path: 'system/areas',
           name: 'AreaManage',
           component: () => import('@/views/system/AreaManage.vue'),
-          meta: { title: '区域管理' },
+          meta: { title: '区域管理', requiresAdmin: true },
         },
         {
           path: 'system/roles',
           name: 'RoleManage',
           component: () => import('@/views/system/RoleManage.vue'),
-          meta: { title: '角色管理' },
+          meta: { title: '角色管理', requiresAdmin: true },
         },
       ],
     },
@@ -99,10 +99,15 @@ const router = createRouter({
 // 鉴权守卫
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('admin_token')
+  const info = JSON.parse(localStorage.getItem('admin_info') || 'null')
+  const role = info?.role || ''
 
   if (to.meta.requiresAuth !== false && !token) {
     next({ name: 'Login', query: { redirect: to.fullPath } })
   } else if (to.name === 'Login' && token) {
+    next({ name: 'Dashboard' })
+  } else if (to.meta.requiresAdmin && role !== 'super_admin') {
+    // 城管只能看仪表盘和数据统计，其余页面跳回首页
     next({ name: 'Dashboard' })
   } else {
     next()
