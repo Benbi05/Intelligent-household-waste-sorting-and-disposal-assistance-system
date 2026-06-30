@@ -94,6 +94,35 @@ def daily_trend():
         trend.append({'date': d_start.strftime('%m/%d'), 'total': total, 'correct': correct, 'rate': rate})
     return success(trend)
 
+@bp.route("/statistics/category-breakdown", methods=["GET"])
+@admin_required
+def category_breakdown():
+    """四大类垃圾分类正确率与分布"""
+    types = [('recyclable','可回收物'), ('kitchen','厨余垃圾'), ('hazardous','有害垃圾'), ('other','其他垃圾')]
+    result = []
+    for pt, pn in types:
+        total = DeliveryRecord.query.filter_by(parentType=pt).count()
+        correct = DeliveryRecord.query.filter_by(parentType=pt, isCorrect=True).count()
+        rate = round(correct/total*100, 1) if total > 0 else 0
+        result.append({'type': pt, 'name': pn, 'total': total, 'correct': correct, 'rate': rate})
+    return success(result)
+
+@bp.route("/statistics/month-compare", methods=["GET"])
+@admin_required
+def month_compare():
+    """本月 vs 上月环比"""
+    from datetime import timedelta
+    now = datetime.utcnow()
+    this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    last_month_start = (this_month_start - timedelta(days=1)).replace(day=1)
+    def calc(start, end):
+        total = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= start, DeliveryRecord.deliveryTime < end).count()
+        correct = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= start, DeliveryRecord.deliveryTime < end, DeliveryRecord.isCorrect == True).count()
+        return total, correct, round(correct/total*100, 1) if total > 0 else 0
+    t1, c1, r1 = calc(this_month_start, now)
+    t2, c2, r2 = calc(last_month_start, this_month_start)
+    return success({'thisMonth': {'total': t1, 'correct': c1, 'rate': r1}, 'lastMonth': {'total': t2, 'correct': c2, 'rate': r2}})
+
 @bp.route("/statistics/export", methods=["GET"])
 @admin_required
 def export_data():
