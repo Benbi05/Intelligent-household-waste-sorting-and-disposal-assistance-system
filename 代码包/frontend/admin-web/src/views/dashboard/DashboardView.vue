@@ -4,13 +4,7 @@
     <!-- ==================== 物业经理视图 ==================== -->
     <template v-if="isAdmin">
 
-      <!-- 社区选择器 -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-        <div class="page-title">{{ roleLabel }}工作台 — {{ community ? community+'社区' : '全部社区' }}</div>
-        <el-select v-model="activeCommunity" placeholder="选择社区" size="default" style="width:160px" @change="onCommunityChange" clearable>
-          <el-option v-for="c in communities" :key="c.value" :label="c.label" :value="c.value" />
-        </el-select>
-      </div>
+      <div class="page-title" style="margin-bottom:20px">{{ roleLabel }}工作台 — {{ community ? community+'社区' : '全部社区' }}</div>
 
       <!-- 一、核心指标区 -->
       <div class="metrics-row">
