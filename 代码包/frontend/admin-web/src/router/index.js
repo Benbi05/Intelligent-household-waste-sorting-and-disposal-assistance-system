@@ -145,6 +145,7 @@ const router = createRouter({
   ],
 })
 
+// 鉴权守卫（预览模式：直接放行）
 // 鉴权守卫
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('admin_token')
@@ -157,7 +158,6 @@ router.beforeEach((to, from, next) => {
     if (role === 'ops_admin') next({ name: 'OpsDashboard' })
     else next({ name: 'Dashboard' })
   } else if (to.meta.requiresAdmin && role !== 'super_admin') {
-    // 城管只能看仪表盘和数据统计，其余页面跳回首页
     next({ name: 'Dashboard' })
   } else {
     next()
