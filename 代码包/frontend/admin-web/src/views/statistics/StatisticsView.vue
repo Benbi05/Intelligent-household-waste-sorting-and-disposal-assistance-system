@@ -1,83 +1,29 @@
 <template>
-  <div class="page-container">
-    <h2 class="page-title">数据统计</h2>
+  <div class="detail-page">
+    <div class="page-header">
+      <h2>数据统计与报表导出</h2>
+      <p class="subtitle">选择报表模板，系统自动生成 Excel 文件下载</p>
+    </div>
 
-    <!-- 概览卡片 -->
-    <el-row :gutter="20" class="stat-row">
-      <el-col :xs="24" :sm="12" :lg="8" v-for="card in statCards" :key="card.label">
-        <StatCard :label="card.label" :value="card.value" :color="card.color" :trend="card.trend">
-          <template #icon><el-icon :size="24"><component :is="card.icon" /></el-icon></template>
-        </StatCard>
+    <el-row :gutter="20" style="margin-bottom:24px">
+      <el-col :span="6" v-for="tpl in templates" :key="tpl.key">
+        <el-card shadow="hover" class="tpl-card" @click="exportReport(tpl.key)">
+          <div class="tpl-icon">{{ tpl.icon }}</div>
+          <div class="tpl-name">{{ tpl.name }}</div>
+          <div class="tpl-desc">{{ tpl.desc }}</div>
+          <el-button type="primary" size="small" :loading="loadingKey === tpl.key" style="margin-top:10px">
+            {{ loadingKey === tpl.key ? '生成中...' : '导出 Excel' }}
+          </el-button>
+        </el-card>
       </el-col>
     </el-row>
 
-    <!-- 投放趋势 -->
-    <el-row :gutter="20" class="chart-row">
-      <el-col :span="24">
-        <div class="page-card">
-          <div class="card-header">
-            <h3 class="card-title">投放数据统计</h3>
-            <div class="card-filters">
-              <el-date-picker
-                v-model="dateRange"
-                type="daterange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                value-format="YYYY-MM-DDTHH:mm:ss"
-                style="width:260px"
-                @change="fetchDelivery"
-              />
-              <el-input v-model="deliveryForm.area" placeholder="区域筛选" clearable style="width:140px;margin-left:10px" @keyup.enter="fetchDelivery" @clear="fetchDelivery" />
-              <el-button type="primary" style="margin-left:10px" @click="handleExport">
-                <el-icon><Download /></el-icon>导出数据
-              </el-button>
-            </div>
-          </div>
-
-          <el-row :gutter="20" class="delivery-stats">
-            <el-col :span="6">
-              <div class="mini-stat">
-                <div class="mini-value">{{ deliveryStats.totalDeliveryCount }}</div>
-                <div class="mini-label">总投递次数</div>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div class="mini-stat">
-                <div class="mini-value">{{ deliveryStats.correctCount }}</div>
-                <div class="mini-label">正确投递</div>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div class="mini-stat">
-                <div class="mini-value">{{ deliveryStats.incorrectCount }}</div>
-                <div class="mini-label">错误投递</div>
-              </div>
-            </el-col>
-            <el-col :span="6">
-              <div class="mini-stat">
-                <div class="mini-value">{{ (deliveryStats.correctRate * 100).toFixed(1) }}%</div>
-                <div class="mini-label">正确率</div>
-              </div>
-            </el-col>
-          </el-row>
-
-          <!-- 简单柱状图示意 -->
-          <div class="chart-placeholder" v-if="deliveryStats.totalDeliveryCount > 0">
-            <div class="bar-chart">
-              <div class="bar-col">
-                <div class="bar correct" :style="{ height: correctPercent + '%' }"></div>
-                <span class="bar-label">正确 ({{ correctPercent }}%)</span>
-              </div>
-              <div class="bar-col">
-                <div class="bar incorrect" :style="{ height: incorrectPercent + '%' }"></div>
-                <span class="bar-label">错误 ({{ incorrectPercent }}%)</span>
-              </div>
-            </div>
-            <div class="points-info">
-              总发放积分：<strong>{{ deliveryStats.totalPointsAwarded }}</strong>
-            </div>
-          </div>
+    <el-divider content-position="left">实时概览</el-divider>
+    <el-row :gutter="16">
+      <el-col :span="6" v-for="s in summaryCards" :key="s.label">
+        <div class="sum-card">
+          <div class="sum-val" :style="{ color: s.color }">{{ s.value }}</div>
+          <div class="sum-label">{{ s.label }}</div>
         </div>
       </el-col>
     </el-row>
@@ -85,85 +31,64 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { User, Monitor, Delete, Coin, Download } from '@element-plus/icons-vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getOverview, getDeliveryStats, exportData } from '@/api/statistics'
-import StatCard from '@/components/stat-card/StatCard.vue'
+import { getOverview } from '@/api/statistics'
+import request from '@/api/request'
 
-const overview = reactive({
-  totalUsers: 0, onlineDevices: 0, totalDevices: 0,
-  todayDeliveryCount: 0, monthCorrectRate: 0, pendingMerchantCount: 0,
-})
+const overview = ref({})
+const loadingKey = ref('')
 
-const deliveryStats = reactive({
-  totalDeliveryCount: 0, correctCount: 0, incorrectCount: 0,
-  correctRate: 0, totalPointsAwarded: 0,
-})
+const templates = [
+  { key: 'monthly', icon: '📊', name: '月度分类报告', desc: '本月各社区投放总量、正确率、积分汇总' },
+  { key: 'delivery', icon: '📋', name: '投放数据明细', desc: '30天全部投放记录，含设备、品类、正误' },
+  { key: 'device', icon: '🔧', name: '设备状态报表', desc: '所有设备在线状态、满溢度、最后在线时间' },
+  { key: 'community', icon: '🏘️', name: '社区对比报表', desc: '8个社区投放量、正确率、用户数一览表' },
+]
 
-const dateRange = ref([])
-const deliveryForm = reactive({ area: '' })
-
-const statCards = computed(() => [
-  { label: '用户总数', value: overview.totalUsers, color: '#67c23a', trend: 0, icon: User },
-  { label: '在线设备 / 总设备', value: `${overview.onlineDevices} / ${overview.totalDevices}`, color: '#409eff', trend: 0, icon: Monitor },
-  { label: '今日投递次数', value: overview.todayDeliveryCount, color: '#e6a23c', trend: 0, icon: Delete },
-  { label: '待审核商家', value: overview.pendingMerchantCount, color: '#f56c6c', trend: 0, icon: Coin },
+const summaryCards = computed(() => [
+  { label: '总投放次数', value: overview.value.monthDeliveryCount || 0, color: '#1a73e8' },
+  { label: '分类正确率', value: (overview.value.monthCorrectRate ? (overview.value.monthCorrectRate*100).toFixed(1) : 0) + '%', color: '#2e7d32' },
+  { label: '在线设备', value: overview.value.onlineDevices || 0, color: '#ef6c00' },
+  { label: '注册用户', value: overview.value.totalUsers || 0, color: '#78909c' },
 ])
 
-const correctPercent = computed(() => {
-  if (deliveryStats.totalDeliveryCount === 0) return 0
-  return Math.round((deliveryStats.correctCount / deliveryStats.totalDeliveryCount) * 100)
+onMounted(async () => {
+  try { const r = await getOverview(); overview.value = r.data } catch {}
 })
-const incorrectPercent = computed(() => 100 - correctPercent.value)
 
-async function fetchOverview() {
+async function exportReport(key) {
+  loadingKey.value = key
   try {
-    const res = await getOverview()
-    Object.assign(overview, res.data)
-  } catch { /* handled */ }
-}
-
-async function fetchDelivery() {
-  try {
-    const params = { area: deliveryForm.area }
-    if (dateRange.value && dateRange.value.length === 2) {
-      params.startTime = dateRange.value[0]
-      params.endTime = dateRange.value[1]
+    const urls = {
+      monthly: '/admin/statistics/export?type=monthly',
+      delivery: '/admin/statistics/export?type=delivery',
+      device: '/admin/statistics/export?type=device',
+      community: '/admin/statistics/export?type=community',
     }
-    const res = await getDeliveryStats(params)
-    Object.assign(deliveryStats, res.data)
-  } catch { /* handled */ }
+    const res = await request.get(urls[key] || '/admin/statistics/export')
+    if (res.data?.downloadUrl) {
+      ElMessage.success('报表生成成功，正在下载')
+      window.open(res.data.downloadUrl, '_blank')
+    } else {
+      ElMessage.success('报表已生成')
+    }
+  } catch { ElMessage.error('生成失败') }
+  loadingKey.value = ''
 }
-
-async function handleExport() {
-  try {
-    const res = await exportData()
-    const url = res.data.exportUrl
-    ElMessage.success('导出成功，正在下载...')
-    window.open(url, '_blank')
-  } catch { /* handled */ }
-}
-
-onMounted(() => { fetchOverview(); fetchDelivery() })
 </script>
 
 <style scoped>
-.stat-row { margin-bottom: 20px; }
-.chart-row { margin-top: 0; }
-.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-.card-title { font-size: 16px; font-weight: 600; color: #1a1a1a; margin: 0; }
-.card-filters { display: flex; align-items: center; }
-.delivery-stats { padding: 8px 0 20px; }
-.mini-stat { text-align: center; padding: 12px; background: #f5f7fa; border-radius: 8px; }
-.mini-value { font-size: 24px; font-weight: 700; color: #1a1a1a; }
-.mini-label { font-size: 13px; color: #909399; margin-top: 4px; }
-.chart-placeholder { text-align: center; padding-top: 8px; }
-.bar-chart { display: flex; justify-content: center; gap: 60px; align-items: flex-end; height: 160px; }
-.bar-col { display: flex; flex-direction: column; align-items: center; width: 80px; height: 100%; justify-content: flex-end; }
-.bar { width: 40px; border-radius: 6px 6px 0 0; min-height: 4px; transition: height 0.5s; }
-.bar.correct { background: linear-gradient(to top, #67c23a, #85ce61); }
-.bar.incorrect { background: linear-gradient(to top, #f56c6c, #f89898); }
-.bar-label { font-size: 12px; color: #909399; margin-top: 8px; }
-.points-info { margin-top: 12px; font-size: 14px; color: #606266; }
+.detail-page { padding: 24px; max-width: none; }
+.page-header { margin-bottom: 24px; }
+.page-header h2 { font-size: 20px; font-weight: 700; color: #303133; margin: 0 0 6px; }
+.subtitle { font-size: 13px; color: #909399; margin: 0; }
+.tpl-card { text-align: center; cursor: pointer; border-radius: 10px; transition: all .2s; }
+.tpl-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.tpl-icon { font-size: 36px; margin-bottom: 8px; }
+.tpl-name { font-size: 15px; font-weight: 600; color: #303133; margin-bottom: 4px; }
+.tpl-desc { font-size: 12px; color: #909399; }
+.sum-card { text-align: center; padding: 20px; border-radius: 10px; background: #f5f7fa; }
+.sum-val { font-size: 28px; font-weight: 700; }
+.sum-label { font-size: 13px; color: #909399; margin-top: 6px; }
 </style>

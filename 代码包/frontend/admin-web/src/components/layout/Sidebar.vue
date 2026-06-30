@@ -32,7 +32,6 @@
         <el-menu-item index="/dashboard?community=富力"><el-icon><Location /></el-icon><template #title>富力城</template></el-menu-item>
         <el-menu-item index="/dashboard?community=恒大"><el-icon><Location /></el-icon><template #title>恒大未来城</template></el-menu-item>
         <el-menu-item index="/dashboard?community=融创"><el-icon><Location /></el-icon><template #title>融创文旅城</template></el-menu-item>
-        <el-menu-item index="/compare"><el-icon><TrendCharts /></el-icon><template #title>社区对比</template></el-menu-item>
       </template>
 
       <el-menu-item index="/users" v-if="isAdmin">

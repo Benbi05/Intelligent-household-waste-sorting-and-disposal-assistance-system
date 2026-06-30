@@ -137,57 +137,90 @@ def month_compare():
     t2, c2, r2 = calc(last_month_start, this_month_start)
     return success({'thisMonth': {'total': t1, 'correct': c1, 'rate': r1}, 'lastMonth': {'total': t2, 'correct': c2, 'rate': r2}})
 
+STAT_REPORT_TYPES = {
+    'monthly': '月度分类报告',
+    'delivery': '投放数据明细',
+    'device': '设备状态报表',
+    'community': '社区对比报表',
+}
+
 @bp.route("/statistics/export", methods=["GET"])
 @admin_required
 def export_data():
+    rtype = request.args.get("type", "delivery")
     wb = Workbook()
+    now = datetime.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    # Sheet 1: 投放记录
-    ws1 = wb.active; ws1.title = "投放记录"
-    _write_header(ws1, ["记录ID","设备ID","用户ID","垃圾品类","大类","是否正确","积分变动","投放时间"])
-    q = DeliveryRecord.query.order_by(DeliveryRecord.deliveryTime.desc()).limit(1000)
-    start = request.args.get("startTime","")
-    if start:
-        try: q = q.filter(DeliveryRecord.deliveryTime >= datetime.fromisoformat(start))
-        except ValueError: pass
-    for row, r in enumerate(q.all(), 2):
-        ws1.cell(row=row, column=1, value=r.recordId)
-        ws1.cell(row=row, column=2, value=r.deviceId)
-        ws1.cell(row=row, column=3, value=r.userId)
-        ws1.cell(row=row, column=4, value=r.garbageCategory)
-        ws1.cell(row=row, column=5, value=r.parentType)
-        ws1.cell(row=row, column=6, value="yes" if r.isCorrect else "no")
-        ws1.cell(row=row, column=7, value=r.pointChange)
-        ws1.cell(row=row, column=8, value=r.deliveryTime.isoformat() if r.deliveryTime else "")
+    if rtype == 'monthly':
+        ws = wb.active; ws.title = "月度汇总"
+        _write_header(ws, ["指标","数值","说明"])
+        total = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= month_start).count()
+        correct = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= month_start, DeliveryRecord.isCorrect == True).count()
+        rate = round(correct/total*100, 1) if total > 0 else 0
+        rows_data = [
+            ("本月投放总量", total, "次"),
+            ("正确投放", correct, "次"),
+            ("分类正确率", f"{rate}%", "城管达标线85%"),
+            ("在线设备", Device.query.filter_by(onlineStatus="online").count(), "台"),
+            ("总设备", Device.query.count(), "台"),
+            ("注册用户", User.query.filter_by(userType="resident").count(), "人"),
+        ]
+        for i, (label, val, note) in enumerate(rows_data, 2):
+            ws.cell(row=i, column=1, value=label); ws.cell(row=i, column=2, value=val); ws.cell(row=i, column=3, value=note)
 
-    # Sheet 2: 用户列表
-    ws2 = wb.create_sheet("用户列表")
-    _write_header(ws2, ["用户ID","昵称","手机号","状态","注册时间"])
-    for row, u in enumerate(User.query.filter_by(userType="resident").order_by(User.id.desc()).limit(1000).all(), 2):
-        ws2.cell(row=row, column=1, value=u.id)
-        ws2.cell(row=row, column=2, value=u.nickName)
-        ws2.cell(row=row, column=3, value=u.phone)
-        ws2.cell(row=row, column=4, value=u.status)
-        ws2.cell(row=row, column=5, value=u.createTime.isoformat() if u.createTime else "")
+        ws2 = wb.create_sheet("各社区正确率")
+        _write_header(ws2, ["社区","总投放","正确","正确率"])
+        communities = [('虎溪花园','虎溪'),('学府悦园','学府'),('康居西城','康居'),('龙湖U城','龙湖'),('金科廊桥水乡','金科'),('富力城','富力'),('恒大未来城','恒大'),('融创文旅城','融创')]
+        for i, (name, prefix) in enumerate(communities, 2):
+            t = DeliveryRecord.query.filter(DeliveryRecord.deviceId.like(f'{prefix}%'), DeliveryRecord.deliveryTime >= month_start).count()
+            c = DeliveryRecord.query.filter(DeliveryRecord.deviceId.like(f'{prefix}%'), DeliveryRecord.deliveryTime >= month_start, DeliveryRecord.isCorrect == True).count()
+            r = round(c/t*100, 1) if t > 0 else 0
+            ws2.cell(row=i, column=1, value=name); ws2.cell(row=i, column=2, value=t)
+            ws2.cell(row=i, column=3, value=c); ws2.cell(row=i, column=4, value=f"{r}%")
 
-    # Sheet 3: 设备列表
-    ws3 = wb.create_sheet("设备列表")
-    _write_header(ws3, ["设备ID","设备名称","类型","区域","在线状态","满溢度","最后在线"])
-    for row, d in enumerate(Device.query.order_by(Device.lastOnlineTime.desc()).limit(1000).all(), 2):
-        ws3.cell(row=row, column=1, value=d.deviceId)
-        ws3.cell(row=row, column=2, value=d.deviceName)
-        ws3.cell(row=row, column=3, value=d.boxCategory)
-        ws3.cell(row=row, column=4, value=d.area)
-        ws3.cell(row=row, column=5, value=d.onlineStatus)
-        ws3.cell(row=row, column=6, value=f"{d.fullRate:.0%}" if d.fullRate else "0%")
-        ws3.cell(row=row, column=7, value=d.lastOnlineTime.isoformat() if d.lastOnlineTime else "")
+    elif rtype == 'delivery':
+        ws = wb.active; ws.title = "投放记录"
+        _write_header(ws, ["记录ID","设备ID","用户ID","垃圾品类","所属大类","是否正确","积分变动","投放时间"])
+        for row, r in enumerate(DeliveryRecord.query.order_by(DeliveryRecord.deliveryTime.desc()).limit(5000).all(), 2):
+            ws.cell(row=row, column=1, value=r.recordId)
+            ws.cell(row=row, column=2, value=r.deviceId); ws.cell(row=row, column=3, value=r.userId)
+            ws.cell(row=row, column=4, value=r.garbageCategory); ws.cell(row=row, column=5, value=r.parentType)
+            ws.cell(row=row, column=6, value="是" if r.isCorrect else "否")
+            ws.cell(row=row, column=7, value=r.pointChange)
+            ws.cell(row=row, column=8, value=r.deliveryTime.isoformat() if r.deliveryTime else "")
 
-    # 保存临时文件，返回下载 URL
-    filename = f"export_{uuid.uuid4().hex[:8]}.xlsx"
+    elif rtype == 'device':
+        ws = wb.active; ws.title = "设备状态"
+        _write_header(ws, ["设备ID","设备名称","类型","区域","位置","在线状态","满溢度","最后在线时间"])
+        for row, d in enumerate(Device.query.order_by(Device.onlineStatus, Device.lastOnlineTime.desc()).all(), 2):
+            ws.cell(row=row, column=1, value=d.deviceId); ws.cell(row=row, column=2, value=d.deviceName)
+            ws.cell(row=row, column=3, value=d.boxCategory); ws.cell(row=row, column=4, value=d.area)
+            ws.cell(row=row, column=5, value=d.location)
+            ws.cell(row=row, column=6, value={'online':'在线','offline':'离线','fault':'故障'}.get(d.onlineStatus, d.onlineStatus))
+            ws.cell(row=row, column=7, value=f"{d.fullRate:.0%}" if d.fullRate else "0%")
+            ws.cell(row=row, column=8, value=d.lastOnlineTime.isoformat() if d.lastOnlineTime else "")
+
+    else:  # community
+        ws = wb.active; ws.title = "社区对比"
+        _write_header(ws, ["社区","本月投放","正确","正确率","在线设备","总设备"])
+        communities = [('虎溪花园','虎溪'),('学府悦园','学府'),('康居西城','康居'),('龙湖U城','龙湖'),('金科廊桥水乡','金科'),('富力城','富力'),('恒大未来城','恒大'),('融创文旅城','融创')]
+        for i, (name, prefix) in enumerate(communities, 2):
+            t = DeliveryRecord.query.filter(DeliveryRecord.deviceId.like(f'{prefix}%'), DeliveryRecord.deliveryTime >= month_start).count()
+            c = DeliveryRecord.query.filter(DeliveryRecord.deviceId.like(f'{prefix}%'), DeliveryRecord.deliveryTime >= month_start, DeliveryRecord.isCorrect == True).count()
+            r = round(c/t*100, 1) if t > 0 else 0
+            online = Device.query.filter(Device.deviceId.like(f'{prefix}%'), Device.onlineStatus == 'online').count()
+            total_dev = Device.query.filter(Device.deviceId.like(f'{prefix}%')).count()
+            ws.cell(row=i, column=1, value=name); ws.cell(row=i, column=2, value=t)
+            ws.cell(row=i, column=3, value=c); ws.cell(row=i, column=4, value=f"{r}%")
+            ws.cell(row=i, column=5, value=online); ws.cell(row=i, column=6, value=total_dev)
+
+    rpt_name = STAT_REPORT_TYPES.get(rtype, '报表')
+    filename = f"{rpt_name}_{uuid.uuid4().hex[:6]}.xlsx"
     filepath = os.path.join(tempfile.gettempdir(), filename)
     wb.save(filepath)
-    log('statistics_export', None, '导出统计报表')
-    return success({"exportUrl": f"/api/v1/admin/statistics/download/{filename}"})
+    log('statistics_export', None, f'导出{rpt_name}')
+    return success({"exportUrl": f"/api/v1/admin/statistics/download/{filename}", "reportName": rpt_name})
 
 @bp.route("/statistics/download/<filename>", methods=["GET"])
 def download_file(filename):
