@@ -9,6 +9,27 @@
       <el-col :span="6"><StatCard label="本月积分收入" :value="stats.monthTotalPoints || 0" unit="分" color="#ef6c00" /></el-col>
     </el-row>
 
+    <!-- AI进货建议 -->
+    <el-card v-if="recom && recom.products && recom.products.length" shadow="never" style="margin-bottom:16px" class="recom-card">
+      <template #header>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span class="section-title">🤖 AI进货建议</span>
+          <el-tag type="warning" size="small">{{ recom.community || '本社区' }}</el-tag>
+        </div>
+      </template>
+      <p class="recom-content">{{ recom.content }}</p>
+      <div class="recom-products">
+        <div v-for="p in recom.products" :key="p.category" class="recom-item">
+          <span class="ri-cat">{{ p.category }}</span>
+          <span class="ri-arrow">→</span>
+          <span class="ri-prod">建议多备 <b>{{ p.product }}</b></span>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <el-button size="small" type="primary" @click="markRead">我知道了</el-button>
+      </div>
+    </el-card>
+
     <el-card shadow="never" style="margin-bottom:16px">
       <template #header><span class="section-title">快捷操作</span></template>
       <div class="action-grid">
@@ -68,12 +89,14 @@ import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/store'
 import { getMerchantStats } from '@/api/statistics'
 import { verifyOrder } from '@/api/order'
+import request from '@/api/request'
 import StatCard from '@/components/stat-card/StatCard.vue'
 import { Goods, Document, Checked } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
 const stats = ref({})
+const recom = ref(null)
 const verifyVisible = ref(false)
 const verifyCode = ref('')
 const verifying = ref(false)
@@ -81,6 +104,12 @@ const verifyResult = ref(null)
 
 async function fetchStats() {
   try { const r = await getMerchantStats(); stats.value = r.data } catch {}
+  try { const rr = await request.get('/merchant/recommendations'); const recs = rr.data || []; recom.value = recs.find(r => r.status === 'unread') || recs[0] || null } catch {}
+}
+
+async function markRead() {
+  if (!recom.value) return
+  try { await request.put(`/merchant/recommendations/${recom.value.id}/read`); recom.value = null } catch {}
 }
 
 async function handleVerify() {
@@ -107,4 +136,11 @@ onMounted(fetchStats)
 .action-item { display: flex; flex-direction: column; align-items: center; padding: 16px 8px; border-radius: 8px; border: 1px solid #ebeef5; text-decoration: none; color: #303133; transition: all .2s; background: #fafbfc; }
 .action-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 .action-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+.recom-card { border-left: 4px solid #e6a23c; }
+.recom-content { font-size: 14px; color: #606266; margin: 0 0 12px; }
+.recom-products { display: flex; flex-wrap: wrap; gap: 8px; }
+.recom-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: #fdf6ec; border-radius: 6px; font-size: 13px; }
+.ri-cat { color: #909399; }
+.ri-arrow { color: #c0c4cc; }
+.ri-prod { color: #303133; }
 </style>

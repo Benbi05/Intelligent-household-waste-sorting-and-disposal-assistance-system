@@ -1,11 +1,14 @@
 """AI消费洞察 — 从投放数据推断消费趋势"""
 from flask import Blueprint, request
-from ...common.response import success
+from ...common.response import success, fail
 from ...common.auth import admin_required
 from ...models.delivery_record import DeliveryRecord
+from ...models.merchant import Merchant
+from ...models.recommendation import Recommendation
 from ...extensions import db
 from sqlalchemy import func
 from datetime import datetime, timedelta
+import json
 
 bp = Blueprint('admin_insight', __name__)
 
@@ -104,3 +107,34 @@ def category_trend():
         ).count()
         trend.append({'date': d_start.strftime('%m/%d'), 'count': cnt})
     return success({'category': cat, 'product': CATEGORY_PRODUCT_MAP.get(cat, cat), 'trend': trend})
+
+
+@bp.route('/ops/insights/push', methods=['POST'])
+@admin_required
+def push_recommendation():
+    """推送消费建议给指定商家"""
+    body = request.get_json(silent=True) or {}
+    merchant_id = body.get('merchantId')
+    community = body.get('community', '')
+    products = body.get('products', [])  # [{category, product, count}]
+    content = body.get('content', '')
+
+    if not merchant_id:
+        return fail(400, '请选择目标商家')
+
+    merchant = Merchant.query.get(merchant_id)
+    if not merchant:
+        return fail(404, '商家不存在')
+
+    rec = Recommendation(
+        merchantId=merchant_id,
+        community=community,
+        content=content or f'AI消费洞察：{community}本月投放数据分析',
+        products=json.dumps(products, ensure_ascii=False),
+        status='unread'
+    )
+    db.session.add(rec)
+    db.session.commit()
+
+    return success({'id': rec.id}, f'已推送给「{merchant.storeName}」')
+

@@ -1,1 +1,0 @@
-import{s}from"./request-BHZyZYmu.js";function u(t={}){return s.get("/admin/users",{params:t})}function a(t){return s.get(`/admin/users/${t}`)}function n(t,e){return s.put(`/admin/users/${t}/status`,{status:e})}function i(){return s.get("/admin/users/stats")}export{u as a,a as b,i as g,n as u};
