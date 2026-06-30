@@ -67,9 +67,9 @@ async function exportReport(key) {
       community: '/admin/statistics/export?type=community',
     }
     const res = await request.get(urls[key] || '/admin/statistics/export')
-    if (res.data?.downloadUrl) {
+    if (res.data?.exportUrl) {
       ElMessage.success('报表生成成功，正在下载')
-      let url = res.data.downloadUrl
+      let url = res.data.exportUrl
       const host = localStorage.getItem('backend_host')
       if (host) url = 'http://' + host + ':8082' + url
       const a = document.createElement('a')
