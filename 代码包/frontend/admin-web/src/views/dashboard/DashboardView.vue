@@ -28,33 +28,15 @@
       <el-col :span="12">
         <el-card shadow="never">
           <template #header>本月 vs 上月 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 环比变化</span></template>
-          <div class="compare-box" v-loading="loading">
-            <div class="donut-pair">
-              <div class="donut-item">
-                <svg viewBox="0 0 100 100" class="donut-svg">
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f0f2f5" stroke-width="10"/>
-                  <circle cx="50" cy="50" r="38" fill="none" :stroke="donutColor(monthCompare.lastMonth?.rate)" stroke-width="10"
-                    :stroke-dasharray="donutLen(monthCompare.lastMonth?.rate) + ' ' + donutRest(monthCompare.lastMonth?.rate)"
-                    stroke-linecap="round" transform="rotate(-90 50 50)"/>
-                  <text x="50" y="46" text-anchor="middle" font-size="18" font-weight="700" :fill="donutColor(monthCompare.lastMonth?.rate)">{{ monthCompare.lastMonth?.rate || 0 }}%</text>
-                  <text x="50" y="64" text-anchor="middle" font-size="10" fill="#c0c4cc">上月</text>
-                </svg>
-              </div>
-              <div class="donut-arrow">
-                <span :style="{ color: compareDelta > 0 ? '#67c23a' : compareDelta < 0 ? '#f56c6c' : '#c0c4cc', fontSize:'18px', fontWeight:'700' }">{{ compareDelta > 0 ? '↑' : compareDelta < 0 ? '↓' : '→' }}</span>
-                <span :style="{ color: compareDelta > 0 ? '#67c23a' : '#f56c6c', fontSize:'13px' }">{{ compareDelta > 0 ? '+' : '' }}{{ compareDelta }}%</span>
-              </div>
-              <div class="donut-item">
-                <svg viewBox="0 0 100 100" class="donut-svg">
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f0f2f5" stroke-width="10"/>
-                  <circle cx="50" cy="50" r="38" fill="none" :stroke="donutColor(monthCompare.thisMonth?.rate)" stroke-width="10"
-                    :stroke-dasharray="donutLen(monthCompare.thisMonth?.rate) + ' ' + donutRest(monthCompare.thisMonth?.rate)"
-                    stroke-linecap="round" transform="rotate(-90 50 50)"/>
-                  <text x="50" y="46" text-anchor="middle" font-size="18" font-weight="700" :fill="donutColor(monthCompare.thisMonth?.rate)">{{ monthCompare.thisMonth?.rate || 0 }}%</text>
-                  <text x="50" y="64" text-anchor="middle" font-size="10" fill="#c0c4cc">本月</text>
-                </svg>
-              </div>
+          <div class="compare-box" v-loading="loading" style="display:flex;gap:12px;align-items:center;justify-content:center">
+            <div ref="pieLastRef" style="width:160px;height:180px"></div>
+            <div style="text-align:center;font-size:14px;color:#606266">
+              <span v-if="compareDelta > 0" style="color:#67c23a;font-size:20px">▲</span>
+              <span v-else-if="compareDelta < 0" style="color:#f56c6c;font-size:20px">▼</span>
+              <span v-else style="color:#c0c4cc;font-size:20px">—</span>
+              <div :style="{ color: compareDelta > 0 ? '#67c23a' : '#f56c6c', fontSize:'16px', fontWeight:'700', marginTop:'4px' }">{{ compareDelta > 0 ? '+' : '' }}{{ compareDelta }}%</div>
             </div>
+            <div ref="pieThisRef" style="width:160px;height:180px"></div>
           </div>
         </el-card>
       </el-col>
@@ -107,6 +89,8 @@ const monthCompare = ref({})
 const bldData = ref([])
 const trdData = ref([])
 const trendChart = ref(null)
+const pieLastRef = ref(null)
+const pieThisRef = ref(null)
 const loading = ref(true)
 
 const monthTrend = computed(() => {
@@ -124,10 +108,29 @@ function catColor(type) {
   return { recyclable: '#409eff', kitchen: '#e6a23c', hazardous: '#f56c6c', other: '#909399' }[type] || '#ccc'
 }
 
-const donutTotal = 2 * Math.PI * 38  // 圆周长 ~238.76
-function donutLen(rate) { return (donutTotal * (rate || 0) / 100).toFixed(0) }
-function donutRest(rate) { return (donutTotal * (1 - (rate || 0) / 100)).toFixed(0) }
-function donutColor(rate) { return (rate || 0) >= 85 ? '#67c23a' : (rate || 0) >= 75 ? '#e6a23c' : '#f56c6c' }
+function makePie(el, rate, title) {
+  if (!el || !window.echarts) return
+  const c = window.echarts.init(el)
+  c.setOption({
+    title: { text: title, left: 'center', bottom: 0, textStyle: { fontSize: 12, color: '#909399' } },
+    series: [{
+      type: 'pie', radius: ['50%', '70%'], center: ['50%', '45%'],
+      itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.2)', shadowOffsetY: 2 },
+      label: { show: true, position: 'center', formatter: '{c}%', fontSize: 18, fontWeight: 'bold', color: rate >= 85 ? '#2e7d32' : rate >= 75 ? '#e65100' : '#c62828' },
+      data: [
+        { value: rate, name: '正确', itemStyle: { color: rate >= 85 ? '#4caf50' : rate >= 75 ? '#ff9800' : '#ef5350' } },
+        { value: 100 - rate, name: '错误', itemStyle: { color: '#eceff1' } }
+      ]
+    }]
+  })
+}
+
+function renderPieCharts() {
+  const lm = monthCompare.value.lastMonth?.rate || 0
+  const tm = monthCompare.value.thisMonth?.rate || 0
+  if (pieLastRef.value) makePie(pieLastRef.value, lm, '上月')
+  if (pieThisRef.value) makePie(pieThisRef.value, tm, '本月')
+}
 
 function catTip(c) {
   if (c.rate >= 85) return '达标'
@@ -160,6 +163,7 @@ async function fetchAll() {
     }
   } catch {}
   loading.value = false
+  setTimeout(renderPieCharts, 200)
 }
 
 onMounted(fetchAll)
@@ -204,9 +208,5 @@ function renderTrendChart() {
 .cat-count { font-size: 12px; color: #c0c4cc; }
 .cat-tip { font-size: 12px; margin-top: 6px; color: #909399; }
 
-.compare-box { padding: 8px 0; }
-.donut-pair { display: flex; align-items: center; justify-content: space-around; }
-.donut-item { text-align: center; }
-.donut-svg { width: 100px; height: 100px; }
-.donut-arrow { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.compare-box { padding: 0; }
 </style>
