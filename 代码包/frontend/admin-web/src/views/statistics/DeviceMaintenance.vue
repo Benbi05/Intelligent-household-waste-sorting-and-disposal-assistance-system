@@ -2,9 +2,9 @@
   <div class="detail-page">
     <div class="page-header">
       <h2>待处理设备</h2>
-      <p class="subtitle">按社区查看离线/故障设备，点击展开查看详情和位置</p>
+      <p class="subtitle">按社区查看离线/故障设备，每台设备在地图上单独标注</p>
     </div>
-    <el-empty v-if="!loading && allDevices.length === 0" description="所有设备运行正常 ✅" />
+    <el-empty v-if="!loading && allDevices.length === 0" description="所有设备运行正常" />
     <el-collapse v-model="activeComms" v-loading="loading" v-else>
       <el-collapse-item v-for="c in groupedDevices" :key="c.name" :name="c.name">
         <template #title>
@@ -49,13 +49,6 @@ const groupedDevices = computed(() => {
   return Object.entries(map).map(([name, devices]) => ({ name, devices }))
 })
 
-const positions = {
-  '虎溪花园': [29.6098, 106.2996], '学府悦园': [29.6112, 106.3051],
-  '康居西城': [29.6055, 106.2930], '龙湖U城': [29.6130, 106.3085],
-  '金科廊桥水乡': [29.6032, 106.2880], '富力城': [29.6070, 106.3020],
-  '恒大未来城': [29.6150, 106.3120], '融创文旅城': [29.6190, 106.2950],
-}
-
 onMounted(async () => {
   try { const r = await request.get('/admin/community/device-issues'); allDevices.value = r.data } catch {}
   loading.value = false
@@ -67,10 +60,18 @@ function initMaps() {
     for (const c of groupedDevices.value) {
       const el = document.getElementById('map-'+c.name)
       if (!el || !window.L) continue
-      const pos = positions[c.name] || [29.6098, 106.2996]
-      const map = window.L.map(el).setView(pos, 16)
+      // 找到所有有坐标的设备
+      const valid = c.devices.filter(d => d.lat && d.lng)
+      if (!valid.length) continue
+      const center = [valid[0].lat, valid[0].lng]
+      const map = window.L.map(el).setView(center, 16)
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map)
-      window.L.marker(pos).addTo(map).bindPopup(`<b>${c.name}</b><br>${c.devices.length}台待处理`)
+      for (const d of valid) {
+        const color = d.status === 'fault' ? 'red' : 'orange'
+        window.L.circleMarker([d.lat, d.lng], {
+          radius: 8, fillColor: color, color: '#fff', weight: 2, fillOpacity: 0.8
+        }).addTo(map).bindPopup('<b>'+d.deviceName+'</b><br>'+d.location+'<br>状态: '+(d.status==='fault'?'故障':'离线'))
+      }
     }
   }, 600)
 }
@@ -81,5 +82,5 @@ function initMaps() {
 .page-header { margin-bottom: 20px; }
 .page-header h2 { font-size: 20px; font-weight: 700; color: #303133; margin: 0 0 6px; }
 .subtitle { font-size: 13px; color: #909399; margin: 0; }
-.map-box { height: 200px; margin-top: 8px; border-radius: 8px; border: 1px solid #ebeef5; }
+.map-box { height: 220px; margin-top: 8px; border-radius: 8px; border: 1px solid #ebeef5; }
 </style>

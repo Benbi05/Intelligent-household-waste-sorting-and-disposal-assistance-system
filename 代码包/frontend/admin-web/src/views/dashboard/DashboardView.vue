@@ -13,7 +13,7 @@
     <!-- 品类正确率 + 环比 -->
     <el-row :gutter="16" style="margin-top:16px">
       <el-col :span="12">
-        <el-card shadow="never">
+        <el-card shadow="never" style="height:100%">
           <template #header>四大类垃圾分类正确率 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 厨余垃圾通常最难分</span></template>
           <div class="cat-grid" v-loading="loading">
             <div v-for="c in catData" :key="c.type" class="cat-card" :style="{ borderTopColor: catColor(c.type) }">

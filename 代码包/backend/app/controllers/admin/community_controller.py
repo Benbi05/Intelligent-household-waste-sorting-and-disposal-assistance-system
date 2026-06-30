@@ -68,6 +68,8 @@ def device_issues():
             'status': d.onlineStatus,
             'location': d.location or '',
             'fullRate': d.fullRate,
+            'lat': d.lat,
+            'lng': d.lng,
             'lastOnline': d.lastOnlineTime.isoformat() if d.lastOnlineTime else '',
         })
     return success(result)
