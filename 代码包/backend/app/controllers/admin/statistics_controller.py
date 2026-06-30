@@ -16,6 +16,19 @@ from openpyxl.styles import Font, Alignment, PatternFill
 
 bp = Blueprint("admin_statistics", __name__)
 
+def _comm_filter(query):
+    """社区过滤辅助"""
+    c = request.args.get("community", "")
+    if c:
+        return query.filter(DeliveryRecord.deviceId.like(f'{c}%'))
+    return query
+
+def _dev_filter(query):
+    c = request.args.get("community", "")
+    if c:
+        return query.filter(Device.deviceId.like(f'{c}%'))
+    return query
+
 HEADER_FONT = Font(bold=True, color="FFFFFF")
 HEADER_FILL = PatternFill(start_color="2E7D32", end_color="2E7D32", fill_type="solid")
 HEADER_ALIGN = Alignment(horizontal="center")
@@ -59,7 +72,7 @@ def delivery_stats():
 @admin_required
 def building_compare():
     """各栋分类正确率对比"""
-    devices = Device.query.all()
+    devices = _dev_filter(Device.query).all()
     bld_map = {}
     for d in devices:
         parts = d.deviceId.split('-')
@@ -89,8 +102,8 @@ def daily_trend():
     for day in range(29, -1, -1):
         d_start = (now - timedelta(days=day)).replace(hour=0, minute=0, second=0, microsecond=0)
         d_end = d_start + timedelta(days=1)
-        total = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= d_start, DeliveryRecord.deliveryTime < d_end).count()
-        correct = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= d_start, DeliveryRecord.deliveryTime < d_end, DeliveryRecord.isCorrect==True).count()
+        total = _comm_filter(DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= d_start, DeliveryRecord.deliveryTime < d_end)).count()
+        correct = _comm_filter(DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= d_start, DeliveryRecord.deliveryTime < d_end, DeliveryRecord.isCorrect==True)).count()
         rate = round(correct/total*100, 1) if total > 0 else 0
         trend.append({'date': d_start.strftime('%m/%d'), 'total': total, 'correct': correct, 'rate': rate})
     return success(trend)
@@ -102,8 +115,8 @@ def category_breakdown():
     types = [('recyclable','可回收物'), ('kitchen','厨余垃圾'), ('hazardous','有害垃圾'), ('other','其他垃圾')]
     result = []
     for pt, pn in types:
-        total = DeliveryRecord.query.filter_by(parentType=pt).count()
-        correct = DeliveryRecord.query.filter_by(parentType=pt, isCorrect=True).count()
+        total = _comm_filter(DeliveryRecord.query.filter_by(parentType=pt)).count()
+        correct = _comm_filter(DeliveryRecord.query.filter_by(parentType=pt, isCorrect=True)).count()
         rate = round(correct/total*100, 1) if total > 0 else 0
         result.append({'type': pt, 'name': pn, 'total': total, 'correct': correct, 'rate': rate})
     return success(result)
@@ -117,8 +130,8 @@ def month_compare():
     this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     last_month_start = (this_month_start - timedelta(days=1)).replace(day=1)
     def calc(start, end):
-        total = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= start, DeliveryRecord.deliveryTime < end).count()
-        correct = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= start, DeliveryRecord.deliveryTime < end, DeliveryRecord.isCorrect == True).count()
+        total = _comm_filter(DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= start, DeliveryRecord.deliveryTime < end)).count()
+        correct = _comm_filter(DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= start, DeliveryRecord.deliveryTime < end, DeliveryRecord.isCorrect == True)).count()
         return total, correct, round(correct/total*100, 1) if total > 0 else 0
     t1, c1, r1 = calc(this_month_start, now)
     t2, c2, r2 = calc(last_month_start, this_month_start)
