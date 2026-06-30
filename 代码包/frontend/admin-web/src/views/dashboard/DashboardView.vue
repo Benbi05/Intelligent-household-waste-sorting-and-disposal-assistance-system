@@ -331,19 +331,11 @@ const alertCount = ref(4)
 const alertSummary = ref('满溢1 · 故障1 · 待审1 · 违规1')
 
 // 楼栋数据（优先使用后端数据，回退到静态模拟）
-const staticBuildings = [
-  { name: '1栋', units: 3, households: 252, rate: 92, participation: 71 }, { name: '2栋', units: 3, households: 252, rate: 88, participation: 68 },
-  { name: '3栋', units: 3, households: 252, rate: 85, participation: 65 }, { name: '4栋', units: 4, households: 336, rate: 83, participation: 70 },
-  { name: '5栋', units: 4, households: 336, rate: 62, participation: 48 }, { name: '6栋', units: 4, households: 336, rate: 86, participation: 62 },
-  { name: '7栋', units: 2, households: 168, rate: 90, participation: 73 }, { name: '8栋', units: 2, households: 168, rate: 78, participation: 58 },
-  { name: '9栋', units: 3, households: 252, rate: 81, participation: 60 }, { name: '10栋', units: 3, households: 252, rate: 86, participation: 67 },
-  { name: '11栋', units: 4, households: 336, rate: 75, participation: 55 }, { name: '12栋', units: 4, households: 336, rate: 79, participation: 63 },
-]
 const buildings = computed(() => {
   return bldData.value.length ? bldData.value.map(d => ({
     name: d.building || d.name, rate: d.rate || 0, participation: d.participation || 0,
     units: d.units, households: d.households,
-  })) : staticBuildings
+  })) : []
 })
 const sortedBuildings = computed(() => [...buildings.value].sort((a, b) => b[buildingSortBy.value] - a[buildingSortBy.value]))
 const worstBuildings = computed(() => sortedBuildings.value.filter(b => b.rate < 70).slice(0, 5))
