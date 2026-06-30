@@ -10,8 +10,8 @@
     </el-row>
     <el-card shadow="never">
       <el-table :data="list" v-loading="loading" stripe size="medium" :default-sort="{ prop: 'totalUsers', order: 'descending' }">
-        <el-table-column prop="community" label="社区" width="140" />
-        <el-table-column prop="totalUsers" label="总用户数" sortable width="130">
+        <el-table-column prop="community" label="社区" min-width="160" />
+        <el-table-column prop="totalUsers" label="总用户数" sortable min-width="140">
           <template #default="{ row }">
             <div class="user-bar-wrap">
               <div class="user-bar"><div class="user-bar-fill" :style="{ width: maxU > 0 ? (row.totalUsers/maxU*100)+'%' : '0%' }"></div></div>
@@ -19,7 +19,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="newUsers" label="本月新增" sortable width="130">
+        <el-table-column prop="newUsers" label="本月新增" sortable min-width="140">
           <template #default="{ row }">
             <span :class="row.newUsers > 0 ? 'up' : 'flat'">
               {{ row.newUsers > 0 ? '+' : '' }}{{ row.newUsers }} 人

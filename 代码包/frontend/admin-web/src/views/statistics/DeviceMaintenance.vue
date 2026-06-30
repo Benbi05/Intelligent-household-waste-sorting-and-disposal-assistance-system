@@ -15,11 +15,11 @@
         </template>
         <el-table :data="c.devices" size="small" border stripe>
           <el-table-column prop="deviceName" label="设备名称" width="180" />
-          <el-table-column label="状态" width="80">
+          <el-table-column label="状态" min-width="100">
             <template #default="{ row }"><el-tag :type="row.status==='fault'?'danger':'warning'" size="small">{{ row.status==='fault'?'故障':'离线' }}</el-tag></template>
           </el-table-column>
           <el-table-column prop="location" label="安装位置" min-width="220" />
-          <el-table-column label="满溢度" width="90">
+          <el-table-column label="满溢度" min-width="100">
             <template #default="{ row }">
               <div class="full-bar"><div class="full-bar-fill" :style="{ width: (row.fullRate*100)+'%', background: row.fullRate>0.8?'#c62828':row.fullRate>0.5?'#ef6c00':'#2e7d32' }"></div></div>
               <span style="font-size:12px">{{ (row.fullRate*100).toFixed(0) }}%</span>

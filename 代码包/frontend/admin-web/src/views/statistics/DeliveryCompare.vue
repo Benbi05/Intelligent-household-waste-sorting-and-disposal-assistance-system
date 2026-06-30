@@ -4,7 +4,7 @@
       <h2>各社区投放总量对比</h2>
       <p class="subtitle">本月 vs 上月投放变化，按本月投放量降序排列</p>
     </div>
-    <el-row :gutter="16" class="stat-row">
+    <el-row :gutter="20" class="stat-row">
       <el-col :span="8" v-for="d in top3" :key="d.community">
         <div class="rank-card" :class="'rank-' + (top3.indexOf(d)+1)">
           <div class="rank-badge">{{ top3.indexOf(d)+1 }}</div>
@@ -17,21 +17,21 @@
     </el-row>
     <el-card shadow="never">
       <el-table :data="list" v-loading="loading" stripe size="medium" :default-sort="{ prop: 'thisMonth', order: 'descending' }">
-        <el-table-column prop="community" label="社区" width="140" />
-        <el-table-column prop="thisMonth" label="本月投放" sortable width="120">
+        <el-table-column prop="community" label="社区" min-width="140" />
+        <el-table-column prop="thisMonth" label="本月投放" sortable min-width="140">
           <template #default="{ row }"><span class="num">{{ row.thisMonth }}</span></template>
         </el-table-column>
-        <el-table-column prop="lastMonth" label="上月投放" width="110">
+        <el-table-column prop="lastMonth" label="上月投放" min-width="140">
           <template #default="{ row }"><span class="num sub">{{ row.lastMonth }}</span></template>
         </el-table-column>
-        <el-table-column prop="change" label="环比变化" sortable width="120">
+        <el-table-column prop="change" label="环比变化" sortable min-width="140">
           <template #default="{ row }">
             <span :class="row.change > 0 ? 'up' : row.change < 0 ? 'down' : 'flat'">
               {{ row.change > 0 ? '+' : '' }}{{ row.change }} 次
             </span>
           </template>
         </el-table-column>
-        <el-table-column label="趋势" width="120">
+        <el-table-column label="趋势" min-width="200">
           <template #default="{ row }">
             <div class="spark-wrap">
               <div class="spark-bar">

@@ -15,8 +15,8 @@
     </div>
     <el-card shadow="never">
       <el-table :data="list" v-loading="loading" stripe size="medium" :default-sort="{ prop: 'rate', order: 'descending' }">
-        <el-table-column prop="community" label="社区" width="140" />
-        <el-table-column prop="rate" label="正确率" sortable width="140">
+        <el-table-column prop="community" label="社区" min-width="160" />
+        <el-table-column prop="rate" label="正确率" sortable min-width="160">
           <template #default="{ row }">
             <div class="rate-cell">
               <div class="rate-bar-bg"><div class="rate-bar" :style="{ width: row.rate+'%', background: row.rate>=85?'#2e7d32':row.rate>=75?'#ef6c00':'#c62828' }"></div></div>
@@ -24,9 +24,9 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="correct" label="正确" sortable width="90" />
-        <el-table-column prop="total" label="总量" sortable width="90" />
-        <el-table-column label="达标" width="80">
+        <el-table-column prop="correct" label="正确" sortable min-width="100" />
+        <el-table-column prop="total" label="总量" sortable min-width="100" />
+        <el-table-column label="达标" min-width="100">
           <template #default="{ row }">
             <el-tag :type="row.rate>=85?'success':row.rate>=75?'warning':'danger'" size="small" effect="dark">
               {{ row.rate>=85?'达标':row.rate>=75?'接近':'未达标' }}
