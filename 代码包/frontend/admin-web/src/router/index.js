@@ -10,6 +10,12 @@ const router = createRouter({
       meta: { requiresAuth: false },
     },
     {
+      path: '/ops-login',
+      name: 'OpsLogin',
+      component: () => import('@/views/login/OpsLoginView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
       path: '/',
       component: () => import('@/components/layout/MainLayout.vue'),
       redirect: '/dashboard',
