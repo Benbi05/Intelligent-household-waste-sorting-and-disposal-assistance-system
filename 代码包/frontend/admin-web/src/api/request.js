@@ -8,9 +8,7 @@ service.interceptors.request.use((config) => {
   const host = localStorage.getItem('backend_host')
   if (host) {
     config.url = 'http://' + host + ':8082/api/v1' + config.url
-  } else if (window.location.protocol === 'file:') {
-    config.url = 'http://127.0.0.1:8082/api/v1' + config.url
-  } else if (window.location.port === '8084' || window.location.port === '5173') {
+  } else if (window.location.port !== '80' && window.location.port !== '443' && window.location.port !== '') {
     config.url = 'http://127.0.0.1:8082/api/v1' + config.url
   }
 
