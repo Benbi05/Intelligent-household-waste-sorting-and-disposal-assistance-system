@@ -1,21 +1,24 @@
 """统计业务：看板指标"""
-from ..dao.user_dao import UserDAO
-from ..dao.device_dao import DeviceDAO
-from ..dao.delivery_record_dao import DeliveryRecordDAO
-from ..dao.merchant_dao import MerchantDAO
-from datetime import datetime
+from ..extensions import db
+from ..models.user import User
+from ..models.device import Device
+from ..models.delivery_record import DeliveryRecord
+from ..models.merchant import Merchant
+from datetime import datetime, timedelta
 
 
 def get_overview() -> dict:
-    today = datetime.utcnow().date()
-    start = datetime(today.year, today.month, today.day)
-    today_count = DeliveryRecordDAO.model.query.filter(
-        DeliveryRecordDAO.model.deliveryTime >= start).count()
+    now = datetime.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    month_total = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= month_start).count()
+    month_correct = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= month_start, DeliveryRecord.isCorrect == True).count()
+    correct_rate = round(month_correct / month_total, 2) if month_total > 0 else 0
+
     return {
-        "totalUsers": UserDAO.count(userType="resident"),
-        "onlineDevices": DeviceDAO.count(onlineStatus="online"),
-        "totalDevices": DeviceDAO.count(),
-        "todayDeliveryCount": today_count,
-        "monthCorrectRate": 0.87,
-        "pendingMerchantCount": MerchantDAO.count(status="pending"),
+        "totalUsers": User.query.filter_by(userType="resident").count(),
+        "onlineDevices": Device.query.filter_by(onlineStatus="online").count(),
+        "totalDevices": Device.query.count(),
+        "monthDeliveryCount": month_total,
+        "monthCorrectRate": correct_rate,
+        "pendingMerchantCount": Merchant.query.filter_by(status="pending").count(),
     }

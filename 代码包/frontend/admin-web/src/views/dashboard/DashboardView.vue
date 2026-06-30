@@ -2,21 +2,21 @@
   <div class="dashboard">
     <div class="page-title">{{ roleLabel }}工作台 — 虎溪花园社区（沙坪坝区虎溪街道）</div>
     <el-row :gutter="16" class="stat-row">
-      <el-col :span="6"><StatCard label="本月投放总量" :value="overview.todayDeliveryCount || 0" unit="次" color="#409eff" tip="虎溪花园12栋楼近30天居民投放垃圾的总次数，日均约280次" /></el-col>
-      <el-col :span="6"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#67c23a" tip="正确投放次数占总投放次数的比例，城管考核达标线为85%。A区(1-6栋)约87%，B区(7-12栋)约75%" /></el-col>
-      <el-col :span="6"><StatCard label="在线设备" :value="overview.onlineDevices || 0" :unit="'/' + (overview.totalDevices || 0) + '台'" color="#e6a23c" tip="当前正常运行的智能垃圾箱数量。虎溪花园共36台设备（12栋×每栋3台），离线设备需物业及时检修" /></el-col>
-      <el-col :span="6"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#f56c6c" tip="已注册使用小程序的居民数量，包含物业管理员和城管监管账号" /></el-col>
+      <el-col :span="6"><StatCard label="本月投放总量" :value="overview.monthDeliveryCount || 0" unit="次" color="#409eff" tip="全社区30天垃圾投放总次数" /></el-col>
+      <el-col :span="6"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#67c23a" tip="正确投放占比，达标线85%" /></el-col>
+      <el-col :span="6"><StatCard label="在线设备" :value="overview.onlineDevices || 0" :unit="'/' + (overview.totalDevices || 0) + '台'" color="#e6a23c" tip="正常运行垃圾箱 / 总数" /></el-col>
+      <el-col :span="6"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#f56c6c" tip="已注册小程序居民数量" /></el-col>
     </el-row>
     <el-row :gutter="16" style="margin-top:16px">
       <el-col :span="12">
         <el-card shadow="never">
-          <template #header>各栋分类正确率对比 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 红色虚线为城管考核达标线(85%)，A区(1-6栋)明显优于B区(7-12栋)</span></template>
+          <template #header>各栋分类正确率对比 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 红线=考核达标线85%，绿柱达标红柱未达标</span></template>
           <div ref="bldChart" style="height:300px"></div>
         </el-card>
       </el-col>
       <el-col :span="12">
         <el-card shadow="never">
-          <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝色为总投放量，绿色为正确投放量，周末投放量可见下降</span></template>
+          <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝=投放总量，绿=正确投放</span></template>
           <div ref="trendChart" style="height:300px"></div>
         </el-card>
       </el-col>
