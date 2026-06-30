@@ -29,12 +29,16 @@ def create_app(env='development'):
     def serve_assets(filename):
         return send_file(os.path.join(_BASE, 'admin_dist', 'assets', filename))
 
-    # 商家登录（纯 HTML）
-    _ROOT = os.path.dirname(_BASE)
+    # 商家后台（Vue 构建产物）
     @app.route('/merchant')
-    @app.route('/merchant/login')
-    def serve_merchant_login():
-        return send_file(os.path.join(_ROOT, 'frontend', 'merchant-web', 'login.html'))
+    @app.route('/merchant/<path:subpath>')
+    def serve_merchant(subpath=''):
+        return send_file(os.path.join(_BASE, 'merchant_dist', 'index.html'))
+
+    # 商家静态资源
+    @app.route('/merchant-assets/<path:filename>')
+    def serve_merchant_assets(filename):
+        return send_file(os.path.join(_BASE, 'merchant_dist', 'assets', filename))
 
     return app
 
@@ -67,9 +71,15 @@ def register_blueprints(app):
     from .controllers.admin.statistics_controller import bp as admin_statistics_bp
     from .controllers.admin.merchant_controller import bp as admin_merchant_bp
 
-    # merchant (2) — commodity/order/report/statistics/sub_account/apply 待合作
+    # merchant (8)
     from .controllers.merchant.auth_controller import bp as merchant_auth_bp
     from .controllers.merchant.info_controller import bp as merchant_info_bp
+    from .controllers.merchant.apply_controller import bp as merchant_apply_bp
+    from .controllers.merchant.commodity_controller import bp as merchant_commodity_bp
+    from .controllers.merchant.order_controller import bp as merchant_order_bp
+    from .controllers.merchant.statistics_controller import bp as merchant_statistics_bp
+    from .controllers.merchant.sub_account_controller import bp as merchant_sub_account_bp
+    from .controllers.merchant.report_controller import bp as merchant_report_bp
 
     # 注册 blueprint
     app.register_blueprint(sms_bp, url_prefix='/api/v1/common')
@@ -97,3 +107,9 @@ def register_blueprints(app):
 
     app.register_blueprint(merchant_auth_bp, url_prefix='/api/v1/merchant')
     app.register_blueprint(merchant_info_bp, url_prefix='/api/v1/merchant')
+    app.register_blueprint(merchant_apply_bp, url_prefix='/api/v1/merchant')
+    app.register_blueprint(merchant_commodity_bp, url_prefix='/api/v1/merchant')
+    app.register_blueprint(merchant_order_bp, url_prefix='/api/v1/merchant')
+    app.register_blueprint(merchant_statistics_bp, url_prefix='/api/v1/merchant')
+    app.register_blueprint(merchant_sub_account_bp, url_prefix='/api/v1/merchant')
+    app.register_blueprint(merchant_report_bp, url_prefix='/api/v1/merchant')
