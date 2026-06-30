@@ -1,1 +1,0 @@
-import{s}from"./request-C2LISMPf.js";function u(t={}){return s.get("/admin/users",{params:t})}function a(t){return s.get(`/admin/users/${t}`)}function n(t,e){return s.put(`/admin/users/${t}/status`,{status:e})}export{a,u as g,n as u};

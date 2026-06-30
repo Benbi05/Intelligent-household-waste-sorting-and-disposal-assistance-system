@@ -4,10 +4,10 @@
 
     <!-- 指标卡 -->
     <el-row :gutter="16" class="stat-row">
-      <el-col :span="6"><router-link to="/statistics" class="stat-link"><StatCard label="本月投放总量" :value="overview.monthDeliveryCount || 0" unit="次" color="#1a73e8" tip="点击查看详细统计" :trend="overview.deliveryChangeRate || 0" /></router-link></el-col>
-      <el-col :span="6"><router-link :to="isAdmin ? '/statistics' : '/compare'" class="stat-link"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#2e7d32" tip="点击查看社区对比" :trend="monthTrend" /></router-link></el-col>
-      <el-col :span="6"><router-link :to="isAdmin ? '/devices' : '/statistics'" class="stat-link"><StatCard label="在线设备" :value="overview.onlineDevices || 0" unit="台" color="#ef6c00" tip="点击查看设备详情" :sub="'待处理 ' + (overview.offlineFaultDevices || 0) + ' 台'" /></router-link></el-col>
-      <el-col :span="6"><router-link :to="isAdmin ? '/users' : '/statistics'" class="stat-link"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#78909c" tip="点击查看用户列表" :sub="'本月新增 ' + (overview.newUsersThisMonth || 0) + ' 人'" /></router-link></el-col>
+      <el-col :span="6"><router-link to="/delivery-compare" class="stat-link"><StatCard label="本月投放总量" :value="overview.monthDeliveryCount || 0" unit="次" color="#1a73e8" tip="点击查看各社区投放对比" :trend="overview.deliveryChangeRate || 0" /></router-link></el-col>
+      <el-col :span="6"><router-link to="/rate-compare" class="stat-link"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#2e7d32" tip="点击查看各社区分类正确率" :trend="monthTrend" /></router-link></el-col>
+      <el-col :span="6"><router-link to="/device-maintenance" class="stat-link"><StatCard label="在线设备" :value="overview.onlineDevices || 0" unit="台" color="#ef6c00" tip="点击查看待处理设备" :sub="'待处理 ' + (overview.offlineFaultDevices || 0) + ' 台'" /></router-link></el-col>
+      <el-col :span="6"><router-link to="/user-stats" class="stat-link"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#78909c" tip="点击查看各社区用户统计" :sub="'本月新增 ' + (overview.newUsersThisMonth || 0) + ' 人'" /></router-link></el-col>
     </el-row>
 
     <!-- 品类正确率 + 环比 -->
