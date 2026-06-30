@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import * as echarts from 'echarts'
 import { getOverview } from '@/api/statistics'
 import { useUserStore } from '@/store/user'
@@ -40,7 +40,7 @@ const trendChart = ref(null)
 
 onMounted(async () => {
   try { const r = await getOverview(); overview.value = r.data } catch {}
-  await nextTick(); loadCharts()
+  setTimeout(loadCharts, 300)
 })
 
 async function loadCharts() {
