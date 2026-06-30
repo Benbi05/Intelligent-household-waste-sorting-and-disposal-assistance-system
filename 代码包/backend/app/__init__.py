@@ -36,7 +36,7 @@ def create_app(env='development'):
         return send_file(os.path.join(_BASE, 'merchant_dist', 'index.html'))
 
     # 商家静态资源
-    @app.route('/merchant-assets/<path:filename>')
+    @app.route('/merchant/assets/<path:filename>')
     def serve_merchant_assets(filename):
         return send_file(os.path.join(_BASE, 'merchant_dist', 'assets', filename))
 
