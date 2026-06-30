@@ -54,6 +54,46 @@ def delivery_stats():
         "totalPointsAwarded": int(points) if points > 0 else 0
     })
 
+@bp.route("/statistics/building-compare", methods=["GET"])
+@admin_required
+def building_compare():
+    """各栋分类正确率对比"""
+    devices = Device.query.all()
+    bld_map = {}
+    for d in devices:
+        parts = d.deviceId.split('-')
+        if len(parts) >= 2:
+            bld = f'{int(parts[1])}栋'
+            if bld not in bld_map: bld_map[bld] = []
+            bld_map[bld].append(d.deviceId)
+
+    result = []
+    for bld in sorted(bld_map.keys(), key=lambda x: int(x.replace('栋',''))):
+        dids = bld_map[bld]
+        area = 'A区' if int(bld.replace('栋','')) <= 6 else 'B区'
+        total = DeliveryRecord.query.filter(DeliveryRecord.deviceId.in_(dids)).count()
+        correct = DeliveryRecord.query.filter(DeliveryRecord.deviceId.in_(dids), DeliveryRecord.isCorrect==True).count()
+        rate = round(correct/total*100, 1) if total > 0 else 0
+        pts = db.session.query(func.sum(DeliveryRecord.pointChange)).filter(DeliveryRecord.deviceId.in_(dids)).scalar() or 0
+        result.append({'building': bld, 'area': area, 'total': total, 'correct': correct, 'rate': rate, 'points': int(pts)})
+    return success(result)
+
+@bp.route("/statistics/daily-trend", methods=["GET"])
+@admin_required
+def daily_trend():
+    """近 30 天每日投放趋势"""
+    from datetime import timedelta
+    now = datetime.utcnow()
+    trend = []
+    for day in range(29, -1, -1):
+        d_start = (now - timedelta(days=day)).replace(hour=0, minute=0, second=0, microsecond=0)
+        d_end = d_start + timedelta(days=1)
+        total = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= d_start, DeliveryRecord.deliveryTime < d_end).count()
+        correct = DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= d_start, DeliveryRecord.deliveryTime < d_end, DeliveryRecord.isCorrect==True).count()
+        rate = round(correct/total*100, 1) if total > 0 else 0
+        trend.append({'date': d_start.strftime('%m/%d'), 'total': total, 'correct': correct, 'rate': rate})
+    return success(trend)
+
 @bp.route("/statistics/export", methods=["GET"])
 @admin_required
 def export_data():
