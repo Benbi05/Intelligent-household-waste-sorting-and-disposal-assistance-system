@@ -27,19 +27,35 @@
       <el-col :span="12">
         <el-card shadow="never">
           <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝=总投放 绿=正确</span></template>
-          <div class="trend-table" v-loading="loading">
-            <table>
-              <thead><tr><th>日期</th><th>总投放</th><th>正确</th><th>正确率</th></tr></thead>
-              <tbody>
-                <tr v-for="d in trdData" :key="d.date">
-                  <td>{{ d.date }}</td>
-                  <td>{{ d.total }}</td>
-                  <td style="color:#67c23a">{{ d.correct }}</td>
-                  <td :style="{ color: d.rate>=85?'#67c23a':'#f56c6c', fontWeight:'600' }">{{ d.rate }}%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <svg viewBox="0 0 600 220" class="trend-svg" v-loading="loading">
+            <!-- 网格线 -->
+            <line v-for="i in 4" :key="'h'+i" :x1="40" :y1="i*50" :x2="590" :y2="i*50" stroke="#f0f2f5" stroke-width="1"/>
+            <!-- Y轴标签 -->
+            <text v-for="i in 4" :key="'yt'+i" x="34" :y="i*50+4" text-anchor="end" font-size="10" fill="#c0c4cc">{{ 400-i*100 }}</text>
+            <!-- 正确率折线 -->
+            <polyline :points="ratePoints" fill="none" stroke="#f56c6c" stroke-width="2"/>
+            <!-- 正确率圆点 -->
+            <circle v-for="(p,i) in rateDots" :key="'rd'+i" :cx="p.x" :cy="p.y" r="3" fill="#f56c6c">
+              <title>{{ trdData[i].date }} 正确率 {{ trdData[i].rate }}%</title>
+            </circle>
+            <!-- 总投放柱 -->
+            <rect v-for="(d,i) in trdData" :key="'bar'+i" :x="42+i*18.3" :y="200-d.total*0.5" width="8" :height="d.total*0.5" fill="#409eff" opacity="0.6">
+              <title>{{ d.date }} 总投放 {{ d.total }}次</title>
+            </rect>
+            <!-- 正确投放柱 -->
+            <rect v-for="(d,i) in trdData" :key="'cbar'+i" :x="50+i*18.3" :y="200-d.correct*0.5" width="8" :height="d.correct*0.5" fill="#67c23a" opacity="0.8">
+              <title>{{ d.date }} 正确 {{ d.correct }}次</title>
+            </rect>
+            <!-- X轴标签 -->
+            <text v-for="(d,i) in xLabels" :key="'xl'+i" :x="46+i*18.3" y="216" font-size="9" fill="#c0c4cc" text-anchor="middle">{{ d }}</text>
+            <!-- 图例 -->
+            <rect x="440" y="5" width="12" height="12" fill="#409eff" opacity="0.6" rx="2"/>
+            <text x="456" y="15" font-size="10" fill="#606266">总投放</text>
+            <rect x="500" y="5" width="12" height="12" fill="#67c23a" opacity="0.8" rx="2"/>
+            <text x="516" y="15" font-size="10" fill="#606266">正确</text>
+            <circle cx="574" cy="11" r="4" fill="#f56c6c"/>
+            <text x="582" y="15" font-size="10" fill="#606266">正确率</text>
+          </svg>
         </el-card>
       </el-col>
     </el-row>
@@ -58,6 +74,9 @@ const roleLabel = computed(() => userStore.role === 'super_admin' ? '物业经�
 const overview = ref({})
 const bldData = ref([])
 const trdData = ref([])
+const ratePoints = computed(() => trdData.value.map((d, i) => `${46+i*18.3},${200-d.rate*2}`).join(' '))
+const rateDots = computed(() => trdData.value.map((d, i) => ({ x: 46+i*18.3, y: 200-d.rate*2 })))
+const xLabels = computed(() => trdData.value.filter((_, i) => i % 3 === 0).map(d => d.date))
 const loading = ref(true)
 
 onMounted(async () => {
@@ -89,9 +108,5 @@ onMounted(async () => {
 .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
 .dot.red { background: #f56c6c; }
 
-.trend-table { max-height: 420px; overflow-y: auto; }
-.trend-table table { width: 100%; font-size: 12px; border-collapse: collapse; }
-.trend-table th { background: #f5f7fa; padding: 6px 8px; text-align: center; color: #909399; font-weight: 600; position: sticky; top: 0; }
-.trend-table td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #f0f2f5; }
-.trend-table tr:hover td { background: #f0f9eb; }
+.trend-svg { width: 100%; height: auto; background: #fafbfc; border-radius: 6px; }
 </style>
