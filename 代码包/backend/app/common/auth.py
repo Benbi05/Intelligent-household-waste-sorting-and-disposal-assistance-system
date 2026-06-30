@@ -70,7 +70,7 @@ def admin_required(f):
         payload = _decode_token(token)
         if payload is None:
             return fail(401, 'Token 已过期')
-        if payload.get('role') not in ('super_admin', 'admin'):
+        if payload.get('role') not in ('super_admin', 'admin', 'ops_admin'):
             return fail(403, '无管理员权限')
         g.user_id = payload['user_id']
         g.role = payload['role']
