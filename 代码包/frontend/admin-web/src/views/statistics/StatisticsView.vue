@@ -69,8 +69,11 @@ async function exportReport(key) {
     const res = await request.get(urls[key] || '/admin/statistics/export')
     if (res.data?.downloadUrl) {
       ElMessage.success('报表生成成功，正在下载')
+      let url = res.data.downloadUrl
+      const host = localStorage.getItem('backend_host')
+      if (host) url = 'http://' + host + ':8082' + url
       const a = document.createElement('a')
-      a.href = res.data.downloadUrl
+      a.href = url
       a.download = (res.data.reportName || '报表') + '.xlsx'
       document.body.appendChild(a)
       a.click()
