@@ -31,6 +31,10 @@
               </div>
             </div>
             <el-empty v-else description="暂无数据" :image-size="40" />
+          </el-card>
+        </el-col>
+      </el-row>
+    </el-card>
   </div>
 </template>
 
