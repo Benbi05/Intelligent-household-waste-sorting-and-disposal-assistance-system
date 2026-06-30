@@ -22,8 +22,8 @@ def login():
     if result['ok']:
         return success({
             'adminId': result['adminId'], 'username': result['username'],
-            'role': result['role'], 'token': result['token'],
-            'refreshToken': result['refreshToken'],
+            'role': result['role'], 'community': result.get('community', ''),
+            'token': result['token'], 'refreshToken': result['refreshToken'],
         })
     return fail(result['error_code'], result.get('message', '登录失败'))
 

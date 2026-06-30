@@ -24,6 +24,8 @@ def get_overview(community='') -> dict:
     # 上月投放（环比）
     last_month_start = (month_start - timedelta(days=1)).replace(day=1)
     last_month_total = _filter(DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= last_month_start, DeliveryRecord.deliveryTime < month_start), DeliveryRecord).count()
+    last_month_correct = _filter(DeliveryRecord.query.filter(DeliveryRecord.deliveryTime >= last_month_start, DeliveryRecord.deliveryTime < month_start, DeliveryRecord.isCorrect == True), DeliveryRecord).count()
+    last_month_rate = round(last_month_correct / last_month_total, 2) if last_month_total > 0 else 0
     delivery_change = round((month_total - last_month_total) / last_month_total * 100, 1) if last_month_total > 0 else 0
 
     # 设备
@@ -47,5 +49,6 @@ def get_overview(community='') -> dict:
         "monthDeliveryCount": month_total,
         "deliveryChangeRate": delivery_change,
         "monthCorrectRate": correct_rate,
+        "lastMonthCorrectRate": last_month_rate,
         "pendingMerchantCount": Merchant.query.filter_by(status="pending").count(),
     }

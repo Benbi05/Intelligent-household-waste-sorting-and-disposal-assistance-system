@@ -320,11 +320,11 @@ const tasks = reactive({
 function toggleTask(g, id) { const item = tasks[g].find(t => t.id === id); if (item) item.done = !item.done }
 
 // 计算属性
-const monthCorrectRate = computed(() => monthCompare.value.thisMonth?.rate ? monthCompare.value.thisMonth.rate.toFixed(1) : '87.3')
-const participationRate = computed(() => { const r = monthCompare.value.thisMonth?.participation; return r ? r.toFixed(1) : '62.5' })
-const participationChange = computed(() => { const t = monthCompare.value.thisMonth?.participation || 62.5; const l = monthCompare.value.lastMonth?.participation || 57.5; return (t - l).toFixed(1) })
-const compareDelta = computed(() => { const t = monthCompare.value.thisMonth?.rate || 0; const l = monthCompare.value.lastMonth?.rate || 0; return Math.round((t - l) * 10) / 10 })
-const displayDeliveryCount = computed(() => overview.value.monthDeliveryCount || overview.value.todayDeliveryCount || 389)
+const monthCorrectRate = computed(() => overview.value.monthCorrectRate ? (overview.value.monthCorrectRate * 100).toFixed(1) : (monthCompare.value.thisMonth?.rate ? monthCompare.value.thisMonth.rate.toFixed(1) : '0.0'))
+const participationRate = computed(() => { const total = overview.value.totalUsers || 1; const monthD = overview.value.monthDeliveryCount || 0; return ((Math.min(monthD / 3, total) / total) * 100).toFixed(1) })
+const participationChange = computed(() => { const d = overview.value.deliveryChangeRate || 0; return d.toFixed(1) })
+const compareDelta = computed(() => { const t = overview.value.monthCorrectRate || 0; const l = overview.value.lastMonthCorrectRate || 0; return Math.round((t - l) * 1000) / 10 })
+const displayDeliveryCount = computed(() => overview.value.monthDeliveryCount || 0)
 const displayDeliveryLabel = computed(() => community.value ? '本月投放总量' : '今日投放总量')
 const monthTrend = computed(() => { const d = compareDelta.value; return d > 0 ? Math.abs(d) : d < 0 ? -Math.abs(d) : 0 })
 
