@@ -1,23 +1,45 @@
 <template>
   <div class="dashboard">
-    <div class="page-title">{{ roleLabel }}工作台 — 虎溪花园社区（沙坪坝区虎溪街道）</div>
+    <div class="page-title">{{ roleLabel }}工作台 — 虎溪花园社区</div>
     <el-row :gutter="16" class="stat-row">
       <el-col :span="6"><StatCard label="本月投放总量" :value="overview.monthDeliveryCount || 0" unit="次" color="#409eff" tip="全社区30天垃圾投放总次数" /></el-col>
       <el-col :span="6"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#67c23a" tip="正确投放占比，达标线85%" /></el-col>
       <el-col :span="6"><StatCard label="在线设备" :value="overview.onlineDevices || 0" :unit="'/' + (overview.totalDevices || 0) + '台'" color="#e6a23c" tip="正常运行垃圾箱 / 总数" /></el-col>
       <el-col :span="6"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#f56c6c" tip="已注册小程序居民数量" /></el-col>
     </el-row>
+
     <el-row :gutter="16" style="margin-top:16px">
       <el-col :span="12">
         <el-card shadow="never">
-          <template #header>各栋分类正确率对比 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 红线=考核达标线85%，绿柱达标红柱未达标</span></template>
-          <div ref="bldChart" style="height:300px"></div>
+          <template #header>各栋分类正确率 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 红线=达标85%</span></template>
+          <div class="bar-chart" v-loading="loading">
+            <div v-for="d in bldData" :key="d.building" class="bar-row">
+              <span class="bar-label">{{ d.building }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" :style="{ width: d.rate+'%', background: d.rate>=85?'#67c23a':d.rate>=80?'#e6a23c':'#f56c6c' }"></div>
+              </div>
+              <span class="bar-val" :style="{ color: d.rate>=85?'#67c23a':'#f56c6c' }">{{ d.rate }}%</span>
+            </div>
+            <div class="bar-legend"><span class="dot red"></span> 红线 = 城管考核达标线 85%</div>
+          </div>
         </el-card>
       </el-col>
       <el-col :span="12">
         <el-card shadow="never">
-          <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝=投放总量，绿=正确投放</span></template>
-          <div ref="trendChart" style="height:300px"></div>
+          <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝=总投放 绿=正确</span></template>
+          <div class="trend-table" v-loading="loading">
+            <table>
+              <thead><tr><th>日期</th><th>总投放</th><th>正确</th><th>正确率</th></tr></thead>
+              <tbody>
+                <tr v-for="d in trdData" :key="d.date">
+                  <td>{{ d.date }}</td>
+                  <td>{{ d.total }}</td>
+                  <td style="color:#67c23a">{{ d.correct }}</td>
+                  <td :style="{ color: d.rate>=85?'#67c23a':'#f56c6c', fontWeight:'600' }">{{ d.rate }}%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -26,7 +48,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import * as echarts from 'echarts'
 import { getOverview } from '@/api/statistics'
 import { useUserStore } from '@/store/user'
 import StatCard from '@/components/stat-card/StatCard.vue'
@@ -35,47 +56,42 @@ import request from '@/api/request'
 const userStore = useUserStore()
 const roleLabel = computed(() => userStore.role === 'super_admin' ? '物业经理' : '城管监管')
 const overview = ref({})
-const bldChart = ref(null)
-const trendChart = ref(null)
+const bldData = ref([])
+const trdData = ref([])
+const loading = ref(true)
 
 onMounted(async () => {
   try { const r = await getOverview(); overview.value = r.data } catch {}
-  setTimeout(loadCharts, 300)
-})
-
-async function loadCharts() {
   try {
-    const [bR, tR] = await Promise.all([request.get('/admin/statistics/building-compare'), request.get('/admin/statistics/daily-trend')])
-    const bld = bR.data; const trd = tR.data
-    if (bldChart.value) {
-      const c = echarts.init(bldChart.value)
-      c.setOption({
-        tooltip: { trigger: 'axis', formatter: function(p) { const d = p[0]; return d.name + '<br/>正确率: ' + d.value + '%<br/>' + (d.value>=85?'✅ 达标':d.value>=80?'⚠️ 接近达标':'❌ 未达标') } },
-        xAxis: { data: bld.map(d => d.building), axisLabel: { fontSize: 11 } },
-        yAxis: { max: 100, axisLabel: { formatter: '{value}%' } },
-        series: [{ name: '正确率', type: 'bar', data: bld.map(d => d.rate),
-          itemStyle: { color: p => p.value>=85?'#67c23a':p.value>=80?'#e6a23c':'#f56c6c' },
-          markLine: { data: [{ yAxis: 85, name: '达标线 85%', lineStyle: { color: '#f56c6c', type: 'dashed', width: 2 } }], label: { show: true, fontSize: 11 } } }],
-        grid: { top: 20, right: 30, bottom: 30, left: 40 }
-      })
-    }
-    if (trendChart.value) {
-      const c = echarts.init(trendChart.value)
-      c.setOption({
-        tooltip: { trigger: 'axis', formatter: function(p) { return p[0].axisValue + '<br/>总投放: ' + p[0].value + '次<br/>正确: ' + p[1].value + '次<br/>正确率: ' + (p[1].value/p[0].value*100).toFixed(1) + '%' } },
-        xAxis: { data: trd.map(d => d.date), axisLabel: { fontSize: 10, rotate: 45 } },
-        series: [{ name: '总投放', type: 'bar', data: trd.map(d => d.total), itemStyle: { color: '#409eff' } },
-                 { name: '正确', type: 'bar', data: trd.map(d => d.correct), itemStyle: { color: '#67c23a' } }],
-        legend: { data: ['总投放','正确'] },
-        grid: { top: 40, right: 20, bottom: 40, left: 50 }
-      })
-    }
+    const [bR, tR] = await Promise.all([
+      request.get('/admin/statistics/building-compare'),
+      request.get('/admin/statistics/daily-trend'),
+    ])
+    bldData.value = bR.data
+    trdData.value = tR.data
   } catch {}
-}
+  loading.value = false
+})
 </script>
 
 <style scoped>
 .dashboard { padding: 20px; }
 .page-title { font-size: 18px; font-weight: 600; color: #303133; margin-bottom: 20px; }
 .stat-row { margin-bottom: 16px; }
+
+.bar-chart { padding: 10px 0; }
+.bar-row { display: flex; align-items: center; margin-bottom: 6px; }
+.bar-label { width: 36px; font-size: 12px; color: #606266; text-align: right; margin-right: 8px; flex-shrink: 0; }
+.bar-track { flex: 1; height: 18px; background: #f0f2f5; border-radius: 4px; overflow: hidden; position: relative; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; min-width: 2px; }
+.bar-val { width: 44px; font-size: 12px; font-weight: 600; text-align: right; margin-left: 8px; flex-shrink: 0; }
+.bar-legend { margin-top: 12px; font-size: 11px; color: #c0c4cc; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.dot.red { background: #f56c6c; }
+
+.trend-table { max-height: 420px; overflow-y: auto; }
+.trend-table table { width: 100%; font-size: 12px; border-collapse: collapse; }
+.trend-table th { background: #f5f7fa; padding: 6px 8px; text-align: center; color: #909399; font-weight: 600; position: sticky; top: 0; }
+.trend-table td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #f0f2f5; }
+.trend-table tr:hover td { background: #f0f9eb; }
 </style>
