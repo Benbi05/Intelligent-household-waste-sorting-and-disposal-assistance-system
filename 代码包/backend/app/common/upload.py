@@ -25,6 +25,9 @@ def handle() -> dict:
     ext = 'jpg' if file.mimetype == 'image/jpeg' else file.mimetype.split('/')[-1]
     filename = f'{uuid.uuid4().hex}.{ext}'
 
-    # TODO: 上传至 OSS/S3，病毒扫描
-    image_url = f'https://cdn.garbage-system.com/images/{filename}'
-    return {'ok': True, 'error_code': 0, 'imageUrl': image_url}
+    # 保存到本地 uploads 目录
+    upload_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'uploads')
+    os.makedirs(upload_dir, exist_ok=True)
+    file.save(os.path.join(upload_dir, filename))
+    image_url = f'/api/v1/common/upload/file/{filename}'
+    return {'ok': True, 'error_code': 0, 'imageUrl': image_url, 'url': image_url}

@@ -13,6 +13,7 @@ class Merchant(db.Model):
     contactPhone = db.Column(db.String(20))
     storeAddress = db.Column(db.String(256))
     businessLicense = db.Column(db.String(512))
+    idCard = db.Column(db.String(512))
     area = db.Column(db.String(64))
     description = db.Column(db.Text)
     status = db.Column(db.String(16), default='pending')
