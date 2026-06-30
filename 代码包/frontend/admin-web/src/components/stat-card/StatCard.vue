@@ -12,7 +12,10 @@
           <span>{{ Math.abs(trend) }}%</span>
           <span class="trend-desc">较上月</span>
         </div>
-        <div v-if="sub" class="stat-sub">{{ sub }}</div>
+        <div v-if="sub" class="stat-trend">
+          <span class="sub-dot" :style="{ background: subColor }"></span>
+          <span>{{ sub }}</span>
+        </div>
       </div>
       <div class="stat-icon" :style="{ background: color + '1a', color: color }">
         <slot name="icon">
@@ -25,9 +28,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { CaretTop, CaretBottom, DataLine } from '@element-plus/icons-vue'
 
-defineProps({
+const props = defineProps({
   label: { type: String, default: '' },
   value: { type: [String, Number], default: 0 },
   unit: { type: String, default: '' },
@@ -35,6 +39,12 @@ defineProps({
   trend: { type: Number, default: 0 },
   sub: { type: String, default: '' },
   color: { type: String, default: '#67c23a' },
+})
+
+const subColor = computed(() => {
+  if (props.sub.includes('新增')) return '#67c23a'
+  if (props.sub.includes('待处理')) return '#f56c6c'
+  return '#909399'
 })
 </script>
 
@@ -81,7 +91,7 @@ defineProps({
   margin-left: 4px;
 }
 
-.stat-sub { margin-top: 6px; font-size: 12px; color: #909399; }
+.sub-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
 .stat-icon {
   width: 56px;
