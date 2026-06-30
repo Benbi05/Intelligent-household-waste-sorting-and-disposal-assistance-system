@@ -29,19 +29,31 @@
         <el-card shadow="never">
           <template #header>本月 vs 上月 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 环比变化</span></template>
           <div class="compare-box" v-loading="loading">
-            <div class="cmp-row">
-              <span class="cmp-label">上月正确率</span>
-              <span class="cmp-val">{{ monthCompare.lastMonth?.rate || 0 }}%</span>
-            </div>
-            <div class="cmp-row">
-              <span class="cmp-label">本月正确率</span>
-              <span class="cmp-val" :style="{ color: monthCompare.thisMonth?.rate >= 85 ? '#67c23a' : '#f56c6c' }">{{ monthCompare.thisMonth?.rate || 0 }}%</span>
-            </div>
-            <div class="cmp-arrow">
-              变化：<span :style="{ color: compareDelta > 0 ? '#67c23a' : '#f56c6c', fontSize: '22px', fontWeight: '700' }">{{ compareDelta > 0 ? '+' : '' }}{{ compareDelta }}%</span>
-              <span v-if="compareDelta > 0" style="color:#67c23a;font-size:14px"> ↑ 持续改善</span>
-              <span v-else-if="compareDelta < 0" style="color:#f56c6c;font-size:14px"> ↓ 需关注</span>
-              <span v-else style="color:#c0c4cc;font-size:14px"> — 持平</span>
+            <div class="donut-pair">
+              <div class="donut-item">
+                <svg viewBox="0 0 100 100" class="donut-svg">
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f0f2f5" stroke-width="10"/>
+                  <circle cx="50" cy="50" r="38" fill="none" :stroke="donutColor(monthCompare.lastMonth?.rate)" stroke-width="10"
+                    :stroke-dasharray="donutLen(monthCompare.lastMonth?.rate) + ' ' + donutRest(monthCompare.lastMonth?.rate)"
+                    stroke-linecap="round" transform="rotate(-90 50 50)"/>
+                  <text x="50" y="46" text-anchor="middle" font-size="18" font-weight="700" :fill="donutColor(monthCompare.lastMonth?.rate)">{{ monthCompare.lastMonth?.rate || 0 }}%</text>
+                  <text x="50" y="64" text-anchor="middle" font-size="10" fill="#c0c4cc">上月</text>
+                </svg>
+              </div>
+              <div class="donut-arrow">
+                <span :style="{ color: compareDelta > 0 ? '#67c23a' : compareDelta < 0 ? '#f56c6c' : '#c0c4cc', fontSize:'18px', fontWeight:'700' }">{{ compareDelta > 0 ? '↑' : compareDelta < 0 ? '↓' : '→' }}</span>
+                <span :style="{ color: compareDelta > 0 ? '#67c23a' : '#f56c6c', fontSize:'13px' }">{{ compareDelta > 0 ? '+' : '' }}{{ compareDelta }}%</span>
+              </div>
+              <div class="donut-item">
+                <svg viewBox="0 0 100 100" class="donut-svg">
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f0f2f5" stroke-width="10"/>
+                  <circle cx="50" cy="50" r="38" fill="none" :stroke="donutColor(monthCompare.thisMonth?.rate)" stroke-width="10"
+                    :stroke-dasharray="donutLen(monthCompare.thisMonth?.rate) + ' ' + donutRest(monthCompare.thisMonth?.rate)"
+                    stroke-linecap="round" transform="rotate(-90 50 50)"/>
+                  <text x="50" y="46" text-anchor="middle" font-size="18" font-weight="700" :fill="donutColor(monthCompare.thisMonth?.rate)">{{ monthCompare.thisMonth?.rate || 0 }}%</text>
+                  <text x="50" y="64" text-anchor="middle" font-size="10" fill="#c0c4cc">本月</text>
+                </svg>
+              </div>
             </div>
           </div>
         </el-card>
@@ -111,6 +123,11 @@ const compareDelta = computed(() => {
 function catColor(type) {
   return { recyclable: '#409eff', kitchen: '#e6a23c', hazardous: '#f56c6c', other: '#909399' }[type] || '#ccc'
 }
+
+const donutTotal = 2 * Math.PI * 38  // 圆周长 ~238.76
+function donutLen(rate) { return (donutTotal * (rate || 0) / 100).toFixed(0) }
+function donutRest(rate) { return (donutTotal * (1 - (rate || 0) / 100)).toFixed(0) }
+function donutColor(rate) { return (rate || 0) >= 85 ? '#67c23a' : (rate || 0) >= 75 ? '#e6a23c' : '#f56c6c' }
 
 function catTip(c) {
   if (c.rate >= 85) return '达标'
@@ -187,9 +204,9 @@ function renderTrendChart() {
 .cat-count { font-size: 12px; color: #c0c4cc; }
 .cat-tip { font-size: 12px; margin-top: 6px; color: #909399; }
 
-.compare-box { padding: 16px; }
-.cmp-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f2f5; }
-.cmp-label { font-size: 14px; color: #606266; }
-.cmp-val { font-size: 22px; font-weight: 700; }
-.cmp-arrow { margin-top: 16px; font-size: 14px; color: #606266; text-align: center; }
+.compare-box { padding: 8px 0; }
+.donut-pair { display: flex; align-items: center; justify-content: space-around; }
+.donut-item { text-align: center; }
+.donut-svg { width: 100px; height: 100px; }
+.donut-arrow { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 </style>
