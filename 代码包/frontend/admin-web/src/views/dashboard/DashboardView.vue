@@ -4,6 +4,14 @@
     <!-- ==================== 物业经理视图 ==================== -->
     <template v-if="isAdmin">
 
+      <!-- 社区选择器 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div class="page-title">{{ roleLabel }}工作台 — {{ community ? community+'社区' : '全部社区' }}</div>
+        <el-select v-model="activeCommunity" placeholder="选择社区" size="default" style="width:160px" @change="onCommunityChange" clearable>
+          <el-option v-for="c in communities" :key="c.value" :label="c.label" :value="c.value" />
+        </el-select>
+      </div>
+
       <!-- 一、核心指标区 -->
       <div class="metrics-row">
         <div class="metric-card" @click="openChartDialog('rate')">
@@ -246,9 +254,12 @@ import StatCard from '@/components/stat-card/StatCard.vue'
 import request from '@/api/request'
 
 const route = useRoute()
-const community = computed(() => route.query.community || '')
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.role === 'super_admin')
+const community = computed(() => {
+  if (isAdmin.value) return userStore.community
+  return route.query.community || ''
+})
 const roleLabel = computed(() => isAdmin.value ? '物业经理' : '城管监管')
 
 const overview = ref({})

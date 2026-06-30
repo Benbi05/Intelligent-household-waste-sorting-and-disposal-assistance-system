@@ -9,4 +9,5 @@ class Administrator(db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     passwordHash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(32), default='admin')
+    community = db.Column(db.String(64), default='')
     lastLoginTime = db.Column(db.DateTime, nullable=True)

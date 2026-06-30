@@ -97,6 +97,7 @@ def admin_login(username: str, password: str) -> dict:
     db.session.commit()
     return {"ok": True, "error_code": 0, "adminId": admin.id,
             "username": admin.username, "role": admin.role,
+            "community": admin.community or '',
             "token": token, "refreshToken": refresh}
 
 

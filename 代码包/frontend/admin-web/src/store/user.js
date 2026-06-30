@@ -10,13 +10,14 @@ export const useUserStore = defineStore('user', () => {
   const isLoggedIn = computed(() => !!token.value)
   const username = computed(() => userInfo.value?.username || '')
   const role = computed(() => userInfo.value?.role || '')
+  const community = computed(() => userInfo.value?.community || '')
 
   async function login(username, password, captchaToken, captchaCode) {
     const res = await loginApi(username, password, captchaToken, captchaCode)
     const data = res.data
     token.value = data.token
     refreshToken.value = data.refreshToken
-    userInfo.value = { adminId: data.adminId, username: data.username, role: data.role }
+    userInfo.value = { adminId: data.adminId, username: data.username, role: data.role, community: data.community || '' }
 
     localStorage.setItem('admin_token', data.token)
     localStorage.setItem('admin_refresh_token', data.refreshToken)
