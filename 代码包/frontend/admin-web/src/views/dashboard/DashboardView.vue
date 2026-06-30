@@ -27,35 +27,23 @@
       <el-col :span="24">
         <el-card shadow="never">
           <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝=总投放 绿=正确</span></template>
-          <svg viewBox="0 0 600 220" class="trend-svg" v-loading="loading">
-            <!-- 网格线 -->
-            <line v-for="i in 4" :key="'h'+i" :x1="40" :y1="i*50" :x2="590" :y2="i*50" stroke="#f0f2f5" stroke-width="1"/>
-            <!-- Y轴标签 -->
-            <text v-for="i in 4" :key="'yt'+i" x="34" :y="i*50+4" text-anchor="end" font-size="10" fill="#c0c4cc">{{ 400-i*100 }}</text>
-            <!-- 正确率折线 -->
-            <polyline :points="ratePoints" fill="none" stroke="#f56c6c" stroke-width="2"/>
-            <!-- 正确率圆点 -->
-            <circle v-for="(p,i) in rateDots" :key="'rd'+i" :cx="p.x" :cy="p.y" r="3" fill="#f56c6c">
-              <title>{{ trdData[i].date }} 正确率 {{ trdData[i].rate }}%</title>
-            </circle>
-            <!-- 总投放柱 -->
-            <rect v-for="(d,i) in trdData" :key="'bar'+i" :x="42+i*18.3" :y="200-d.total*0.5" width="8" :height="d.total*0.5" fill="#409eff" opacity="0.6">
-              <title>{{ d.date }} 总投放 {{ d.total }}次</title>
-            </rect>
-            <!-- 正确投放柱 -->
-            <rect v-for="(d,i) in trdData" :key="'cbar'+i" :x="50+i*18.3" :y="200-d.correct*0.5" width="8" :height="d.correct*0.5" fill="#67c23a" opacity="0.8">
-              <title>{{ d.date }} 正确 {{ d.correct }}次</title>
-            </rect>
-            <!-- X轴标签 -->
-            <text v-for="(d,i) in xLabels" :key="'xl'+i" :x="46+i*18.3" y="216" font-size="9" fill="#c0c4cc" text-anchor="middle">{{ d }}</text>
-            <!-- 图例 -->
-            <rect x="440" y="5" width="12" height="12" fill="#409eff" opacity="0.6" rx="2"/>
-            <text x="456" y="15" font-size="10" fill="#606266">总投放</text>
-            <rect x="500" y="5" width="12" height="12" fill="#67c23a" opacity="0.8" rx="2"/>
-            <text x="516" y="15" font-size="10" fill="#606266">正确</text>
-            <circle cx="574" cy="11" r="4" fill="#f56c6c"/>
-            <text x="582" y="15" font-size="10" fill="#606266">正确率</text>
-          </svg>
+          <div class="trend-chart" v-loading="loading">
+            <div class="trend-legend">
+              <span><span class="l-dot" style="background:#409eff"></span> 总投放</span>
+              <span><span class="l-dot" style="background:#67c23a"></span> 正确</span>
+              <span><span class="l-dot" style="background:#f56c6c;border-radius:50%;width:8px;height:8px"></span> 正确率</span>
+            </div>
+            <div class="trend-bars">
+              <div v-for="(d,i) in trdData" :key="i" class="t-day">
+                <div class="t-bar-wrap">
+                  <div class="t-bar t-total" :style="{height:(d.total*0.45)+'px'}" :title="d.date+' 总投放 '+d.total+'次'"></div>
+                  <div class="t-bar t-correct" :style="{height:(d.correct*0.45)+'px'}" :title="d.date+' 正确 '+d.correct+'次'"></div>
+                  <div class="t-dot" :style="{bottom:(d.rate*1.8)+'px'}" :title="d.date+' 正确率 '+d.rate+'%'"></div>
+                </div>
+                <span class="t-date" v-if="i%3===0" :title="d.date">{{ d.date.slice(3) }}</span>
+              </div>
+            </div>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -74,9 +62,6 @@ const roleLabel = computed(() => userStore.role === 'super_admin' ? '物业经�
 const overview = ref({})
 const bldData = ref([])
 const trdData = ref([])
-const ratePoints = computed(() => trdData.value.map((d, i) => `${46+i*18.3},${200-d.rate*2}`).join(' '))
-const rateDots = computed(() => trdData.value.map((d, i) => ({ x: 46+i*18.3, y: 200-d.rate*2 })))
-const xLabels = computed(() => trdData.value.filter((_, i) => i % 3 === 0).map(d => d.date))
 const loading = ref(true)
 
 onMounted(async () => {
@@ -108,5 +93,15 @@ onMounted(async () => {
 .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
 .dot.red { background: #f56c6c; }
 
-.trend-svg { width: 100%; height: auto; background: #fafbfc; border-radius: 6px; }
+.trend-chart { background: #fafbfc; border-radius: 6px; padding: 8px 0; }
+.trend-legend { display: flex; gap: 20px; justify-content: center; margin-bottom: 10px; font-size: 12px; color: #606266; }
+.l-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 2px; }
+.trend-bars { display: flex; align-items: flex-end; height: 200px; padding: 0 8px; gap: 2px; }
+.t-day { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.t-bar-wrap { width: 100%; height: 180px; position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 1px; }
+.t-bar { width: 4px; border-radius: 2px 2px 0 0; min-height: 2px; }
+.t-total { background: #409eff; opacity: 0.5; }
+.t-correct { background: #67c23a; opacity: 0.8; }
+.t-dot { position: absolute; width: 4px; height: 4px; background: #f56c6c; border-radius: 50%; left: 50%; transform: translateX(-50%); }
+.t-date { font-size: 9px; color: #c0c4cc; margin-top: 4px; white-space: nowrap; }
 </style>
