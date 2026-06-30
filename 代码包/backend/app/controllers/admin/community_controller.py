@@ -49,6 +49,24 @@ def rate_compare():
         result.append({'community': name, 'total': total, 'correct': correct, 'rate': rate})
     return success(result)
 
+@bp.route("/community/device-map", methods=["GET"])
+@admin_required
+def device_map():
+    """所有设备坐标与状态，用于地图展示"""
+    devices = Device.query.all()
+    result = []
+    for d in devices:
+        prefix = d.deviceId[:2] if len(d.deviceId) >= 2 else ''
+        community = ''
+        for name, p in COMMUNITIES:
+            if d.deviceId.startswith(p): community = name; break
+        result.append({
+            'deviceId': d.deviceId, 'deviceName': d.deviceName,
+            'community': community or '未知', 'status': d.onlineStatus,
+            'location': d.location or '', 'lat': d.lat, 'lng': d.lng,
+        })
+    return success(result)
+
 @bp.route("/community/device-issues", methods=["GET"])
 @admin_required
 def device_issues():

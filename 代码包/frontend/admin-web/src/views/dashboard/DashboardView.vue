@@ -66,6 +66,16 @@
         </el-col>
       </el-row>
     </template>
+
+    <!-- 设备地图 -->
+    <el-row :gutter="16" style="margin-top:16px">
+      <el-col :span="24">
+        <el-card shadow="never">
+          <template #header>设备分布图 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝点=正常 红点=离线/故障</span></template>
+          <div ref="deviceMapRef" style="height:350px;border-radius:6px" v-loading="loading"></div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -91,6 +101,7 @@ const trdData = ref([])
 const trendChart = ref(null)
 const pieLastRef = ref(null)
 const pieThisRef = ref(null)
+const deviceMapRef = ref(null)
 const loading = ref(true)
 
 const monthTrend = computed(() => {
@@ -160,6 +171,25 @@ async function fetchAll() {
   } catch {}
   loading.value = false
   setTimeout(renderPieCharts, 200)
+  setTimeout(renderDeviceMap, 400)
+}
+
+async function renderDeviceMap() {
+  if (!deviceMapRef.value || !window.L) return setTimeout(renderDeviceMap, 500)
+  try {
+    const r = await request.get('/admin/community/device-map')
+    const devices = r.data || []
+    const valid = devices.filter(d => d.lat && d.lng)
+    if (!valid.length) return
+    const map = window.L.map(deviceMapRef.value).setView([29.6098, 106.2996], 15)
+    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map)
+    for (const d of valid) {
+      const isFault = d.status === 'offline' || d.status === 'fault'
+      window.L.circleMarker([d.lat, d.lng], {
+        radius: 6, fillColor: isFault ? '#ef5350' : '#1a73e8', color: '#fff', weight: 1.5, fillOpacity: 0.85
+      }).addTo(map).bindPopup('<b>'+d.deviceName+'</b><br>'+d.location+'<br>状态: '+(isFault?'故障/离线':'正常'))
+    }
+  } catch {}
 }
 
 onMounted(fetchAll)
