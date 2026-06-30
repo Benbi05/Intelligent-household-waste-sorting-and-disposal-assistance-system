@@ -10,24 +10,23 @@
     </el-row>
 
     <!-- AI进货建议 -->
-    <el-card v-if="recom && recom.products && recom.products.length" shadow="never" style="margin-bottom:16px" class="recom-card">
+    <el-card v-if="recom" shadow="never" style="margin-bottom:16px" class="recom-card">
       <template #header>
         <div style="display:flex;align-items:center;justify-content:space-between">
           <span class="section-title">🤖 AI进货建议</span>
-          <el-tag type="warning" size="small">{{ recom.community || '本社区' }}</el-tag>
+          <el-tag type="warning" size="small">{{ recom.community || '本社区' }} · {{ recom.month }}</el-tag>
         </div>
       </template>
       <p class="recom-content">{{ recom.content }}</p>
-      <div class="recom-products">
+      <div v-if="recom.products && recom.products.length" class="recom-products">
         <div v-for="p in recom.products" :key="p.category" class="recom-item">
           <span class="ri-cat">{{ p.category }}</span>
           <span class="ri-arrow">→</span>
           <span class="ri-prod">建议多备 <b>{{ p.product }}</b></span>
+          <el-tag size="small" type="info" style="margin-left:auto">{{ p.ratio }}%</el-tag>
         </div>
       </div>
-      <div style="margin-top:12px">
-        <el-button size="small" type="primary" @click="markRead">我知道了</el-button>
-      </div>
+      <el-empty v-else description="AI正在分析本社区投放数据..." :image-size="40" />
     </el-card>
 
     <el-card shadow="never" style="margin-bottom:16px">
@@ -104,12 +103,7 @@ const verifyResult = ref(null)
 
 async function fetchStats() {
   try { const r = await getMerchantStats(); stats.value = r.data } catch {}
-  try { const rr = await request.get('/merchant/recommendations'); const recs = rr.data || []; recom.value = recs.find(r => r.status === 'unread') || recs[0] || null } catch {}
-}
-
-async function markRead() {
-  if (!recom.value) return
-  try { await request.put(`/merchant/recommendations/${recom.value.id}/read`); recom.value = null } catch {}
+  try { const rr = await request.get('/merchant/recommendations'); recom.value = rr.data } catch {}
 }
 
 async function handleVerify() {
