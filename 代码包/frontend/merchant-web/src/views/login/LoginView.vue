@@ -120,10 +120,10 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-.login-wrapper { position: relative; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 40%, #0d5e3a 100%); overflow: hidden; }
+.login-wrapper { position: relative; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a1628 0%, #142c44 40%, #0a1a3a 100%); overflow: hidden; }
 .login-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
 .bg-shape { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15; }
-.shape-1 { width: 500px; height: 500px; background: #67c23a; top: -150px; right: -100px; animation: float1 8s ease-in-out infinite; }
+.shape-1 { width: 500px; height: 500px; background: #409eff; top: -150px; right: -100px; animation: float1 8s ease-in-out infinite; }
 .shape-2 { width: 400px; height: 400px; background: #409eff; bottom: -120px; left: -80px; animation: float2 10s ease-in-out infinite; }
 .shape-3 { width: 300px; height: 300px; background: #e6a23c; top: 40%; left: 45%; animation: float3 12s ease-in-out infinite; }
 @keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-30px,20px) scale(1.05); } }
@@ -131,8 +131,8 @@ async function handleLogin() {
 @keyframes float3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-15px,-15px) scale(1.06); } }
 
 .login-card { position: relative; z-index: 1; display: flex; width: 960px; min-height: 540px; border-radius: 20px; box-shadow: 0 25px 80px rgba(0,0,0,0.35); overflow: hidden; }
-.login-brand { width: 420px; flex-shrink: 0; background: linear-gradient(160deg, #1a6b3c 0%, #0d5e3a 30%, #0b4a2e 70%, #083820 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-.brand-overlay { position: absolute; inset: 0; background: radial-gradient(circle at 20% 80%, rgba(103,194,58,0.2) 0%, transparent 50%), radial-gradient(circle at 70% 20%, rgba(64,158,255,0.15) 0%, transparent 50%); }
+.login-brand { width: 420px; flex-shrink: 0; background: linear-gradient(160deg, #1a3a6b 0%, #0d2a5a 30%, #0b1e4a 70%, #081432 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+.brand-overlay { position: absolute; inset: 0; background: radial-gradient(circle at 20% 80%, rgba(64,158,255,0.2) 0%, transparent 50%), radial-gradient(circle at 70% 20%, rgba(100,180,255,0.15) 0%, transparent 50%); }
 .brand-content { position: relative; z-index: 2; text-align: center; padding: 40px 30px; color: #fff; }
 .brand-icon { margin-bottom: 24px; }
 .brand-icon svg { width: 90px; height: 90px; }
@@ -151,13 +151,13 @@ async function handleLogin() {
 .captcha-row { display: flex; gap: 12px; }
 .captcha-input { flex: 1; }
 .captcha-img { width: 120px; height: 40px; border-radius: 8px; background: #f5f7fa; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px dashed #dcdfe6; flex-shrink: 0; overflow: hidden; }
-.captcha-img:hover { border-color: #67c23a; }
+.captcha-img:hover { border-color: #409eff; }
 .captcha-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
 
-.login-btn { width: 100%; height: 46px; font-size: 16px; font-weight: 600; letter-spacing: 4px; --el-button-bg-color: #67c23a; --el-button-border-color: #67c23a; --el-button-hover-bg-color: #85ce61; --el-button-hover-border-color: #85ce61; }
+.login-btn { width: 100%; height: 46px; font-size: 16px; font-weight: 600; letter-spacing: 4px; --el-button-bg-color: #409eff; --el-button-border-color: #409eff; --el-button-hover-bg-color: #66b1ff; --el-button-hover-border-color: #66b1ff; }
 
 .form-footer { text-align: center; font-size: 14px; color: #909399; margin-top: 16px; }
-.form-footer .apply-link { color: #67c23a; text-decoration: none; font-weight: 500; margin-left: 4px; }
+.form-footer .apply-link { color: #409eff; text-decoration: none; font-weight: 500; margin-left: 4px; }
 
 .login-footer { position: absolute; bottom: 20px; z-index: 1; font-size: 12px; color: rgba(255,255,255,0.35); text-align: center; width: 100%; }
 </style>
