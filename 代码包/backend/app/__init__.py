@@ -58,6 +58,7 @@ def register_blueprints(app):
     from .controllers.admin.auth_controller import bp as admin_auth_bp
     from .controllers.admin.area_controller import bp as admin_area_bp
     from .controllers.admin.category_controller import bp as admin_category_bp
+    from .controllers.admin.community_controller import bp as community_stats_bp
     from .controllers.admin.user_controller import bp as admin_user_bp
     from .controllers.admin.role_controller import bp as admin_role_bp
     from .controllers.admin.log_controller import bp as admin_log_bp
@@ -83,6 +84,7 @@ def register_blueprints(app):
     app.register_blueprint(device_status_bp, url_prefix='/api/v1/device')
 
     app.register_blueprint(admin_category_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(community_stats_bp, url_prefix='/api/v1/admin')
     app.register_blueprint(admin_auth_bp, url_prefix='/api/v1/admin')
     app.register_blueprint(admin_area_bp, url_prefix='/api/v1/admin')
     app.register_blueprint(admin_user_bp, url_prefix='/api/v1/admin')

@@ -1,1 +1,0 @@
-import{s as t}from"./request-C9Gp3xkn.js";function n(){return t.get("/admin/point-rules/current")}function s(){return t.get("/admin/point-rules/history")}function u(r){return t.post("/admin/point-rules",{ruleList:r})}export{s as a,n as g,u as p};

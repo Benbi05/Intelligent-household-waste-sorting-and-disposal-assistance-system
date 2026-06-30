@@ -70,6 +70,30 @@ const router = createRouter({
           meta: { title: '社区对比' },
         },
         {
+          path: 'delivery-compare',
+          name: 'DeliveryCompare',
+          component: () => import('@/views/statistics/DeliveryCompare.vue'),
+          meta: { title: '投放对比' },
+        },
+        {
+          path: 'rate-compare',
+          name: 'RateCompare',
+          component: () => import('@/views/statistics/RateCompare.vue'),
+          meta: { title: '分类正确率' },
+        },
+        {
+          path: 'device-maintenance',
+          name: 'DeviceMaintenance',
+          component: () => import('@/views/statistics/DeviceMaintenance.vue'),
+          meta: { title: '设备维修' },
+        },
+        {
+          path: 'user-stats',
+          name: 'UserStats',
+          component: () => import('@/views/statistics/UserStats.vue'),
+          meta: { title: '用户统计' },
+        },
+        {
           path: 'merchants',
           name: 'MerchantAudit',
           component: () => import('@/views/merchant/MerchantAudit.vue'),
