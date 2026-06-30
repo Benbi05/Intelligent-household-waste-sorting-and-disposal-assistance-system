@@ -72,7 +72,7 @@
       <el-col :span="24">
         <el-card shadow="never">
           <template #header>设备分布图 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝点=正常 红点=离线/故障</span></template>
-          <div ref="deviceMapRef" style="height:500px;border-radius:6px" v-loading="loading"></div>
+          <div ref="deviceMapRef" style="height:800px;border-radius:6px" v-loading="loading"></div>
         </el-card>
       </el-col>
     </el-row>
