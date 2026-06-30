@@ -304,7 +304,7 @@ const participationRate = computed(() => { const total = overview.value.totalUse
 const participationChange = computed(() => { const d = overview.value.deliveryChangeRate || 0; return d.toFixed(1) })
 const compareDelta = computed(() => { const t = overview.value.monthCorrectRate || 0; const l = overview.value.lastMonthCorrectRate || 0; return Math.round((t - l) * 1000) / 10 })
 const displayDeliveryCount = computed(() => overview.value.monthDeliveryCount || 0)
-const displayDeliveryLabel = computed(() => community.value ? '本月投放总量' : '今日投放总量')
+const displayDeliveryLabel = computed(() => '本月投放总量')
 const monthTrend = computed(() => { const d = compareDelta.value; return d > 0 ? Math.abs(d) : d < 0 ? -Math.abs(d) : 0 })
 
 const deviceOnlineCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'online' || d.onlineStatus || d.statusClass === 'online').length)
@@ -377,23 +377,31 @@ function makePartChart(el) {
   })
 }
 function makeDeliveryChart(el) {
-  if (!el || !window.echarts) return
-  const c = window.echarts.init(el)
+  if (!el || !window.echarts || !trdData.value.length) return
+  const ec = window.echarts
+  const c = ec.init(el)
+  const dates = trdData.value.map(d => d.date)
+  const totals = trdData.value.map(d => d.total)
   c.setOption({
-    tooltip: { trigger: 'axis' }, grid: { left: 50, right: 30, top: 20, bottom: 30 },
-    xAxis: { type: 'category', data: ['W19', 'W20', 'W21', 'W22', 'W23', 'W24', 'W25', 'W26', 'W27', 'W28', 'W29', 'W30'] },
-    yAxis: { type: 'value', name: '次', min: 200 },
-    series: [{ name: '投放量', type: 'bar', data: [320, 340, 310, 380, 360, 400, 350, 420, 390, 410, 380, 389], itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#f6a23c' }, { offset: 1, color: '#fde2b3' }]), borderRadius: [6, 6, 0, 0] }, barWidth: 20 }]
+    tooltip: { trigger: 'axis', formatter: p => p[0].axisValue + '<br/>投放量: ' + p[0].value + '次' },
+    grid: { left: 50, right: 20, top: 20, bottom: 30 },
+    xAxis: { type: 'category', data: dates, axisLabel: { fontSize: 10, interval: 3 } },
+    yAxis: { type: 'value', name: '次' },
+    series: [{ name: '投放量', type: 'bar', data: totals, itemStyle: { color: new ec.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#e6a23c' }, { offset: 1, color: '#fde2b3' }]), borderRadius: [6, 6, 0, 0] }, barWidth: 20 }]
   })
 }
 function makeCombinedChart(el) {
-  if (!el || !window.echarts) return
-  const c = window.echarts.init(el)
+  if (!el || !window.echarts || !trdData.value.length) return
+  const ec = window.echarts
+  const c = ec.init(el)
+  const dates = trdData.value.map(d => d.date)
+  const totals = trdData.value.map(d => d.total)
+  const rates = trdData.value.map(d => d.rate)
   c.setOption({
-    tooltip: { trigger: 'axis' }, legend: { data: ['投放量', '参与率'], top: 0, right: 10, textStyle: { fontSize: 12 } }, grid: { left: 40, right: 20, top: 30, bottom: 20 },
-    xAxis: { type: 'category', data: ['W19', 'W20', 'W21', 'W22', 'W23', 'W24', 'W25', 'W26', 'W27', 'W28', 'W29', 'W30'] },
-    yAxis: [{ type: 'value', name: '次', min: 200 }, { type: 'value', name: '%', min: 30, max: 80 }],
-    series: [{ name: '投放量', type: 'bar', data: [320, 340, 310, 380, 360, 400, 350, 420, 390, 410, 380, 389], itemStyle: { color: '#b3e19d', borderRadius: [4, 4, 0, 0] }, barWidth: 16 }, { name: '参与率', type: 'line', yAxisIndex: 1, data: [45, 48, 47, 52, 53, 55, 50, 56, 58, 59, 60, 62.5], smooth: true, symbol: 'circle', symbolSize: 6, lineStyle: { color: '#409eff', width: 3 }, itemStyle: { color: '#409eff' } }]
+    tooltip: { trigger: 'axis' }, legend: { data: ['投放量', '正确率'], top: 0, right: 10, textStyle: { fontSize: 12 } }, grid: { left: 40, right: 20, top: 30, bottom: 20 },
+    xAxis: { type: 'category', data: dates, axisLabel: { fontSize: 10, interval: 3 } },
+    yAxis: [{ type: 'value', name: '次' }, { type: 'value', name: '%' }],
+    series: [{ name: '投放量', type: 'bar', data: totals, itemStyle: { color: '#b3e19d', borderRadius: [4, 4, 0, 0] }, barWidth: 16 }, { name: '正确率', type: 'line', yAxisIndex: 1, data: rates, smooth: true, symbol: 'circle', symbolSize: 6, lineStyle: { color: '#f56c6c', width: 2 }, itemStyle: { color: '#f56c6c' } }]
   })
 }
 
