@@ -65,7 +65,7 @@
                 <div class="building-rank" :class="rankClass(i)">{{ i+1 }}</div>
                 <div class="building-info">
                   <div class="building-name">{{ b.name }}</div>
-                  <div class="building-sub">{{ b.units ? b.units+'单元' : '' }} · {{ b.households || b.users || '' }}{{ b.households ? '户' : b.users ? '人' : '' }}</div>
+                  <div class="building-sub">{{ b.units || '' }} · {{ b.households || 0 }}次投放</div>
                 </div>
                 <div class="building-bar-wrap">
                   <div class="building-bar" :style="{width:sortVal(b)+'%',background:barColor(sortVal(b))}"></div>
@@ -333,8 +333,8 @@ const alertSummary = ref('满溢1 · 故障1 · 待审1 · 违规1')
 // 楼栋数据（优先使用后端数据，回退到静态模拟）
 const buildings = computed(() => {
   return bldData.value.length ? bldData.value.map(d => ({
-    name: d.building || d.name, rate: d.rate || 0, participation: d.participation || 0,
-    units: d.units, households: d.households,
+    name: d.building || d.name, rate: d.rate || 0, participation: d.total || 0,
+    units: d.area, households: d.total,
   })) : []
 })
 const sortedBuildings = computed(() => [...buildings.value].sort((a, b) => b[buildingSortBy.value] - a[buildingSortBy.value]))
@@ -466,18 +466,14 @@ async function fetchAll() {
       request.get('/admin/statistics/category-breakdown', { params: params.value }),
       request.get('/admin/statistics/month-compare', { params: params.value }),
     ]
-    if (community.value) {
-      apis.push(request.get('/admin/statistics/building-compare', { params: params.value }))
-      apis.push(request.get('/admin/statistics/daily-trend', { params: params.value }))
-    }
+    apis.push(request.get('/admin/statistics/building-compare', { params: { community: community.value || '虎溪' } }))
+    apis.push(request.get('/admin/statistics/daily-trend', { params: { community: community.value || '虎溪' } }))
     const results = await Promise.all(apis)
     catData.value = results[0].data || []
     monthCompare.value = results[1].data || {}
-    if (community.value) {
-      bldData.value = results[2]?.data || []
-      trdData.value = results[3]?.data || []
-      await nextTick(); renderTrendChart()
-    }
+    bldData.value = results[2]?.data || []
+    trdData.value = results[3]?.data || []
+    await nextTick(); renderTrendChart()
   } catch {}
   // 获取设备列表
   try {
