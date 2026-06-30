@@ -46,7 +46,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.detail-page { padding: 24px; max-width: 900px; }
+.detail-page { padding: 24px; max-width: none; }
 .page-header { margin-bottom: 20px; }
 .page-header h2 { font-size: 20px; font-weight: 700; color: #303133; margin: 0 0 6px; }
 .subtitle { font-size: 13px; color: #909399; margin: 0; }
