@@ -59,7 +59,7 @@
       <div class="two-col">
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">🏘️ {{ community ? '楼栋' : '社区' }}分类排名</span>
+            <span class="panel-title">🏘️ 楼栋分类排名</span>
             <div class="sort-tabs">
               <span class="sort-tab" :class="{active:buildingSortBy==='rate'}" @click="buildingSortBy='rate'">正确率</span>
               <span class="sort-tab" :class="{active:buildingSortBy==='participation'}" @click="buildingSortBy='participation'">参与率</span>
