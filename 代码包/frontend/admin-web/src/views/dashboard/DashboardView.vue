@@ -4,10 +4,10 @@
 
     <!-- 指标卡 -->
     <el-row :gutter="16" class="stat-row">
-      <el-col :span="6"><StatCard label="本月投放总量" :value="overview.monthDeliveryCount || 0" unit="次" color="#409eff" tip="全社区30天垃圾投放总次数" :trend="overview.deliveryChangeRate || 0" /></el-col>
-      <el-col :span="6"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#67c23a" tip="正确投放占比，达标线85%" :trend="monthTrend" /></el-col>
-      <el-col :span="6"><StatCard label="在线设备" :value="overview.onlineDevices || 0" unit="台" color="#e6a23c" tip="正常运行垃圾箱数量" :sub="'待处理 ' + (overview.offlineFaultDevices || 0) + ' 台'" /></el-col>
-      <el-col :span="6"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#f56c6c" tip="已注册小程序居民数量" :sub="'本月新增 ' + (overview.newUsersThisMonth || 0) + ' 人'" /></el-col>
+      <el-col :span="6"><router-link to="/statistics" class="stat-link"><StatCard label="本月投放总量" :value="overview.monthDeliveryCount || 0" unit="次" color="#1a73e8" tip="点击查看详细统计" :trend="overview.deliveryChangeRate || 0" /></router-link></el-col>
+      <el-col :span="6"><router-link :to="isAdmin ? '/statistics' : '/compare'" class="stat-link"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#2e7d32" tip="点击查看社区对比" :trend="monthTrend" /></router-link></el-col>
+      <el-col :span="6"><router-link :to="isAdmin ? '/devices' : '/statistics'" class="stat-link"><StatCard label="在线设备" :value="overview.onlineDevices || 0" unit="台" color="#ef6c00" tip="点击查看设备详情" :sub="'待处理 ' + (overview.offlineFaultDevices || 0) + ' 台'" /></router-link></el-col>
+      <el-col :span="6"><router-link :to="isAdmin ? '/users' : '/statistics'" class="stat-link"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#78909c" tip="点击查看用户列表" :sub="'本月新增 ' + (overview.newUsersThisMonth || 0) + ' 人'" /></router-link></el-col>
     </el-row>
 
     <!-- 品类正确率 + 环比 -->
@@ -20,7 +20,6 @@
               <div class="cat-name">{{ c.name }}</div>
               <div class="cat-rate" :style="{ color: c.rate>=85?'#67c23a':c.rate>=75?'#e6a23c':'#f56c6c' }">{{ c.rate }}%</div>
               <div class="cat-count">正确{{ c.correct }}/共{{ c.total }}次</div>
-              <div class="cat-tip">{{ catTip(c) }}</div>
             </div>
           </div>
         </el-card>
@@ -79,7 +78,8 @@ import StatCard from '@/components/stat-card/StatCard.vue'
 import request from '@/api/request'
 
 const userStore = useUserStore()
-const roleLabel = computed(() => userStore.role === 'super_admin' ? '物业经理' : '城管监管')
+const isAdmin = computed(() => userStore.role === 'super_admin')
+const roleLabel = computed(() => isAdmin.value ? '物业经理' : '城管监管')
 const route = useRoute()
 const community = computed(() => route.query.community || '')
 
@@ -105,7 +105,7 @@ const compareDelta = computed(() => {
 })
 
 function catColor(type) {
-  return { recyclable: '#409eff', kitchen: '#e6a23c', hazardous: '#f56c6c', other: '#909399' }[type] || '#ccc'
+  return { recyclable: '#1a73e8', kitchen: '#ef6c00', hazardous: '#c62828', other: '#78909c' }[type] || '#78909c'
 }
 
 function makePie(el, rate, title) {
@@ -132,11 +132,7 @@ function renderPieCharts() {
   if (pieThisRef.value) makePie(pieThisRef.value, tm, '本月')
 }
 
-function catTip(c) {
-  if (c.rate >= 85) return '达标'
-  if (c.rate >= 75) return '接近达标，重点宣传'
-  return '未达标，需专项整治'
-}
+function catTip(c) { return '' }
 
 const params = computed(() => community.value ? { community: community.value } : {})
 
@@ -190,6 +186,8 @@ function renderTrendChart() {
 </script>
 
 <style scoped>
+.stat-link { text-decoration: none; color: inherit; display: block; }
+.stat-link:hover { opacity: 0.85; transform: translateY(-2px); transition: all .2s; }
 .dashboard { padding: 20px; }
 .page-title { font-size: 18px; font-weight: 600; color: #303133; margin-bottom: 20px; }
 .stat-row { margin-bottom: 16px; }
