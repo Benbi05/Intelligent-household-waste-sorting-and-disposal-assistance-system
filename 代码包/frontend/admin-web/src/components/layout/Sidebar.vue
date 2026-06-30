@@ -17,6 +17,24 @@
       router
       class="sidebar-menu"
     >
+      <!-- ========== 运维端（精简） ========== -->
+      <template v-if="isOps">
+        <el-menu-item index="/ops-dashboard">
+          <el-icon><MonitorIcon /></el-icon>
+          <template #title>系统监控</template>
+        </el-menu-item>
+        <el-menu-item index="/ops-models">
+          <el-icon><Cpu /></el-icon>
+          <template #title>AI模型管理</template>
+        </el-menu-item>
+        <el-menu-item index="/ops-insights">
+          <el-icon><DataAnalysis /></el-icon>
+          <template #title>消费洞察</template>
+        </el-menu-item>
+      </template>
+
+      <!-- ========== 城管 + 物业经理 ========== -->
+      <template v-if="!isOps">
       <el-menu-item index="/dashboard">
         <el-icon><DataLine /></el-icon>
         <template #title>仪表盘</template>
@@ -74,25 +92,7 @@
         <el-menu-item index="/logs">操作日志</el-menu-item>
       </el-sub-menu>
 
-      <!-- 运维端菜单 -->
-      <template v-if="isOps">
-        <el-menu-item index="/ops-dashboard">
-          <el-icon><MonitorIcon /></el-icon>
-          <template #title>系统监控</template>
-        </el-menu-item>
-        <el-menu-item index="/ops-models">
-          <el-icon><Cpu /></el-icon>
-          <template #title>AI模型管理</template>
-        </el-menu-item>
-        <el-menu-item index="/ops-insights">
-          <el-icon><DataAnalysis /></el-icon>
-          <template #title>消费洞察</template>
-        </el-menu-item>
-        <el-menu-item index="/logs">
-          <el-icon><Setting /></el-icon>
-          <template #title>操作日志</template>
-        </el-menu-item>
-      </template>
+      </template>  <!-- end v-if="!isOps" -->
     </el-menu>
 
     <div class="sidebar-footer" v-show="!collapsed">

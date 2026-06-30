@@ -148,7 +148,8 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth !== false && !token) {
     next({ name: 'Login', query: { redirect: to.fullPath } })
   } else if (to.name === 'Login' && token) {
-    next({ name: 'Dashboard' })
+    if (role === 'ops_admin') next({ name: 'OpsDashboard' })
+    else next({ name: 'Dashboard' })
   } else if (to.meta.requiresAdmin && role !== 'super_admin') {
     // 城管只能看仪表盘和数据统计，其余页面跳回首页
     next({ name: 'Dashboard' })
