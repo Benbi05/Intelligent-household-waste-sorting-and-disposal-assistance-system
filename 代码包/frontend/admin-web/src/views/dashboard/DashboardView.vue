@@ -9,7 +9,7 @@
     </el-row>
 
     <el-row :gutter="16" style="margin-top:16px">
-      <el-col :span="12">
+      <el-col :span="24">
         <el-card shadow="never">
           <template #header>各栋分类正确率 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 红线=达标85%</span></template>
           <div class="bar-chart" v-loading="loading">
@@ -24,7 +24,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="24">
         <el-card shadow="never">
           <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝=总投放 绿=正确</span></template>
           <svg viewBox="0 0 600 220" class="trend-svg" v-loading="loading">
