@@ -12,6 +12,13 @@
       </div>
     </div>
 
+    <!-- 统计卡片 -->
+    <el-row :gutter="16" class="stat-row" v-if="!loading">
+      <el-col :span="8"><StatCard label="当前版本" :value="version" unit="" color="#1a73e8" /></el-col>
+      <el-col :span="8"><StatCard label="规则总数" :value="ruleList.length" unit="条" color="#67c23a" /></el-col>
+      <el-col :span="8"><StatCard label="历史版本" :value="historyCount" unit="个" color="#909399" /></el-col>
+    </el-row>
+
     <div class="page-card" v-loading="loading">
       <DataTable :data="ruleList">
         <el-table-column prop="categoryId" label="分类ID" width="100" align="center" />
@@ -61,12 +68,14 @@
 import { ref, reactive, onMounted } from 'vue'
 import { Clock, Upload } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { getCurrentRules, publishRules } from '@/api/point'
+import { getCurrentRules, publishRules, getRulesHistory } from '@/api/point'
 import DataTable from '@/components/table/DataTable.vue'
+import StatCard from '@/components/stat-card/StatCard.vue'
 
 const loading = ref(false)
 const version = ref('v1.0')
 const ruleList = ref([])
+const historyCount = ref(0)
 const submitting = ref(false)
 const publishVisible = ref(false)
 const editList = ref([])
@@ -78,6 +87,11 @@ async function fetchRules() {
     version.value = res.data.version || 'v1.0'
     ruleList.value = res.data.ruleList || []
   } catch { /* handled */ } finally { loading.value = false }
+  fetchHistoryCount()
+}
+
+async function fetchHistoryCount() {
+  try { const r = await getRulesHistory(); historyCount.value = (r.data.records || []).length } catch {}
 }
 
 function openPublishDialog() {
@@ -102,6 +116,7 @@ onMounted(fetchRules)
 </script>
 
 <style scoped>
+.stat-row { margin-bottom: 16px; }
 .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .header-actions { display: flex; gap: 10px; }
 .publish-hint { font-size: 13px; color: #909399; }

@@ -52,3 +52,12 @@ def audit_merchant(merchant_id):
     db.session.add(log)
     db.session.commit()
     return success(None, "审核完成")
+
+@bp.route("/merchants/stats", methods=["GET"])
+@admin_required
+def merchant_stats():
+    """商家统计概览"""
+    pending = Merchant.query.filter_by(status="pending").count()
+    approved = Merchant.query.filter_by(status="approved").count()
+    rejected = Merchant.query.filter_by(status="rejected").count()
+    return success({"pending": pending, "approved": approved, "rejected": rejected})

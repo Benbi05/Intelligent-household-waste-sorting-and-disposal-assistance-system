@@ -15,3 +15,8 @@ export function updateCategory(id, data) {
 export function deleteCategory(id) {
   return request.delete(`/admin/categories/${id}`)
 }
+
+/** 获取品类统计概览 */
+export function getCategoryStats() {
+  return request.get('/admin/categories/stats')
+}

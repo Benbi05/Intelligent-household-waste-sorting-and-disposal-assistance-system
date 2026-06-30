@@ -7,6 +7,14 @@
       </el-button>
     </div>
 
+    <!-- 统计卡片 -->
+    <el-row :gutter="16" class="stat-row">
+      <el-col :span="6"><StatCard label="设备总数" :value="deviceStats.totalDevices || 0" unit="台" color="#1a73e8" /></el-col>
+      <el-col :span="6"><StatCard label="在线" :value="deviceStats.online || 0" unit="台" color="#67c23a" /></el-col>
+      <el-col :span="6"><StatCard label="离线" :value="deviceStats.offline || 0" unit="台" color="#e6a23c" /></el-col>
+      <el-col :span="6"><StatCard label="故障" :value="deviceStats.fault || 0" unit="台" color="#f56c6c" /></el-col>
+    </el-row>
+
     <!-- 搜索栏 -->
     <SearchBar
       v-model="searchForm"
@@ -139,18 +147,20 @@
 import { ref, reactive } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { getDeviceList, createDevice, updateDeviceStatus, deleteDevice, updateDeviceConfig, firmwareUpgrade } from '@/api/device'
+import { getDeviceList, createDevice, updateDeviceStatus, deleteDevice, updateDeviceConfig, firmwareUpgrade, getDeviceStats } from '@/api/device'
 import DataTable from '@/components/table/DataTable.vue'
 import SearchBar from '@/components/search-bar/SearchBar.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
 import FormDialog from '@/components/form-dialog/FormDialog.vue'
 import StatusTag from '@/components/status-tag/StatusTag.vue'
+import StatCard from '@/components/stat-card/StatCard.vue'
 
 const loading = ref(false)
 const tableData = ref([])
 const total = ref(0)
 const selectedIds = ref([])
 const submitting = ref(false)
+const deviceStats = ref({})
 
 const searchForm = reactive({ keyword: '', status: '', boxCategory: '', area: '' })
 const onlineStatusOptions = [
@@ -254,9 +264,15 @@ async function handleFirmware() {
 function formatTime(s) { if (!s) return '-'; return s.replace('T', ' ').substring(0, 19) }
 
 fetchDevices()
+fetchDeviceStats()
+
+async function fetchDeviceStats() {
+  try { const r = await getDeviceStats(); deviceStats.value = r.data } catch {}
+}
 </script>
 
 <style scoped>
+.stat-row { margin-bottom: 16px; }
 .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .device-tag { margin: 2px; }
 .tip-text { font-size: 13px; color: #909399; }

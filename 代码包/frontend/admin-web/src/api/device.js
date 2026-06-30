@@ -34,3 +34,8 @@ export function updateDeviceConfig(deviceId, data) {
 export function firmwareUpgrade(deviceIds, firmwareVersion) {
   return request.post('/admin/devices/firmware-upgrade', { deviceIds, firmwareVersion })
 }
+
+/** 获取设备统计概览 */
+export function getDeviceStats() {
+  return request.get('/admin/devices/stats')
+}

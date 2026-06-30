@@ -1,96 +1,201 @@
 <template>
   <div class="dashboard">
-    <div class="page-title">{{ roleLabel }}工作台 — {{ community ? community+'社区' : '虎溪街道全部8个社区' }}</div>
 
-    <!-- 指标卡 -->
-    <el-row :gutter="16" class="stat-row">
-      <el-col :span="6"><router-link to="/delivery-compare" class="stat-link"><StatCard label="本月投放总量" :value="overview.monthDeliveryCount || 0" unit="次" color="#1a73e8" tip="点击查看各社区投放对比" :trend="overview.deliveryChangeRate || 0" /></router-link></el-col>
-      <el-col :span="6"><router-link to="/rate-compare" class="stat-link"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#2e7d32" tip="点击查看各社区分类正确率" :trend="monthTrend" /></router-link></el-col>
-      <el-col :span="6"><router-link to="/device-maintenance" class="stat-link"><StatCard label="在线设备" :value="overview.onlineDevices || 0" unit="台" color="#ef6c00" tip="点击查看待处理设备" :sub="'待处理 ' + (overview.offlineFaultDevices || 0) + ' 台'" /></router-link></el-col>
-      <el-col :span="6"><router-link to="/user-stats" class="stat-link"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#78909c" tip="点击查看各社区用户统计" :sub="'本月新增 ' + (overview.newUsersThisMonth || 0) + ' 人'" /></router-link></el-col>
-    </el-row>
+    <!-- ==================== 物业经理视图 ==================== -->
+    <template v-if="isAdmin">
+      <div class="page-title">
+        物业经理工作台
+        <el-select v-model="activeCommunity" placeholder="全部社区" size="small" style="width:150px;margin-left:16px" @change="onCommunityChange" clearable>
+          <el-option v-for="c in communities" :key="c.value" :label="c.label" :value="c.value" />
+        </el-select>
+      </div>
 
-    <!-- 品类正确率 + 环比 -->
-    <el-row :gutter="16" style="margin-top:16px" class="equal-row">
-      <el-col :span="12">
-        <el-card shadow="never" class="full-card">
-          <template #header>四大类垃圾分类正确率 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 厨余垃圾通常最难分</span></template>
-          <div class="cat-grid" v-loading="loading">
-            <div v-for="c in catData" :key="c.type" class="cat-card" :style="{ borderTopColor: catColor(c.type) }">
-              <div class="cat-name">{{ c.name }}</div>
-              <div class="cat-rate" :style="{ color: c.rate>=85?'#67c23a':c.rate>=75?'#e6a23c':'#f56c6c' }">{{ c.rate }}%</div>
-              <div class="cat-count">正确{{ c.correct }}/共{{ c.total }}次</div>
+      <!-- 指标卡 -->
+      <el-row :gutter="16" class="stat-row">
+        <el-col :span="6" v-for="card in statCards" :key="card.label">
+          <router-link :to="card.link" class="stat-link">
+            <StatCard :label="card.label" :value="card.value" :unit="card.unit" :color="card.color" :tip="card.tip" :trend="card.trend" :sub="card.sub" />
+          </router-link>
+        </el-col>
+      </el-row>
+
+      <!-- 快捷操作 -->
+      <el-card shadow="never" class="section-card">
+        <template #header><span class="section-title">快捷操作</span></template>
+        <div class="action-grid">
+          <router-link v-for="a in quickActions" :key="a.to" :to="a.to" class="action-item">
+            <div class="action-icon" :style="{ background: a.color + '18', color: a.color }">
+              <el-icon :size="24"><component :is="a.icon" /></el-icon>
             </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="12">
-        <el-card shadow="never" class="full-card">
-          <template #header>本月 vs 上月 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 环比变化</span></template>
-          <div class="compare-box" v-loading="loading" style="display:flex;gap:12px;align-items:center;justify-content:center">
-            <div ref="pieLastRef" style="width:160px;height:180px"></div>
-            <div style="text-align:center;font-size:14px;color:#606266">
-              <span v-if="compareDelta > 0" style="color:#67c23a;font-size:20px">▲</span>
-              <span v-else-if="compareDelta < 0" style="color:#f56c6c;font-size:20px">▼</span>
-              <span v-else style="color:#c0c4cc;font-size:20px">—</span>
-              <div :style="{ color: compareDelta > 0 ? '#67c23a' : '#f56c6c', fontSize:'16px', fontWeight:'700', marginTop:'4px' }">{{ compareDelta > 0 ? '+' : '' }}{{ compareDelta }}%</div>
-            </div>
-            <div ref="pieThisRef" style="width:160px;height:180px"></div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+            <span class="action-label">{{ a.label }}</span>
+          </router-link>
+        </div>
+      </el-card>
 
-    <!-- 各栋对比 + 趋势图（仅单社区视图） -->
-    <template v-if="community">
+      <!-- 待处理事项 -->
       <el-row :gutter="16" style="margin-top:16px">
-        <el-col :span="24">
-          <el-card shadow="never">
-            <template #header>各栋分类正确率 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 红线=达标85%</span></template>
-            <div class="bar-chart" v-loading="loading">
-              <div v-for="d in bldData" :key="d.building" class="bar-row">
-                <span class="bar-label">{{ d.building }}</span>
-                <div class="bar-track"><div class="bar-fill" :style="{ width: d.rate+'%', background: d.rate>=85?'#67c23a':d.rate>=80?'#e6a23c':'#f56c6c' }"></div></div>
-                <span class="bar-val" :style="{ color: d.rate>=85?'#67c23a':'#f56c6c' }">{{ d.rate }}%</span>
+        <el-col :span="12">
+          <el-card shadow="never" class="pending-card">
+            <template #header>
+              <span class="section-title">待审核商家</span>
+              <el-tag type="warning" size="small" style="margin-left:8px">{{ overview.pendingMerchantCount || 0 }}</el-tag>
+            </template>
+            <p v-if="overview.pendingMerchantCount > 0" class="pending-text">{{ overview.pendingMerchantCount }} 家商家待审核，请及时处理</p>
+            <p v-else class="pending-ok">暂无待审核商家 ✅</p>
+            <el-button type="primary" size="small" @click="$router.push('/merchants')">前往审核</el-button>
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card shadow="never" class="pending-card">
+            <template #header>
+              <span class="section-title">异常设备</span>
+              <el-tag :type="(overview.offlineFaultDevices || 0) > 0 ? 'danger' : 'success'" size="small" style="margin-left:8px">{{ overview.offlineFaultDevices || 0 }}</el-tag>
+            </template>
+            <p v-if="overview.offlineFaultDevices > 0" class="pending-text">{{ overview.offlineFaultDevices }} 台设备离线/故障，请关注</p>
+            <p v-else class="pending-ok">所有设备运行正常 ✅</p>
+            <el-button type="primary" size="small" @click="$router.push('/devices')">查看设备</el-button>
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <!-- 品类正确率 + 环比 -->
+      <el-row :gutter="16" style="margin-top:16px" class="equal-row">
+        <el-col :span="12">
+          <el-card shadow="never" class="full-card">
+            <template #header>四大类垃圾分类正确率 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 厨余垃圾通常最难分</span></template>
+            <div class="cat-grid" v-loading="loading">
+              <div v-for="c in catData" :key="c.type" class="cat-card" :style="{ borderTopColor: catColor(c.type) }">
+                <div class="cat-name">{{ c.name }}</div>
+                <div class="cat-rate" :style="{ color: c.rate>=85?'#67c23a':c.rate>=75?'#e6a23c':'#f56c6c' }">{{ c.rate }}%</div>
+                <div class="cat-count">正确{{ c.correct }}/共{{ c.total }}次</div>
               </div>
             </div>
           </el-card>
         </el-col>
+        <el-col :span="12">
+          <el-card shadow="never" class="full-card">
+            <template #header>本月 vs 上月 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 环比变化</span></template>
+            <div class="compare-box" v-loading="loading" style="display:flex;gap:12px;align-items:center;justify-content:center">
+              <div ref="pieLastRef" style="width:160px;height:180px"></div>
+              <div style="text-align:center;font-size:14px;color:#606266">
+                <span v-if="compareDelta > 0" style="color:#67c23a;font-size:20px">▲</span>
+                <span v-else-if="compareDelta < 0" style="color:#f56c6c;font-size:20px">▼</span>
+                <span v-else style="color:#c0c4cc;font-size:20px">—</span>
+                <div :style="{ color: compareDelta > 0 ? '#67c23a' : '#f56c6c', fontSize:'16px', fontWeight:'700', marginTop:'4px' }">{{ compareDelta > 0 ? '+' : '' }}{{ compareDelta }}%</div>
+              </div>
+              <div ref="pieThisRef" style="width:160px;height:180px"></div>
+            </div>
+          </el-card>
+        </el-col>
       </el-row>
+
+      <!-- 设备地图 -->
       <el-row :gutter="16" style="margin-top:16px">
         <el-col :span="24">
           <el-card shadow="never">
-            <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝柱=总投放 绿柱=正确 红线=正确率</span></template>
-            <div ref="trendChart" style="height:320px" v-loading="loading"></div>
+            <template #header>设备分布图 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝点=正常 红点=离线/故障</span></template>
+            <div ref="deviceMapRef" style="height:800px;border-radius:6px" v-loading="loading"></div>
           </el-card>
         </el-col>
       </el-row>
     </template>
 
-    <!-- 设备地图 -->
-    <el-row :gutter="16" style="margin-top:16px">
-      <el-col :span="24">
-        <el-card shadow="never">
-          <template #header>设备分布图 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝点=正常 红点=离线/故障</span></template>
-          <div ref="deviceMapRef" style="height:800px;border-radius:6px" v-loading="loading"></div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <!-- ==================== 城管视图（原有） ==================== -->
+    <template v-else>
+      <div class="page-title">{{ roleLabel }}工作台 — {{ community ? community+'社区' : '虎溪街道全部8个社区' }}</div>
+
+      <!-- 指标卡 -->
+      <el-row :gutter="16" class="stat-row">
+        <el-col :span="6"><router-link to="/delivery-compare" class="stat-link"><StatCard label="本月投放总量" :value="overview.monthDeliveryCount || 0" unit="次" color="#1a73e8" tip="点击查看各社区投放对比" :trend="overview.deliveryChangeRate || 0" /></router-link></el-col>
+        <el-col :span="6"><router-link to="/rate-compare" class="stat-link"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#2e7d32" tip="点击查看各社区分类正确率" :trend="monthTrend" /></router-link></el-col>
+        <el-col :span="6"><router-link to="/device-maintenance" class="stat-link"><StatCard label="在线设备" :value="overview.onlineDevices || 0" unit="台" color="#ef6c00" tip="点击查看待处理设备" :sub="'待处理 ' + (overview.offlineFaultDevices || 0) + ' 台'" /></router-link></el-col>
+        <el-col :span="6"><router-link to="/user-stats" class="stat-link"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#78909c" tip="点击查看各社区用户统计" :sub="'本月新增 ' + (overview.newUsersThisMonth || 0) + ' 人'" /></router-link></el-col>
+      </el-row>
+
+      <!-- 品类正确率 + 环比 -->
+      <el-row :gutter="16" style="margin-top:16px" class="equal-row">
+        <el-col :span="12">
+          <el-card shadow="never" class="full-card">
+            <template #header>四大类垃圾分类正确率 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 厨余垃圾通常最难分</span></template>
+            <div class="cat-grid" v-loading="loading">
+              <div v-for="c in catData" :key="c.type" class="cat-card" :style="{ borderTopColor: catColor(c.type) }">
+                <div class="cat-name">{{ c.name }}</div>
+                <div class="cat-rate" :style="{ color: c.rate>=85?'#67c23a':c.rate>=75?'#e6a23c':'#f56c6c' }">{{ c.rate }}%</div>
+                <div class="cat-count">正确{{ c.correct }}/共{{ c.total }}次</div>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card shadow="never" class="full-card">
+            <template #header>本月 vs 上月 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 环比变化</span></template>
+            <div class="compare-box" v-loading="loading" style="display:flex;gap:12px;align-items:center;justify-content:center">
+              <div ref="pieLastRef" style="width:160px;height:180px"></div>
+              <div style="text-align:center;font-size:14px;color:#606266">
+                <span v-if="compareDelta > 0" style="color:#67c23a;font-size:20px">▲</span>
+                <span v-else-if="compareDelta < 0" style="color:#f56c6c;font-size:20px">▼</span>
+                <span v-else style="color:#c0c4cc;font-size:20px">—</span>
+                <div :style="{ color: compareDelta > 0 ? '#67c23a' : '#f56c6c', fontSize:'16px', fontWeight:'700', marginTop:'4px' }">{{ compareDelta > 0 ? '+' : '' }}{{ compareDelta }}%</div>
+              </div>
+              <div ref="pieThisRef" style="width:160px;height:180px"></div>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <!-- 各栋对比 + 趋势图（仅单社区视图） -->
+      <template v-if="community">
+        <el-row :gutter="16" style="margin-top:16px">
+          <el-col :span="24">
+            <el-card shadow="never">
+              <template #header>各栋分类正确率 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 红线=达标85%</span></template>
+              <div class="bar-chart" v-loading="loading">
+                <div v-for="d in bldData" :key="d.building" class="bar-row">
+                  <span class="bar-label">{{ d.building }}</span>
+                  <div class="bar-track"><div class="bar-fill" :style="{ width: d.rate+'%', background: d.rate>=85?'#67c23a':d.rate>=80?'#e6a23c':'#f56c6c' }"></div></div>
+                  <span class="bar-val" :style="{ color: d.rate>=85?'#67c23a':'#f56c6c' }">{{ d.rate }}%</span>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-row :gutter="16" style="margin-top:16px">
+          <el-col :span="24">
+            <el-card shadow="never">
+              <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝柱=总投放 绿柱=正确 红线=正确率</span></template>
+              <div ref="trendChart" style="height:320px" v-loading="loading"></div>
+            </el-card>
+          </el-col>
+        </el-row>
+      </template>
+
+      <!-- 设备地图 -->
+      <el-row :gutter="16" style="margin-top:16px">
+        <el-col :span="24">
+          <el-card shadow="never">
+            <template #header>设备分布图 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝点=正常 红点=离线/故障</span></template>
+            <div ref="deviceMapRef" style="height:800px;border-radius:6px" v-loading="loading"></div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </template>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getOverview } from '@/api/statistics'
 import { useUserStore } from '@/store/user'
 import StatCard from '@/components/stat-card/StatCard.vue'
+import { User, Monitor, Shop, Coin, Grid, TrendCharts } from '@element-plus/icons-vue'
 import request from '@/api/request'
 
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.role === 'super_admin')
 const roleLabel = computed(() => isAdmin.value ? '物业经理' : '城管监管')
 const route = useRoute()
+const router = useRouter()
 const community = computed(() => route.query.community || '')
 
 const overview = ref({})
@@ -103,6 +208,45 @@ const pieLastRef = ref(null)
 const pieThisRef = ref(null)
 const deviceMapRef = ref(null)
 const loading = ref(true)
+
+// 社区列表
+const communities = [
+  { label: '虎溪花园', value: '虎溪' }, { label: '学府悦园', value: '学府' },
+  { label: '康居西城', value: '康居' }, { label: '龙湖U城', value: '龙湖' },
+  { label: '金科廊桥水乡', value: '金科' }, { label: '富力城', value: '富力' },
+  { label: '恒大未来城', value: '恒大' }, { label: '融创文旅城', value: '融创' },
+]
+const activeCommunity = ref(community.value || '')
+
+function onCommunityChange(val) {
+  const q = { ...route.query }
+  if (val) q.community = val
+  else delete q.community
+  router.push({ query: q })
+}
+
+// 物业经理 stat cards
+const statCards = computed(() => {
+  if (isAdmin.value) {
+    return [
+      { label: '注册用户', value: overview.value.totalUsers || 0, unit: '人', color: '#78909c', link: '/users', tip: '点击管理用户', sub: '本月新增 ' + (overview.value.newUsersThisMonth || 0) + ' 人' },
+      { label: '设备总数', value: overview.value.totalDevices || 0, unit: '台', color: '#ef6c00', link: '/devices', tip: '点击管理设备', sub: '在线 ' + (overview.value.onlineDevices || 0) + ' 台' },
+      { label: '待审商家', value: overview.value.pendingMerchantCount || 0, unit: '家', color: '#e6a23c', link: '/merchants', tip: '点击审核商家' },
+      { label: '本月投放', value: overview.value.monthDeliveryCount || 0, unit: '次', color: '#2e7d32', link: '/statistics', tip: '点击查看统计报表', trend: overview.value.deliveryChangeRate || 0 },
+    ]
+  }
+  return []
+})
+
+// 快捷操作
+const quickActions = [
+  { label: '用户管理', to: '/users', icon: User, color: '#1a73e8' },
+  { label: '设备管理', to: '/devices', icon: Monitor, color: '#ef6c00' },
+  { label: '商家审核', to: '/merchants', icon: Shop, color: '#e6a23c' },
+  { label: '积分规则', to: '/rules', icon: Coin, color: '#2e7d32' },
+  { label: '品类管理', to: '/categories', icon: Grid, color: '#7b1fa2' },
+  { label: '数据统计', to: '/statistics', icon: TrendCharts, color: '#0277bd' },
+]
 
 const monthTrend = computed(() => {
   const d = compareDelta.value
@@ -142,8 +286,6 @@ function renderPieCharts() {
   if (pieLastRef.value) makePie(pieLastRef.value, lm, '上月')
   if (pieThisRef.value) makePie(pieThisRef.value, tm, '本月')
 }
-
-function catTip(c) { return '' }
 
 const params = computed(() => community.value ? { community: community.value } : {})
 
@@ -193,7 +335,7 @@ async function renderDeviceMap() {
 }
 
 onMounted(fetchAll)
-watch(community, fetchAll)
+watch(community, () => { activeCommunity.value = community.value; fetchAll() })
 
 function renderTrendChart() {
   if (!trendChart.value || !trdData.value.length) return
@@ -219,7 +361,7 @@ function renderTrendChart() {
 .stat-link { text-decoration: none; color: inherit; display: block; }
 .stat-link:hover { opacity: 0.85; transform: translateY(-2px); transition: all .2s; }
 .dashboard { padding: 20px; }
-.page-title { font-size: 18px; font-weight: 600; color: #303133; margin-bottom: 20px; }
+.page-title { font-size: 18px; font-weight: 600; color: #303133; margin-bottom: 20px; display: flex; align-items: center; }
 .stat-row { margin-bottom: 16px; }
 
 .bar-chart { padding: 10px 0; }
@@ -234,10 +376,29 @@ function renderTrendChart() {
 .cat-name { font-size: 14px; color: #606266; margin-bottom: 8px; font-weight: 500; }
 .cat-rate { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
 .cat-count { font-size: 12px; color: #c0c4cc; }
-.cat-tip { font-size: 12px; margin-top: 6px; color: #909399; }
 
 .equal-row { align-items: stretch; }
 .equal-row .el-col { display: flex; }
 .equal-row .el-card { flex: 1; width: 100%; }
 .compare-box { padding: 0; }
+
+/* 物业经理新增样式 */
+.section-card { margin-bottom: 0; }
+.section-title { font-size: 14px; font-weight: 600; color: #303133; }
+.action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.action-item {
+  display: flex; flex-direction: column; align-items: center; padding: 16px 8px;
+  border-radius: 8px; border: 1px solid #ebeef5; text-decoration: none; color: #303133;
+  transition: all .2s; cursor: pointer; background: #fafbfc;
+}
+.action-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #c0c4cc; }
+.action-icon {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; margin-bottom: 8px;
+}
+.action-label { font-size: 13px; font-weight: 500; }
+
+.pending-card { height: 100%; }
+.pending-text { font-size: 14px; color: #606266; margin: 0 0 12px; }
+.pending-ok { font-size: 14px; color: #909399; margin: 0 0 12px; }
 </style>

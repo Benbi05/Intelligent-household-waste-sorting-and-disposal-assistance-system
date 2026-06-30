@@ -9,6 +9,18 @@
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item v-if="route.meta.title">{{ route.meta.title }}</el-breadcrumb-item>
       </el-breadcrumb>
+
+      <el-select
+        v-if="isAdmin"
+        v-model="activeCommunity"
+        placeholder="选择社区"
+        size="small"
+        style="width:150px;margin-left:16px"
+        clearable
+        @change="onCommunityChange"
+      >
+        <el-option v-for="c in communities" :key="c.value" :label="c.label" :value="c.value" />
+      </el-select>
     </div>
 
     <div class="navbar-right">
@@ -37,7 +49,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import { useAppStore } from '@/store/app'
@@ -51,10 +63,31 @@ const router = useRouter()
 const userStore = useUserStore()
 const appStore = useAppStore()
 
+const isAdmin = computed(() => userStore.role === 'super_admin')
+
 const roleLabel = computed(() => {
   const map = { super_admin: '物业经理', admin: '城管监管' }
   return map[userStore.role] || userStore.role
 })
+
+const communities = [
+  { label: '虎溪花园', value: '虎溪' }, { label: '学府悦园', value: '学府' },
+  { label: '康居西城', value: '康居' }, { label: '龙湖U城', value: '龙湖' },
+  { label: '金科廊桥水乡', value: '金科' }, { label: '富力城', value: '富力' },
+  { label: '恒大未来城', value: '恒大' }, { label: '融创文旅城', value: '融创' },
+]
+const activeCommunity = ref(route.query.community || '')
+
+watch(() => route.query.community, (val) => {
+  activeCommunity.value = val || ''
+})
+
+function onCommunityChange(val) {
+  const q = { ...route.query }
+  if (val) q.community = val
+  else delete q.community
+  router.push({ query: q })
+}
 
 async function handleCommand(command) {
   if (command === 'logout') {

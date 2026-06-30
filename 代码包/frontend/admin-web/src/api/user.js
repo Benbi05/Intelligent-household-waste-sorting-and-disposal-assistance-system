@@ -14,3 +14,8 @@ export function getUserDetail(userId) {
 export function updateUserStatus(userId, status) {
   return request.put(`/admin/users/${userId}/status`, { status })
 }
+
+/** 获取用户统计概览 */
+export function getUserStats() {
+  return request.get('/admin/users/stats')
+}

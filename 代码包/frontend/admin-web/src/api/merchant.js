@@ -9,3 +9,8 @@ export function getMerchantList(params = {}) {
 export function auditMerchant(merchantId, data) {
   return request.put(`/admin/merchants/${merchantId}/audit`, data)
 }
+
+/** 获取商家统计概览 */
+export function getMerchantStats() {
+  return request.get('/admin/merchants/stats')
+}

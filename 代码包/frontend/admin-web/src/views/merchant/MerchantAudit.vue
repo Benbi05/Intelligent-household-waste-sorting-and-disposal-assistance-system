@@ -2,6 +2,13 @@
   <div class="page-container">
     <h2 class="page-title">商家审核</h2>
 
+    <!-- 统计卡片 -->
+    <el-row :gutter="16" class="stat-row">
+      <el-col :span="8"><StatCard label="待审核" :value="merchantStats.pending || 0" unit="家" color="#e6a23c" /></el-col>
+      <el-col :span="8"><StatCard label="已通过" :value="merchantStats.approved || 0" unit="家" color="#67c23a" /></el-col>
+      <el-col :span="8"><StatCard label="已拒绝" :value="merchantStats.rejected || 0" unit="家" color="#909399" /></el-col>
+    </el-row>
+
     <!-- 搜索栏 -->
     <SearchBar
       v-model="searchForm"
@@ -57,16 +64,18 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { getMerchantList, auditMerchant } from '@/api/merchant'
+import { getMerchantList, auditMerchant, getMerchantStats } from '@/api/merchant'
 import DataTable from '@/components/table/DataTable.vue'
 import SearchBar from '@/components/search-bar/SearchBar.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
 import StatusTag from '@/components/status-tag/StatusTag.vue'
+import StatCard from '@/components/stat-card/StatCard.vue'
 
 const loading = ref(false)
 const tableData = ref([])
 const total = ref(0)
 const submitting = ref(false)
+const merchantStats = ref({})
 
 const searchForm = reactive({ keyword: '', status: '' })
 const statusOptions = [
@@ -125,8 +134,14 @@ async function handleReject() {
 function formatTime(s) { if (!s) return '-'; return s.replace('T', ' ').substring(0, 19) }
 
 fetchList()
+fetchMerchantStats()
+
+async function fetchMerchantStats() {
+  try { const r = await getMerchantStats(); merchantStats.value = r.data } catch {}
+}
 </script>
 
 <style scoped>
+.stat-row { margin-bottom: 16px; }
 .tip-text { font-size: 13px; color: #c0c4cc; }
 </style>

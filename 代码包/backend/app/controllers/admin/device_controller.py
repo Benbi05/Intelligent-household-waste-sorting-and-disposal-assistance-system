@@ -86,3 +86,13 @@ def firmware_upgrade():
     if not version: return fail(400, "请指定固件版本")
     log('firmware_upgrade', None, f'固件升级: {version}, 设备数={len(device_ids)}')
     return success({"commandId": f"OTA{len(device_ids)}", "affectedDeviceCount": len(device_ids)}, "升级指令已下发")
+
+@bp.route("/devices/stats", methods=["GET"])
+@admin_required
+def device_stats():
+    """设备统计概览"""
+    total = Device.query.count()
+    online = Device.query.filter_by(onlineStatus="online").count()
+    offline = Device.query.filter_by(onlineStatus="offline").count()
+    fault = Device.query.filter_by(onlineStatus="fault").count()
+    return success({"totalDevices": total, "online": online, "offline": offline, "fault": fault})

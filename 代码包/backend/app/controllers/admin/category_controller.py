@@ -6,6 +6,7 @@ from ...common.validators import get_pagination
 from ...common.log_helper import log
 from ...models.garbage_category import GarbageCategory
 from ...extensions import db
+from sqlalchemy import func
 
 bp = Blueprint("admin_category", __name__)
 
@@ -72,3 +73,13 @@ def delete_category(category_id):
     db.session.delete(c); db.session.commit()
     log("category_delete", category_id, f"删除品类: {c.categoryName}")
     return success(None, "删除成功")
+
+@bp.route("/categories/stats", methods=["GET"])
+@admin_required
+def category_stats():
+    """品类统计概览"""
+    total = GarbageCategory.query.count()
+    by_type = {}
+    for pt in ("recyclable", "kitchen", "hazardous", "other"):
+        by_type[pt] = GarbageCategory.query.filter_by(parentType=pt).count()
+    return success({"totalCategories": total, "byType": by_type})

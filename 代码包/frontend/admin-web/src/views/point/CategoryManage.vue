@@ -8,6 +8,14 @@
         </div>
       </template>
 
+      <!-- 统计卡片 -->
+      <el-row :gutter="16" class="stat-row">
+        <el-col :span="6"><StatCard label="全部品类" :value="categoryStats.totalCategories || 0" unit="种" color="#1a73e8" /></el-col>
+        <el-col :span="6"><StatCard label="可回收物" :value="(categoryStats.byType && categoryStats.byType.recyclable) || 0" unit="种" color="#67c23a" /></el-col>
+        <el-col :span="6"><StatCard label="厨余垃圾" :value="(categoryStats.byType && categoryStats.byType.kitchen) || 0" unit="种" color="#ef6c00" /></el-col>
+        <el-col :span="6"><StatCard label="有害垃圾" :value="(categoryStats.byType && categoryStats.byType.hazardous) || 0" unit="种" color="#f56c6c" /></el-col>
+      </el-row>
+
       <SearchBar :placeholder="'搜索品类名称'" @search="onSearch" />
 
       <DataTable :data="list" :loading="loading" action-width="160">
@@ -75,11 +83,12 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getCategories, createCategory, updateCategory, deleteCategory } from '@/api/category'
+import { getCategories, createCategory, updateCategory, deleteCategory, getCategoryStats } from '@/api/category'
 import DataTable from '@/components/table/DataTable.vue'
 import SearchBar from '@/components/search-bar/SearchBar.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
 import StatusTag from '@/components/status-tag/StatusTag.vue'
+import StatCard from '@/components/stat-card/StatCard.vue'
 
 const typeMap = { recyclable: '可回收物', kitchen: '厨余垃圾', hazardous: '有害垃圾', other: '其他垃圾' }
 
@@ -88,6 +97,7 @@ const total = ref(0)
 const page = ref(1)
 const size = ref(20)
 const loading = ref(false)
+const categoryStats = ref({})
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const saving = ref(false)
@@ -160,10 +170,15 @@ async function handleDelete(id) {
   } catch { /* handled */ }
 }
 
-onMounted(fetchList)
+onMounted(() => { fetchList(); fetchCategoryStats() })
+
+async function fetchCategoryStats() {
+  try { const r = await getCategoryStats(); categoryStats.value = r.data } catch {}
+}
 </script>
 
 <style scoped>
 .page-container { padding: 20px; }
+.stat-row { margin-bottom: 16px; }
 .card-header { display: flex; justify-content: space-between; align-items: center; }
 </style>

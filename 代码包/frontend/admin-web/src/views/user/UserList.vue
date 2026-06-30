@@ -2,6 +2,14 @@
   <div class="page-container">
     <h2 class="page-title">用户管理</h2>
 
+    <!-- 统计卡片 -->
+    <el-row :gutter="16" class="stat-row">
+      <el-col :span="6"><StatCard label="总用户数" :value="userStats.totalUsers || 0" unit="人" color="#1a73e8" /></el-col>
+      <el-col :span="6"><StatCard label="本月新增" :value="userStats.newThisMonth || 0" unit="人" color="#67c23a" /></el-col>
+      <el-col :span="6"><StatCard label="活跃用户" :value="userStats.activeUsers || 0" unit="人" color="#ef6c00" /></el-col>
+      <el-col :span="6"><StatCard label="平均正确率" :value="userStats.avgCorrectRate ? (userStats.avgCorrectRate*100).toFixed(1) : '0.0'" unit="%" color="#78909c" /></el-col>
+    </el-row>
+
     <!-- 搜索栏 -->
     <SearchBar
       v-model="searchForm"
@@ -94,15 +102,17 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { getUserList, getUserDetail, updateUserStatus } from '@/api/user'
+import { getUserList, getUserDetail, updateUserStatus, getUserStats } from '@/api/user'
 import DataTable from '@/components/table/DataTable.vue'
 import SearchBar from '@/components/search-bar/SearchBar.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
 import StatusTag from '@/components/status-tag/StatusTag.vue'
+import StatCard from '@/components/stat-card/StatCard.vue'
 
 const loading = ref(false)
 const tableData = ref([])
 const total = ref(0)
+const userStats = ref({})
 
 const searchForm = reactive({ keyword: '', status: '' })
 const statusOptions = [
@@ -187,9 +197,15 @@ function formatTime(str) {
 
 // 初始加载
 fetchData()
+fetchUserStats()
+
+async function fetchUserStats() {
+  try { const r = await getUserStats(); userStats.value = r.data } catch {}
+}
 </script>
 
 <style scoped>
+.stat-row { margin-bottom: 16px; }
 .detail-content {
   padding: 0;
 }
