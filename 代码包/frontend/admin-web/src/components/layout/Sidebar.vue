@@ -82,16 +82,6 @@
         <template #title>数据统计</template>
       </el-menu-item>
 
-      <el-sub-menu index="system-group" v-if="isAdmin">
-        <template #title>
-          <el-icon><Setting /></el-icon>
-          <span>系统管理</span>
-        </template>
-        <el-menu-item index="/system/areas">区域管理</el-menu-item>
-        <el-menu-item index="/system/roles">角色管理</el-menu-item>
-        <el-menu-item index="/logs">操作日志</el-menu-item>
-      </el-sub-menu>
-
       </template>  <!-- end v-if="!isOps" -->
     </el-menu>
 
@@ -104,7 +94,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { DataLine, User, Monitor, Shop, Coin, TrendCharts, Setting, Location, Cpu, DataAnalysis, Monitor as MonitorIcon } from '@element-plus/icons-vue'
+import { DataLine, User, Monitor, Shop, Coin, TrendCharts, Location, Cpu, DataAnalysis, Monitor as MonitorIcon } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
 
 defineProps({
