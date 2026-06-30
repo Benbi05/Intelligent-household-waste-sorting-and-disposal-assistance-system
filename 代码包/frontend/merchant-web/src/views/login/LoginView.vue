@@ -23,10 +23,13 @@
         <el-form ref="formRef" :model="form" :rules="rules" @keyup.enter="handleLogin">
           <el-form-item prop="username"><el-input v-model="form.username" placeholder="用户名" size="large" :prefix-icon="User" /></el-form-item>
           <el-form-item prop="password"><el-input v-model="form.password" type="password" placeholder="密码" size="large" :prefix-icon="Lock" show-password /></el-form-item>
-          <el-form-item prop="captcha">
+          <el-form-item prop="captchaCode">
             <div class="captcha-row">
-              <el-input v-model="form.captcha" placeholder="验证码" size="large" :prefix-icon="Key" style="flex:1" />
-              <img :src="captchaUrl" @click="refreshCaptcha" class="captcha-img" title="点击刷新" />
+              <el-input v-model="form.captchaCode" placeholder="请输入图形验证码" :prefix-icon="Key" size="large" class="captcha-input" maxlength="4" />
+              <div class="captcha-img" @click="refreshCaptcha" title="点击刷新">
+                <img v-if="captchaImage" :src="captchaImage" alt="验证码" />
+                <span v-else>加载中...</span>
+              </div>
             </div>
           </el-form-item>
           <el-form-item><el-button type="primary" size="large" style="width:100%" :loading="loading" @click="handleLogin">登 录</el-button></el-form-item>
@@ -38,30 +41,33 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { User, Lock, Key } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/store'
+import request from '@/api/request'
 
 const router = useRouter()
 const userStore = useUserStore()
 const formRef = ref(null)
 const loading = ref(false)
-const captchaKey = ref(Date.now().toString(36))
-const captchaUrl = ref('')
-const form = reactive({ username: '', password: '', captcha: '' })
+const captchaImage = ref('')
+const captchaToken = ref('')
+const form = reactive({ username: '', password: '', captchaCode: '' })
 const rules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+  captchaCode: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
 }
 
-function refreshCaptcha() {
-  captchaKey.value = Date.now().toString(36)
-  const host = localStorage.getItem('backend_host')
-  const base = host ? `http://${host}:8082` : 'http://127.0.0.1:8082'
-  captchaUrl.value = `${base}/api/v1/common/captcha?key=${captchaKey.value}`
+async function refreshCaptcha() {
+  try {
+    const res = await request.get('/common/captcha')
+    captchaToken.value = res.data.captchaToken
+    captchaImage.value = res.data.captchaImage
+    form.captchaCode = ''
+  } catch { /* captcha load failed */ }
 }
 
 async function handleLogin() {
@@ -69,14 +75,14 @@ async function handleLogin() {
   try { await formRef.value.validate() } catch { return }
   loading.value = true
   try {
-    await userStore.login(form.username, form.password, captchaKey.value, form.captcha)
+    await userStore.login(form.username, form.password, captchaToken.value, form.captchaCode)
     ElMessage.success('登录成功')
     router.push('/dashboard')
-  } catch { refreshCaptcha(); form.captcha = '' }
+  } catch { refreshCaptcha() }
   loading.value = false
 }
 
-refreshCaptcha()
+onMounted(refreshCaptcha)
 </script>
 
 <style scoped>
@@ -104,8 +110,11 @@ refreshCaptcha()
 .form-header { margin-bottom: 32px; }
 .form-header h2 { font-size: 26px; font-weight: 700; color: #1a1a1a; margin: 0 0 8px; }
 .form-header p { font-size: 14px; color: #909399; margin: 0; }
-.captcha-row { display: flex; gap: 12px; align-items: center; width: 100%; }
-.captcha-img { height: 40px; border-radius: 6px; cursor: pointer; border: 1px solid #dcdfe6; }
+.captcha-row { display: flex; gap: 12px; }
+.captcha-input { flex: 1; }
+.captcha-img { width: 120px; height: 40px; border-radius: 8px; background: #f5f7fa; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px dashed #dcdfe6; flex-shrink: 0; overflow: hidden; }
+.captcha-img:hover { border-color: #67c23a; }
+.captcha-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
 .form-footer { text-align: center; font-size: 14px; color: #909399; margin-top: 8px; }
 .form-footer .link { color: #67c23a; text-decoration: none; font-weight: 500; }
 </style>
