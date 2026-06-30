@@ -4,9 +4,10 @@
 
     <!-- 统计卡片 -->
     <el-row :gutter="16" class="stat-row">
-      <el-col :span="8"><StatCard label="待审核" :value="merchantStats.pending || 0" unit="家" color="#e6a23c" /></el-col>
-      <el-col :span="8"><StatCard label="已通过" :value="merchantStats.approved || 0" unit="家" color="#67c23a" /></el-col>
-      <el-col :span="8"><StatCard label="已拒绝" :value="merchantStats.rejected || 0" unit="家" color="#909399" /></el-col>
+      <el-col :span="6"><StatCard label="待审核" :value="merchantStats.pending || 0" unit="家" color="#e6a23c" /></el-col>
+      <el-col :span="6"><StatCard label="已通过" :value="merchantStats.approved || 0" unit="家" color="#67c23a" /></el-col>
+      <el-col :span="6"><StatCard label="已冻结" :value="merchantStats.frozen || 0" unit="家" color="#409eff" /></el-col>
+      <el-col :span="6"><StatCard label="已拒绝" :value="merchantStats.rejected || 0" unit="家" color="#909399" /></el-col>
     </el-row>
 
     <!-- 搜索栏 -->
@@ -27,7 +28,13 @@
         <el-table-column prop="contactPhone" label="联系电话" width="140" align="center" />
         <el-table-column prop="area" label="区域" width="100" align="center" />
         <el-table-column prop="status" label="状态" width="90" align="center">
-          <template #default="{ row }"><StatusTag :status="row.status" /></template>
+          <template #default="{ row }">
+            <el-tag v-if="row.status==='pending'" type="warning" size="small">待审核</el-tag>
+            <el-tag v-else-if="row.status==='approved'" type="success" size="small">已通过</el-tag>
+            <el-tag v-else-if="row.status==='frozen'" type="info" size="small">已冻结</el-tag>
+            <el-tag v-else-if="row.status==='rejected'" type="danger" size="small">已拒绝</el-tag>
+            <span v-else>{{ row.status }}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="applyTime" label="申请时间" width="170" align="center">
           <template #default="{ row }">{{ formatTime(row.applyTime) }}</template>
@@ -38,7 +45,15 @@
             <el-button type="success" link size="small" @click="audit(row, 'approved')">通过</el-button>
             <el-button type="danger" link size="small" @click="openReject(row)">驳回</el-button>
           </template>
-          <span v-else class="tip-text">已处理</span>
+          <template v-else-if="row.status === 'approved'">
+            <el-button type="warning" link size="small" @click="handleFreeze(row)">冻结</el-button>
+            <el-button type="danger" link size="small" @click="handleDelete(row)">注销</el-button>
+          </template>
+          <template v-else-if="row.status === 'frozen'">
+            <el-button type="primary" link size="small" @click="handleFreeze(row)">解冻</el-button>
+            <el-button type="danger" link size="small" @click="handleDelete(row)">注销</el-button>
+          </template>
+          <span v-else class="tip-text">已拒绝</span>
         </template>
       </DataTable>
 
@@ -65,10 +80,10 @@
 import { ref, reactive } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { getMerchantList, auditMerchant, getMerchantStats } from '@/api/merchant'
+import request from '@/api/request'
 import DataTable from '@/components/table/DataTable.vue'
 import SearchBar from '@/components/search-bar/SearchBar.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
-import StatusTag from '@/components/status-tag/StatusTag.vue'
 import StatCard from '@/components/stat-card/StatCard.vue'
 
 const loading = ref(false)
@@ -81,6 +96,7 @@ const searchForm = reactive({ keyword: '', status: '' })
 const statusOptions = [
   { label: '待审核', value: 'pending' },
   { label: '已通过', value: 'approved' },
+  { label: '已冻结', value: 'frozen' },
   { label: '已拒绝', value: 'rejected' },
 ]
 
@@ -129,6 +145,25 @@ async function handleReject() {
     rejectVisible.value = false
     fetchList()
   } catch { /* handled */ } finally { submitting.value = false }
+}
+
+async function handleFreeze(row) {
+  const action = row.status === 'frozen' ? '解冻' : '冻结'
+  try { await ElMessageBox.confirm(`确定要${action}商家「${row.storeName}」吗？`, '操作确认', { type: 'warning' }) } catch { return }
+  try {
+    await request.put(`/admin/merchants/${row.merchantId}/freeze`)
+    ElMessage.success(action + '成功')
+    fetchList()
+  } catch {}
+}
+
+async function handleDelete(row) {
+  try { await ElMessageBox.confirm(`确定要<strong>注销</strong>商家「${row.storeName}」吗？<br/>将删除该商家所有商品、订单数据，不可恢复！`, '危险操作', { type: 'error', dangerouslyUseHTMLString: true, confirmButtonText: '确认注销' }) } catch { return }
+  try {
+    await request.delete(`/admin/merchants/${row.merchantId}/delete`)
+    ElMessage.success('已注销')
+    fetchList()
+  } catch {}
 }
 
 function formatTime(s) { if (!s) return '-'; return s.replace('T', ' ').substring(0, 19) }

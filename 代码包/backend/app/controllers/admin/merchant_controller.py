@@ -60,4 +60,46 @@ def merchant_stats():
     pending = Merchant.query.filter_by(status="pending").count()
     approved = Merchant.query.filter_by(status="approved").count()
     rejected = Merchant.query.filter_by(status="rejected").count()
-    return success({"pending": pending, "approved": approved, "rejected": rejected})
+    return success({"pending": pending, "approved": approved, "rejected": rejected, "frozen": Merchant.query.filter_by(status="frozen").count()})
+
+
+@bp.route("/merchants/<int:merchant_id>/freeze", methods=["PUT"])
+@admin_required
+def freeze_merchant(merchant_id):
+    """冻结/解冻商家"""
+    m = Merchant.query.get(merchant_id)
+    if not m: return fail(404, "商家不存在")
+    if m.status == "frozen":
+        m.status = "approved"
+        msg = "商家已解冻"
+    else:
+        m.status = "frozen"
+        msg = "商家已冻结"
+    db.session.commit()
+    db.session.add(OperationLog(adminId=g.user_id, adminName="admin", actionType="merchant_freeze",
+        targetId=merchant_id, detail=f"商家 {m.storeName} {msg}", ip=request.remote_addr or ""))
+    db.session.commit()
+    return success({"status": m.status}, msg)
+
+
+@bp.route("/merchants/<int:merchant_id>/delete", methods=["DELETE"])
+@admin_required
+def delete_merchant(merchant_id):
+    """注销商家账号"""
+    m = Merchant.query.get(merchant_id)
+    if not m: return fail(404, "商家不存在")
+    # 清理关联数据
+    from ...models.recommendation import Recommendation
+    from ...models.commodity import Commodity
+    from ...models.point_order import PointOrder
+    Recommendation.query.filter_by(merchantId=merchant_id).delete()
+    Commodity.query.filter_by(merchantId=merchant_id).delete()
+    PointOrder.query.filter_by(merchantId=merchant_id).delete()
+    uid = m.userId
+    db.session.delete(m)
+    User.query.filter_by(id=uid).delete()
+    db.session.commit()
+    db.session.add(OperationLog(adminId=g.user_id, adminName="admin", actionType="merchant_delete",
+        targetId=merchant_id, detail=f"注销商家: {m.storeName}", ip=request.remote_addr or ""))
+    db.session.commit()
+    return success(None, "商家已注销")

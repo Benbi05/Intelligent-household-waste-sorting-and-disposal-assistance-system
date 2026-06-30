@@ -13,8 +13,7 @@
     <!-- 搜索栏 -->
     <SearchBar
       v-model="searchForm"
-      :show-status="true"
-      :status-options="statusOptions"
+      :show-status="false"
       @search="onSearch"
       @reset="onReset"
     />
@@ -24,19 +23,15 @@
       <DataTable
         :data="tableData"
         :loading="loading"
-        :action-width="160"
+        :action-width="80"
+        :default-sort="{ prop: 'correctRate', order: 'descending' }"
       >
         <el-table-column prop="userId" label="用户ID" width="80" align="center" />
         <el-table-column prop="nickName" label="昵称" min-width="120" show-overflow-tooltip />
         <el-table-column prop="phone" label="手机号" width="140" align="center" />
         <el-table-column prop="pointBalance" label="积分余额" width="100" align="center" />
-        <el-table-column prop="correctRate" label="正确率" width="100" align="center">
+        <el-table-column prop="correctRate" label="正确率" sortable width="120" align="center">
           <template #default="{ row }">{{ (row.correctRate * 100).toFixed(1) }}%</template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="90" align="center">
-          <template #default="{ row }">
-            <StatusTag :status="row.status" />
-          </template>
         </el-table-column>
         <el-table-column prop="registerTime" label="注册时间" width="180" align="center">
           <template #default="{ row }">{{ formatTime(row.registerTime) }}</template>
@@ -45,24 +40,6 @@
         <template #actions="{ row }">
           <el-button type="primary" link size="small" @click="showDetail(row.userId)">
             详情
-          </el-button>
-          <el-button
-            v-if="row.status === 'enable'"
-            type="danger"
-            link
-            size="small"
-            @click="toggleStatus(row, 'disable')"
-          >
-            禁用
-          </el-button>
-          <el-button
-            v-else
-            type="success"
-            link
-            size="small"
-            @click="toggleStatus(row, 'enable')"
-          >
-            启用
           </el-button>
         </template>
       </DataTable>
@@ -101,12 +78,11 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { ElMessageBox, ElMessage } from 'element-plus'
-import { getUserList, getUserDetail, updateUserStatus, getUserStats } from '@/api/user'
+
+import { getUserList, getUserDetail, getUserStats } from '@/api/user'
 import DataTable from '@/components/table/DataTable.vue'
 import SearchBar from '@/components/search-bar/SearchBar.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
-import StatusTag from '@/components/status-tag/StatusTag.vue'
 import StatCard from '@/components/stat-card/StatCard.vue'
 
 const loading = ref(false)
@@ -114,11 +90,7 @@ const tableData = ref([])
 const total = ref(0)
 const userStats = ref({})
 
-const searchForm = reactive({ keyword: '', status: '' })
-const statusOptions = [
-  { label: '启用', value: 'enable' },
-  { label: '禁用', value: 'disable' },
-]
+const searchForm = reactive({ keyword: '' })
 
 const pagination = reactive({ page: 1, size: 10 })
 
@@ -130,19 +102,13 @@ const detailLoading = ref(false)
 async function fetchData() {
   loading.value = true
   try {
-    const res = await getUserList({
-      page: pagination.page,
-      size: pagination.size,
-      keyword: searchForm.keyword,
-      status: searchForm.status,
-    })
-    tableData.value = res.data.records || []
+    const res = await getUserList({ page: pagination.page, size: pagination.size, keyword: searchForm.keyword })
+    const records = res.data.records || []
+    // 按正确率从高到低排序
+    records.sort((a, b) => (b.correctRate || 0) - (a.correctRate || 0))
+    tableData.value = records
     total.value = res.data.total || 0
-  } catch {
-    // handled in request interceptor
-  } finally {
-    loading.value = false
-  }
+  } catch {} finally { loading.value = false }
 }
 
 function onSearch() {
@@ -166,27 +132,6 @@ async function showDetail(userId) {
     drawerVisible.value = false
   } finally {
     detailLoading.value = false
-  }
-}
-
-async function toggleStatus(row, status) {
-  const action = status === 'enable' ? '启用' : '禁用'
-  try {
-    await ElMessageBox.confirm(`确定要${action}用户「${row.nickName || row.phone}」吗？`, '操作确认', {
-      type: 'warning',
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-    })
-  } catch {
-    return
-  }
-
-  try {
-    await updateUserStatus(row.userId, status)
-    ElMessage.success(`${action}成功`)
-    fetchData()
-  } catch {
-    // handled in request interceptor
   }
 }
 
