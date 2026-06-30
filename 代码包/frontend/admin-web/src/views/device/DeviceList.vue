@@ -144,7 +144,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { getDeviceList, createDevice, updateDeviceStatus, deleteDevice, updateDeviceConfig, firmwareUpgrade, getDeviceStats } from '@/api/device'
@@ -154,6 +154,11 @@ import Pagination from '@/components/pagination/Pagination.vue'
 import FormDialog from '@/components/form-dialog/FormDialog.vue'
 import StatusTag from '@/components/status-tag/StatusTag.vue'
 import StatCard from '@/components/stat-card/StatCard.vue'
+
+import { useUserStore } from '@/store/user'
+const userStore = useUserStore()
+const isAdmin = computed(() => userStore.role === 'super_admin')
+const comm = computed(() => userStore.community || '')
 
 const loading = ref(false)
 const tableData = ref([])
@@ -195,8 +200,10 @@ async function fetchDevices() {
   try {
     const res = await getDeviceList({
       page: pagination.page, size: pagination.size,
-      keyword: searchForm.keyword, onlineStatus: searchForm.status,
-      boxCategory: searchForm.boxCategory, area: searchForm.area,
+      keyword: isAdmin.value && comm.value ? comm.value : searchForm.keyword,
+      onlineStatus: searchForm.status,
+      boxCategory: searchForm.boxCategory,
+      area: isAdmin.value && comm.value ? '' : searchForm.area,
     })
     tableData.value = res.data.records || []
     total.value = res.data.total || 0
@@ -267,7 +274,7 @@ fetchDevices()
 fetchDeviceStats()
 
 async function fetchDeviceStats() {
-  try { const r = await getDeviceStats(); deviceStats.value = r.data } catch {}
+  try { const r = await getDeviceStats(isAdmin.value ? { community: comm.value } : {}); deviceStats.value = r.data } catch {}
 }
 </script>
 

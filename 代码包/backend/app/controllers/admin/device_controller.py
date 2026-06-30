@@ -91,8 +91,11 @@ def firmware_upgrade():
 @admin_required
 def device_stats():
     """设备统计概览"""
-    total = Device.query.count()
-    online = Device.query.filter_by(onlineStatus="online").count()
-    offline = Device.query.filter_by(onlineStatus="offline").count()
-    fault = Device.query.filter_by(onlineStatus="fault").count()
+    c = request.args.get("community", "")
+    q = Device.query
+    if c: q = q.filter(Device.deviceId.like(f'{c}%'))
+    total = q.count()
+    online = q.filter_by(onlineStatus="online").count()
+    offline = q.filter_by(onlineStatus="offline").count()
+    fault = q.filter_by(onlineStatus="fault").count()
     return success({"totalDevices": total, "online": online, "offline": offline, "fault": fault})

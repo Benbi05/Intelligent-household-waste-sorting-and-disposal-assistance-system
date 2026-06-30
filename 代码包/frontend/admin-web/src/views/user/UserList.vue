@@ -77,13 +77,17 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-
+import { ref, reactive, computed } from 'vue'
+import { useUserStore } from '@/store/user'
 import { getUserList, getUserDetail, getUserStats } from '@/api/user'
 import DataTable from '@/components/table/DataTable.vue'
 import SearchBar from '@/components/search-bar/SearchBar.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
 import StatCard from '@/components/stat-card/StatCard.vue'
+
+const userStore = useUserStore()
+const isAdmin = computed(() => userStore.role === 'super_admin')
+const comm = computed(() => userStore.community || '')
 
 const loading = ref(false)
 const tableData = ref([])
@@ -145,7 +149,7 @@ fetchData()
 fetchUserStats()
 
 async function fetchUserStats() {
-  try { const r = await getUserStats(); userStats.value = r.data } catch {}
+  try { const r = await getUserStats(isAdmin.value ? { community: comm.value } : {}); userStats.value = r.data } catch {}
 }
 </script>
 

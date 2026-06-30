@@ -43,17 +43,32 @@ def update_user_status(user_id):
 @bp.route('/users/stats', methods=['GET'])
 @admin_required
 def user_stats():
-    """用户统计概览"""
+    """用户统计概览（支持社区过滤）"""
     now = datetime.utcnow()
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    total = User.query.filter_by(userType="resident").count()
-    new_this_month = User.query.filter(User.userType == "resident", User.createTime >= month_start).count()
-    active = User.query.filter_by(userType="resident", status="enable").count()
-    # 从投放记录计算平均正确率
-    result = db.session.query(
-        func.count(DeliveryRecord.recordId),
-        func.sum(DeliveryRecord.isCorrect.cast(db.Integer))
-    ).first()
+    c = request.args.get("community", "")
+
+    if c:
+        # 通过投放记录找到该社区的用户
+        community_user_ids = db.session.query(DeliveryRecord.userId).filter(
+            DeliveryRecord.deviceId.like(f'{c}%')
+        ).distinct().subquery()
+        total = User.query.filter(User.userType == "resident", User.id.in_(community_user_ids)).count()
+        new_this_month = User.query.filter(User.userType == "resident", User.id.in_(community_user_ids), User.createTime >= month_start).count()
+        active = User.query.filter(User.userType == "resident", User.status == "enable", User.id.in_(community_user_ids)).count()
+        result = db.session.query(
+            func.count(DeliveryRecord.recordId),
+            func.sum(DeliveryRecord.isCorrect.cast(db.Integer))
+        ).filter(DeliveryRecord.deviceId.like(f'{c}%')).first()
+    else:
+        total = User.query.filter_by(userType="resident").count()
+        new_this_month = User.query.filter(User.userType == "resident", User.createTime >= month_start).count()
+        active = User.query.filter_by(userType="resident", status="enable").count()
+        result = db.session.query(
+            func.count(DeliveryRecord.recordId),
+            func.sum(DeliveryRecord.isCorrect.cast(db.Integer))
+        ).first()
+
     total_deliveries, total_correct = result[0] or 0, result[1] or 0
     avg_rate = round(total_correct / total_deliveries, 2) if total_deliveries > 0 else 0
     return success({"totalUsers": total, "newThisMonth": new_this_month, "activeUsers": active, "avgCorrectRate": avg_rate})
