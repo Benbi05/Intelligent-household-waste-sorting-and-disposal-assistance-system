@@ -20,30 +20,16 @@
               </div>
               <span class="bar-val" :style="{ color: d.rate>=85?'#67c23a':'#f56c6c' }">{{ d.rate }}%</span>
             </div>
-            <div class="bar-legend"><span class="dot red"></span> 红线 = 城管考核达标线 85%</div>
           </div>
         </el-card>
       </el-col>
+    </el-row>
+
+    <el-row :gutter="16" style="margin-top:16px">
       <el-col :span="24">
         <el-card shadow="never">
-          <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝=总投放 绿=正确</span></template>
-          <div class="trend-chart" v-loading="loading">
-            <div class="trend-legend">
-              <span><span class="l-dot" style="background:#409eff"></span> 总投放</span>
-              <span><span class="l-dot" style="background:#67c23a"></span> 正确</span>
-              <span><span class="l-dot" style="background:#f56c6c;border-radius:50%;width:8px;height:8px"></span> 正确率</span>
-            </div>
-            <div class="trend-bars">
-              <div v-for="(d,i) in trdData" :key="i" class="t-day">
-                <div class="t-bar-wrap">
-                  <div class="t-bar t-total" :style="{height:(d.total*0.45)+'px'}" :title="d.date+' 总投放 '+d.total+'次'"></div>
-                  <div class="t-bar t-correct" :style="{height:(d.correct*0.45)+'px'}" :title="d.date+' 正确 '+d.correct+'次'"></div>
-                  <div class="t-dot" :style="{bottom:(d.rate*1.8)+'px'}" :title="d.date+' 正确率 '+d.rate+'%'"></div>
-                </div>
-                <span class="t-date" v-if="i%3===0" :title="d.date">{{ d.date.slice(3) }}</span>
-              </div>
-            </div>
-          </div>
+          <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝柱=总投放 绿柱=正确 红线=正确率</span></template>
+          <div ref="trendChart" style="height:320px" v-loading="loading"></div>
         </el-card>
       </el-col>
     </el-row>
@@ -51,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { getOverview } from '@/api/statistics'
 import { useUserStore } from '@/store/user'
 import StatCard from '@/components/stat-card/StatCard.vue'
@@ -62,6 +48,7 @@ const roleLabel = computed(() => userStore.role === 'super_admin' ? '物业经�
 const overview = ref({})
 const bldData = ref([])
 const trdData = ref([])
+const trendChart = ref(null)
 const loading = ref(true)
 
 onMounted(async () => {
@@ -75,33 +62,45 @@ onMounted(async () => {
     trdData.value = tR.data
   } catch {}
   loading.value = false
+  await nextTick()
+  renderTrendChart()
 })
+
+function renderTrendChart() {
+  if (!trendChart.value || !trdData.value.length) return
+  const ec = window.echarts
+  if (!ec) return
+  const chart = ec.init(trendChart.value)
+  const dates = trdData.value.map(d => d.date)
+  const totals = trdData.value.map(d => d.total)
+  const corrects = trdData.value.map(d => d.correct)
+  const rates = trdData.value.map(d => d.rate)
+  chart.setOption({
+    tooltip: { trigger: 'axis', formatter: function(p) { return p[0].axisValue + '<br/>总投放: ' + p[0].value + '次<br/>正确: ' + p[1].value + '次<br/>正确率: ' + rates[p[0].dataIndex] + '%' } },
+    legend: { data: ['总投放','正确','正确率'], top: 5 },
+    grid: { top: 40, right: 60, bottom: 40, left: 50 },
+    xAxis: { data: dates, axisLabel: { fontSize: 10, rotate: 45, interval: 2 } },
+    yAxis: [
+      { type: 'value', name: '次数', axisLabel: { fontSize: 10 } },
+      { type: 'value', name: '%', min: 0, max: 100, axisLabel: { fontSize: 10, formatter: '{value}%' } }
+    ],
+    series: [
+      { name: '总投放', type: 'bar', data: totals, itemStyle: { color: '#409eff', opacity: 0.6 }, barWidth: '40%' },
+      { name: '正确', type: 'bar', data: corrects, itemStyle: { color: '#67c23a', opacity: 0.8 }, barWidth: '40%' },
+      { name: '正确率', type: 'line', yAxisIndex: 1, data: rates, itemStyle: { color: '#f56c6c' }, lineStyle: { width: 2 }, symbol: 'circle', symbolSize: 5, markLine: { silent: true, data: [{ yAxis: 85, label: { formatter: '达标线 85%' }, lineStyle: { color: '#f56c6c', type: 'dashed' } }] } }
+    ]
+  })
+}
 </script>
 
 <style scoped>
 .dashboard { padding: 20px; }
 .page-title { font-size: 18px; font-weight: 600; color: #303133; margin-bottom: 20px; }
 .stat-row { margin-bottom: 16px; }
-
 .bar-chart { padding: 10px 0; }
 .bar-row { display: flex; align-items: center; margin-bottom: 6px; }
 .bar-label { width: 36px; font-size: 12px; color: #606266; text-align: right; margin-right: 8px; flex-shrink: 0; }
-.bar-track { flex: 1; height: 18px; background: #f0f2f5; border-radius: 4px; overflow: hidden; position: relative; }
+.bar-track { flex: 1; height: 18px; background: #f0f2f5; border-radius: 4px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; min-width: 2px; }
 .bar-val { width: 44px; font-size: 12px; font-weight: 600; text-align: right; margin-left: 8px; flex-shrink: 0; }
-.bar-legend { margin-top: 12px; font-size: 11px; color: #c0c4cc; }
-.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
-.dot.red { background: #f56c6c; }
-
-.trend-chart { background: #fafbfc; border-radius: 6px; padding: 8px 0; }
-.trend-legend { display: flex; gap: 20px; justify-content: center; margin-bottom: 10px; font-size: 12px; color: #606266; }
-.l-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 2px; }
-.trend-bars { display: flex; align-items: flex-end; height: 200px; padding: 0 8px; gap: 2px; }
-.t-day { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
-.t-bar-wrap { width: 100%; height: 180px; position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 1px; }
-.t-bar { width: 4px; border-radius: 2px 2px 0 0; min-height: 2px; }
-.t-total { background: #409eff; opacity: 0.5; }
-.t-correct { background: #67c23a; opacity: 0.8; }
-.t-dot { position: absolute; width: 4px; height: 4px; background: #f56c6c; border-radius: 50%; left: 50%; transform: translateX(-50%); }
-.t-date { font-size: 9px; color: #c0c4cc; margin-top: 4px; white-space: nowrap; }
 </style>
