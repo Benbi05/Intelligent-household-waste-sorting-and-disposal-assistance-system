@@ -31,7 +31,7 @@
               </div>
             </div>
             <el-empty v-else description="暂无数据" :image-size="40" />
-            <div v-if="c.topProducts && c.topProducts.length" style="margin-top:12px">
+            <div style="margin-top:12px">
               <el-button type="primary" size="small" @click="openPush(c)" :loading="pushing===c.community">
                 推送至商家 →
               </el-button>
