@@ -64,6 +64,12 @@ const router = createRouter({
           meta: { title: '数据统计' },
         },
         {
+          path: 'compare',
+          name: 'CommunityCompare',
+          component: () => import('@/views/statistics/CommunityCompare.vue'),
+          meta: { title: '社区对比' },
+        },
+        {
           path: 'merchants',
           name: 'MerchantAudit',
           component: () => import('@/views/merchant/MerchantAudit.vue'),

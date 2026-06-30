@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard">
-    <div class="page-title">{{ roleLabel }}工作台 — 虎溪花园社区（沙坪坝区虎溪街道）</div>
+    <div class="page-title">{{ roleLabel }}工作台 — {{ community ? community+'社区' : '虎溪街道全部8个社区' }}</div>
 
     <!-- 指标卡 -->
     <el-row :gutter="16" class="stat-row">
@@ -82,7 +82,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { getOverview } from '@/api/statistics'
 import { useUserStore } from '@/store/user'
 import StatCard from '@/components/stat-card/StatCard.vue'
@@ -90,6 +91,8 @@ import request from '@/api/request'
 
 const userStore = useUserStore()
 const roleLabel = computed(() => userStore.role === 'super_admin' ? '物业经理' : '城管监管')
+const route = useRoute()
+const community = computed(() => route.query.community || '')
 
 const overview = ref({})
 const bldData = ref([])
@@ -124,14 +127,17 @@ function catTip(c) {
   return '未达标，需专项整治'
 }
 
-onMounted(async () => {
-  try { const r = await getOverview(); overview.value = r.data } catch {}
+const params = computed(() => community.value ? { community: community.value } : {})
+
+async function fetchAll() {
+  loading.value = true
+  try { const r = await getOverview(params.value); overview.value = r.data } catch {}
   try {
     const [bR, tR, cR, mR] = await Promise.all([
-      request.get('/admin/statistics/building-compare'),
-      request.get('/admin/statistics/daily-trend'),
-      request.get('/admin/statistics/category-breakdown'),
-      request.get('/admin/statistics/month-compare'),
+      request.get('/admin/statistics/building-compare', { params: params.value }),
+      request.get('/admin/statistics/daily-trend', { params: params.value }),
+      request.get('/admin/statistics/category-breakdown', { params: params.value }),
+      request.get('/admin/statistics/month-compare', { params: params.value }),
     ])
     bldData.value = bR.data
     trdData.value = tR.data
@@ -141,7 +147,10 @@ onMounted(async () => {
   loading.value = false
   await nextTick()
   renderTrendChart()
-})
+}
+
+onMounted(fetchAll)
+watch(community, fetchAll)
 
 function renderTrendChart() {
   if (!trendChart.value || !trdData.value.length) return

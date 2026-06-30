@@ -22,6 +22,19 @@
         <template #title>仪表盘</template>
       </el-menu-item>
 
+      <!-- 8个社区（仅城管可见） -->
+      <template v-if="!isAdmin">
+        <el-menu-item index="/dashboard?community=虎溪"><el-icon><Location /></el-icon><template #title>虎溪花园</template></el-menu-item>
+        <el-menu-item index="/dashboard?community=学府"><el-icon><Location /></el-icon><template #title>学府悦园</template></el-menu-item>
+        <el-menu-item index="/dashboard?community=康居"><el-icon><Location /></el-icon><template #title>康居西城</template></el-menu-item>
+        <el-menu-item index="/dashboard?community=龙湖"><el-icon><Location /></el-icon><template #title>龙湖U城</template></el-menu-item>
+        <el-menu-item index="/dashboard?community=金科"><el-icon><Location /></el-icon><template #title>金科廊桥水乡</template></el-menu-item>
+        <el-menu-item index="/dashboard?community=富力"><el-icon><Location /></el-icon><template #title>富力城</template></el-menu-item>
+        <el-menu-item index="/dashboard?community=恒大"><el-icon><Location /></el-icon><template #title>恒大未来城</template></el-menu-item>
+        <el-menu-item index="/dashboard?community=融创"><el-icon><Location /></el-icon><template #title>融创文旅城</template></el-menu-item>
+        <el-menu-item index="/compare"><el-icon><TrendCharts /></el-icon><template #title>社区对比</template></el-menu-item>
+      </template>
+
       <el-menu-item index="/users" v-if="isAdmin">
         <el-icon><User /></el-icon>
         <template #title>用户管理</template>
@@ -72,7 +85,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { DataLine, User, Monitor, Shop, Coin, TrendCharts, Setting } from '@element-plus/icons-vue'
+import { DataLine, User, Monitor, Shop, Coin, TrendCharts, Setting, Location } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
 
 defineProps({

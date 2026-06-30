@@ -28,7 +28,8 @@ def _write_header(ws, headers):
 @bp.route("/statistics/overview", methods=["GET"])
 @admin_required
 def overview():
-    return success(get_overview())
+    community = request.args.get("community", "")
+    return success(get_overview(community))
 
 @bp.route("/statistics/delivery", methods=["GET"])
 @admin_required

@@ -1,8 +1,8 @@
 import request from './request'
 
 /** 获取统计概览 */
-export function getOverview() {
-  return request.get('/admin/statistics/overview')
+export function getOverview(params = {}) {
+  return request.get('/admin/statistics/overview', { params })
 }
 
 /** 获取投放统计 */
