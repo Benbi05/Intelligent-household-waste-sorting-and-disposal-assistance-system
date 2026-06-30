@@ -1,9 +1,10 @@
 <template>
+  <el-tooltip :content="tip" placement="bottom" :disabled="!tip" effect="dark">
   <el-card class="stat-card" shadow="never" :style="{ borderTop: '3px solid ' + color }">
     <div class="stat-card-body">
       <div class="stat-info">
         <div class="stat-label">{{ label }}</div>
-        <div class="stat-value">{{ value }}</div>
+        <div class="stat-value">{{ value }}{{ unit }}</div>
         <div v-if="trend" class="stat-trend">
           <el-icon :color="trend > 0 ? '#67c23a' : '#f56c6c'">
             <CaretTop v-if="trend > 0" /><CaretBottom v-else />
@@ -19,6 +20,7 @@
       </div>
     </div>
   </el-card>
+  </el-tooltip>
 </template>
 
 <script setup>
@@ -27,6 +29,8 @@ import { CaretTop, CaretBottom, DataLine } from '@element-plus/icons-vue'
 defineProps({
   label: { type: String, default: '' },
   value: { type: [String, Number], default: 0 },
+  unit: { type: String, default: '' },
+  tip: { type: String, default: '' },
   trend: { type: Number, default: 0 },
   color: { type: String, default: '#67c23a' },
 })

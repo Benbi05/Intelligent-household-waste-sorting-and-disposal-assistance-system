@@ -1,18 +1,24 @@
 <template>
   <div class="dashboard">
-    <div class="page-title">{{ roleLabel }}工作台 — 虎溪花园社区</div>
+    <div class="page-title">{{ roleLabel }}工作台 — 虎溪花园社区（沙坪坝区虎溪街道）</div>
     <el-row :gutter="16" class="stat-row">
-      <el-col :span="6"><StatCard label="本月投放总量" :value="overview.todayDeliveryCount || 0" unit="次" color="#409eff" /></el-col>
-      <el-col :span="6"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#67c23a" /></el-col>
-      <el-col :span="6"><StatCard label="在线设备" :value="overview.onlineDevices || 0" :unit="'/' + (overview.totalDevices || 0) + '台'" color="#e6a23c" /></el-col>
-      <el-col :span="6"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#f56c6c" /></el-col>
+      <el-col :span="6"><StatCard label="本月投放总量" :value="overview.todayDeliveryCount || 0" unit="次" color="#409eff" tip="虎溪花园12栋楼近30天居民投放垃圾的总次数，日均约280次" /></el-col>
+      <el-col :span="6"><StatCard label="分类正确率" :value="overview.monthCorrectRate ? (overview.monthCorrectRate*100).toFixed(1) : 0" unit="%" color="#67c23a" tip="正确投放次数占总投放次数的比例，城管考核达标线为85%。A区(1-6栋)约87%，B区(7-12栋)约75%" /></el-col>
+      <el-col :span="6"><StatCard label="在线设备" :value="overview.onlineDevices || 0" :unit="'/' + (overview.totalDevices || 0) + '台'" color="#e6a23c" tip="当前正常运行的智能垃圾箱数量。虎溪花园共36台设备（12栋×每栋3台），离线设备需物业及时检修" /></el-col>
+      <el-col :span="6"><StatCard label="注册用户" :value="overview.totalUsers || 0" unit="人" color="#f56c6c" tip="已注册使用小程序的居民数量，包含物业管理员和城管监管账号" /></el-col>
     </el-row>
     <el-row :gutter="16" style="margin-top:16px">
       <el-col :span="12">
-        <el-card header="各栋分类正确率对比" shadow="never"><div ref="bldChart" style="height:300px"></div></el-card>
+        <el-card shadow="never">
+          <template #header>各栋分类正确率对比 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 红色虚线为城管考核达标线(85%)，A区(1-6栋)明显优于B区(7-12栋)</span></template>
+          <div ref="bldChart" style="height:300px"></div>
+        </el-card>
       </el-col>
       <el-col :span="12">
-        <el-card header="近30天投放趋势" shadow="never"><div ref="trendChart" style="height:300px"></div></el-card>
+        <el-card shadow="never">
+          <template #header>近30天投放趋势 <span style="font-size:12px;color:#c0c4cc;font-weight:normal">— 蓝色为总投放量，绿色为正确投放量，周末投放量可见下降</span></template>
+          <div ref="trendChart" style="height:300px"></div>
+        </el-card>
       </el-col>
     </el-row>
   </div>
@@ -44,19 +50,19 @@ async function loadCharts() {
     if (bldChart.value) {
       const c = echarts.init(bldChart.value)
       c.setOption({
-        tooltip: { trigger: 'axis' },
+        tooltip: { trigger: 'axis', formatter: function(p) { const d = p[0]; return d.name + '<br/>正确率: ' + d.value + '%<br/>' + (d.value>=85?'✅ 达标':d.value>=80?'⚠️ 接近达标':'❌ 未达标') } },
         xAxis: { data: bld.map(d => d.building), axisLabel: { fontSize: 11 } },
         yAxis: { max: 100, axisLabel: { formatter: '{value}%' } },
         series: [{ name: '正确率', type: 'bar', data: bld.map(d => d.rate),
           itemStyle: { color: p => p.value>=85?'#67c23a':p.value>=80?'#e6a23c':'#f56c6c' },
-          markLine: { data: [{ yAxis: 85, name: '达标线', lineStyle: { color: '#f56c6c', type: 'dashed' } }], label: { show: true } } }],
+          markLine: { data: [{ yAxis: 85, name: '达标线 85%', lineStyle: { color: '#f56c6c', type: 'dashed', width: 2 } }], label: { show: true, fontSize: 11 } } }],
         grid: { top: 20, right: 30, bottom: 30, left: 40 }
       })
     }
     if (trendChart.value) {
       const c = echarts.init(trendChart.value)
       c.setOption({
-        tooltip: { trigger: 'axis' },
+        tooltip: { trigger: 'axis', formatter: function(p) { return p[0].axisValue + '<br/>总投放: ' + p[0].value + '次<br/>正确: ' + p[1].value + '次<br/>正确率: ' + (p[1].value/p[0].value*100).toFixed(1) + '%' } },
         xAxis: { data: trd.map(d => d.date), axisLabel: { fontSize: 10, rotate: 45 } },
         series: [{ name: '总投放', type: 'bar', data: trd.map(d => d.total), itemStyle: { color: '#409eff' } },
                  { name: '正确', type: 'bar', data: trd.map(d => d.correct), itemStyle: { color: '#67c23a' } }],
