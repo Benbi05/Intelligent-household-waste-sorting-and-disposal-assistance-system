@@ -73,6 +73,26 @@
         <el-menu-item index="/system/roles">角色管理</el-menu-item>
         <el-menu-item index="/logs">操作日志</el-menu-item>
       </el-sub-menu>
+
+      <!-- 运维端菜单 -->
+      <template v-if="isOps">
+        <el-menu-item index="/ops-dashboard">
+          <el-icon><MonitorIcon /></el-icon>
+          <template #title>系统监控</template>
+        </el-menu-item>
+        <el-menu-item index="/ops-models">
+          <el-icon><Cpu /></el-icon>
+          <template #title>AI模型管理</template>
+        </el-menu-item>
+        <el-menu-item index="/ops-insights">
+          <el-icon><DataAnalysis /></el-icon>
+          <template #title>消费洞察</template>
+        </el-menu-item>
+        <el-menu-item index="/logs">
+          <el-icon><Setting /></el-icon>
+          <template #title>操作日志</template>
+        </el-menu-item>
+      </template>
     </el-menu>
 
     <div class="sidebar-footer" v-show="!collapsed">
@@ -84,7 +104,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { DataLine, User, Monitor, Shop, Coin, TrendCharts, Setting, Location } from '@element-plus/icons-vue'
+import { DataLine, User, Monitor, Shop, Coin, TrendCharts, Setting, Location, Cpu, DataAnalysis, Monitor as MonitorIcon } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
 
 defineProps({
@@ -94,6 +114,7 @@ defineProps({
 const route = useRoute()
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.role === 'super_admin')
+const isOps = computed(() => userStore.role === 'ops_admin')
 const activeMenu = computed(() => '/' + route.path.split('/').slice(1, 3).join('/'))
 </script>
 

@@ -111,6 +111,25 @@ const router = createRouter({
           component: () => import('@/views/system/RoleManage.vue'),
           meta: { title: '角色管理', requiresAdmin: true },
         },
+        // 运维端
+        {
+          path: 'ops-dashboard',
+          name: 'OpsDashboard',
+          component: () => import('@/views/ops/OpsDashboard.vue'),
+          meta: { title: '系统监控' },
+        },
+        {
+          path: 'ops-models',
+          name: 'OpsModels',
+          component: () => import('@/views/ops/ModelManage.vue'),
+          meta: { title: 'AI模型管理' },
+        },
+        {
+          path: 'ops-insights',
+          name: 'OpsInsights',
+          component: () => import('@/views/ops/InsightView.vue'),
+          meta: { title: '消费洞察' },
+        },
       ],
     },
     {
