@@ -47,21 +47,6 @@
         </div>
       </div>
 
-      <!-- 快捷操作 -->
-      <div class="panel" style="margin-bottom:20px">
-        <div class="panel-header"><span class="panel-title">⚡ 快捷操作</span></div>
-        <div class="panel-body">
-          <div class="action-grid">
-            <router-link v-for="a in quickActions" :key="a.to" :to="a.to" class="action-item">
-              <div class="action-icon" :style="{ background: a.color + '18', color: a.color }">
-                <el-icon :size="24"><component :is="a.icon" /></el-icon>
-              </div>
-              <span class="action-label">{{ a.label }}</span>
-            </router-link>
-          </div>
-        </div>
-      </div>
-
       <!-- 二、楼栋排名 + 三、工作台 -->
       <div class="two-col">
         <div class="panel">
@@ -258,7 +243,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { getOverview } from '@/api/statistics'
 import { useUserStore } from '@/store/user'
 import StatCard from '@/components/stat-card/StatCard.vue'
-import { User, Monitor, Shop, Coin, Grid, TrendCharts } from '@element-plus/icons-vue'
 import request from '@/api/request'
 
 const route = useRoute()
@@ -323,16 +307,6 @@ const tasks = reactive({
   ],
 })
 function toggleTask(g, id) { const item = tasks[g].find(t => t.id === id); if (item) item.done = !item.done }
-
-// 快捷操作
-const quickActions = [
-  { label: '用户管理', to: '/users', icon: User, color: '#1a73e8' },
-  { label: '设备管理', to: '/devices', icon: Monitor, color: '#ef6c00' },
-  { label: '商家审核', to: '/merchants', icon: Shop, color: '#e6a23c' },
-  { label: '积分规则', to: '/rules', icon: Coin, color: '#2e7d32' },
-  { label: '品类管理', to: '/categories', icon: Grid, color: '#7b1fa2' },
-  { label: '数据统计', to: '/statistics', icon: TrendCharts, color: '#0277bd' },
-]
 
 // 计算属性
 const monthCorrectRate = computed(() => monthCompare.value.thisMonth?.rate ? monthCompare.value.thisMonth.rate.toFixed(1) : '87.3')
@@ -558,13 +532,6 @@ watch(community, () => { fetchAll() })
 .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
 .panel-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
 .panel-body { padding: 16px 20px; }
-
-/* 快捷操作 */
-.action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.action-item { display: flex; flex-direction: column; align-items: center; padding: 16px 8px; border-radius: 8px; border: 1px solid #ebeef5; text-decoration: none; color: #303133; transition: all .2s; cursor: pointer; background: #fafbfc; }
-.action-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #c0c4cc; }
-.action-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
-.action-label { font-size: 13px; font-weight: 500; }
 
 /* 楼栋排名 */
 .sort-tabs { display: flex; border-radius: 6px; overflow: hidden; border: 1px solid #dcdfe6; }
