@@ -5,13 +5,14 @@
       <div class="stat-info">
         <div class="stat-label">{{ label }}</div>
         <div class="stat-value">{{ value }}{{ unit }}</div>
-        <div v-if="trend" class="stat-trend">
+        <div v-if="trend !== 0" class="stat-trend">
           <el-icon :color="trend > 0 ? '#67c23a' : '#f56c6c'">
             <CaretTop v-if="trend > 0" /><CaretBottom v-else />
           </el-icon>
           <span>{{ Math.abs(trend) }}%</span>
           <span class="trend-desc">较上月</span>
         </div>
+        <div v-if="sub" class="stat-sub">{{ sub }}</div>
       </div>
       <div class="stat-icon" :style="{ background: color + '1a', color: color }">
         <slot name="icon">
@@ -32,6 +33,7 @@ defineProps({
   unit: { type: String, default: '' },
   tip: { type: String, default: '' },
   trend: { type: Number, default: 0 },
+  sub: { type: String, default: '' },
   color: { type: String, default: '#67c23a' },
 })
 </script>
@@ -78,6 +80,8 @@ defineProps({
   color: #c0c4cc;
   margin-left: 4px;
 }
+
+.stat-sub { margin-top: 6px; font-size: 12px; color: #909399; }
 
 .stat-icon {
   width: 56px;
