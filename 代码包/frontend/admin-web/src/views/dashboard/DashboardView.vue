@@ -31,8 +31,8 @@
           <div class="metric-info">
             <div class="metric-label">{{ displayDeliveryLabel }}</div>
             <div class="metric-value">{{ displayDeliveryCount }}<span class="metric-unit"> 次</span></div>
-            <div class="metric-trend" :class="(overview.deliveryChangeRate || 12) >= 0 ? 'up' : 'down'">
-              {{ (overview.deliveryChangeRate || 12) >= 0 ? '▲' : '▼' }} {{ Math.abs(overview.deliveryChangeRate || 12) }}%
+            <div class="metric-trend" :class="(overview.deliveryChangeRate || 0) >= 0 ? 'up' : 'down'">
+              {{ (overview.deliveryChangeRate || 0) >= 0 ? '▲' : '▼' }} {{ Math.abs(overview.deliveryChangeRate || 0) }}%
               <span class="trend-ref">较上月</span>
             </div>
           </div>
@@ -128,20 +128,20 @@
         <div class="panel">
           <div class="panel-header">
             <span class="panel-title">🗺️ 设备状态</span>
-            <span style="font-size:12px;color:#c0c4cc">{{ staticDevices.length }} 台</span>
+            <span style="font-size:12px;color:#c0c4cc">{{ deviceData.length }} 台</span>
           </div>
           <div class="panel-body">
             <div class="device-grid">
-              <div class="device-dot" v-for="d in staticDevices" :key="d.id">
-                <div class="dot" :class="d.status">{{ d.status==='online'?'🟢':d.status==='warning'?'🟡':'🔴' }}</div>
-                <div class="dot-label">{{ d.name }}</div>
-                <div style="font-size:10px;color:#c0c4cc">{{ d.location }}</div>
+              <div class="device-dot" v-for="d in deviceData" :key="d.id">
+                <div class="dot" :class="d.onlineStatus || d.status">{{ d.onlineStatus || d.status==='online'?'🟢':d.onlineStatus || d.status==='warning'?'🟡':'🔴' }}</div>
+                <div class="dot-label">{{ d.deviceName || d.name }}</div>
+                <div style="font-size:10px;color:#c0c4cc">{{ d.location || d.area }}</div>
               </div>
             </div>
             <div class="device-summary">
-              <div class="device-summary-item"><div class="summary-num" style="color:#67c23a">{{ staticDevices.filter(d=>d.status==='online').length }}</div><div class="summary-label">正常</div></div>
-              <div class="device-summary-item"><div class="summary-num" style="color:#e6a23c">{{ staticDevices.filter(d=>d.status==='warning').length }}</div><div class="summary-label">即将满溢</div></div>
-              <div class="device-summary-item"><div class="summary-num" style="color:#f56c6c">{{ staticDevices.filter(d=>d.status==='offline').length }}</div><div class="summary-label">故障/离线</div></div>
+              <div class="device-summary-item"><div class="summary-num" style="color:#67c23a">{{ deviceData.filter(d=>d.onlineStatus==='online'||d.onlineStatus || d.statusClass==='online').length }}</div><div class="summary-label">正常</div></div>
+              <div class="device-summary-item"><div class="summary-num" style="color:#e6a23c">{{ deviceData.filter(d=>d.onlineStatus==='warning'||d.onlineStatus || d.statusClass==='warning'||(d.fullRate>80)).length }}</div><div class="summary-label">即将满溢</div></div>
+              <div class="device-summary-item"><div class="summary-num" style="color:#f56c6c">{{ deviceData.filter(d=>d.onlineStatus==='offline'||d.onlineStatus || d.statusClass==='offline'||d.onlineStatus || d.status==='fault').length }}</div><div class="summary-label">故障/离线</div></div>
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@
           </div>
           <div class="panel-body">
             <div class="violation-list">
-              <div class="violation-item" v-for="(v,i) in staticViolations" :key="i">
+              <div class="violation-item" v-for="(v,i) in []" :key="i">
                 <div class="violation-rank">{{ i+1 }}</div>
                 <div class="violation-info"><div class="violation-name">{{ v.name }}</div><div class="violation-detail">{{ v.desc }}</div></div>
                 <div class="violation-count">{{ v.count }}次</div>
@@ -277,23 +277,8 @@ const popupPartChart = ref(null)
 const popupDeliveryChart = ref(null)
 
 // 静态演示数据
-const staticDevices = reactive([
-  { id:1,name:'1#箱',location:'1栋北侧',status:'online' },{ id:2,name:'2#箱',location:'2栋东侧',status:'online' },
-  { id:3,name:'3#箱',location:'3栋南侧',status:'warning' },{ id:4,name:'4#箱',location:'4栋北侧',status:'online' },
-  { id:5,name:'5#箱',location:'5栋西侧',status:'online' },{ id:6,name:'6#箱',location:'6栋北侧',status:'online' },
-  { id:7,name:'7#箱',location:'7栋东侧',status:'offline' },{ id:8,name:'8#箱',location:'8栋南侧',status:'online' },
-  { id:9,name:'9#箱',location:'9栋北侧',status:'online' },{ id:10,name:'10#箱',location:'10栋西侧',status:'warning' },
-  { id:11,name:'11#箱',location:'11栋北侧',status:'online' },{ id:12,name:'12#箱',location:'12栋东侧',status:'online' },
-  { id:13,name:'13#箱',location:'大门南侧',status:'online' },{ id:14,name:'14#箱',location:'会所西侧',status:'online' },
-  { id:15,name:'15#箱',location:'广场北侧',status:'online' },{ id:16,name:'16#箱',location:'商业街口',status:'warning' },
-])
-const staticViolations = reactive([
-  { name:'5栋·刘**',desc:'近30天厨房垃圾混入其他垃圾',count:12 },
-  { name:'11栋·张**',desc:'多次将有害垃圾投入可回收桶',count:9 },
-  { name:'8栋·陈**',desc:'夜间违规投放未分类垃圾',count:7 },
-  { name:'3栋·王**',desc:'连续3天将厨余垃圾混投',count:6 },
-  { name:'12栋·赵*',desc:'有害垃圾与可回收物混投',count:5 },
-])
+// deviceData from API — replaced staticDevices
+// violations from API — replaced staticViolations
 const tasks = reactive({
   today: [
     { id: 't1', text: '巡检满溢告警点位并更换垃圾桶', done: false },
@@ -322,9 +307,9 @@ const displayDeliveryCount = computed(() => overview.value.monthDeliveryCount ||
 const displayDeliveryLabel = computed(() => community.value ? '本月投放总量' : '今日投放总量')
 const monthTrend = computed(() => { const d = compareDelta.value; return d > 0 ? Math.abs(d) : d < 0 ? -Math.abs(d) : 0 })
 
-const deviceOnlineCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'online' || d.statusClass === 'online').length)
-const deviceWarningCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'warning' || d.statusClass === 'warning' || (d.fullRate > 80 && d.onlineStatus === 'online')).length)
-const deviceOfflineCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'offline' || d.statusClass === 'offline' || d.status === 'fault').length)
+const deviceOnlineCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'online' || d.onlineStatus || d.statusClass === 'online').length)
+const deviceWarningCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'warning' || d.onlineStatus || d.statusClass === 'warning' || (d.fullRate > 80 && d.onlineStatus === 'online')).length)
+const deviceOfflineCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'offline' || d.onlineStatus || d.statusClass === 'offline' || d.onlineStatus || d.status === 'fault').length)
 const deviceTotal = computed(() => overview.value.totalDevices || 0)
 const deviceOnlineRate = computed(() => deviceData.value.length ? Math.round(deviceOnlineCount.value / deviceData.value.length * 100) : 88)
 const alertCount = ref(4)
@@ -333,7 +318,7 @@ const alertSummary = ref('满溢1 · 故障1 · 待审1 · 违规1')
 // 楼栋数据（优先使用后端数据，回退到静态模拟）
 const buildings = computed(() => {
   return bldData.value.length ? bldData.value.map(d => ({
-    name: d.building || d.name, rate: d.rate || 0, participation: d.total || 0,
+    name: d.building || d.deviceName || d.name, rate: d.rate || 0, participation: d.total || 0,
     units: d.area, households: d.total,
   })) : []
 })
@@ -344,12 +329,12 @@ function rankClass(i) { const v = sortedBuildings.value[i]; if (!v) return ''; r
 function rateClass(v) { return v >= 85 ? 'good' : v >= 70 ? 'mid' : 'bad' }
 function barColor(v) { return v >= 85 ? '#67c23a' : v >= 70 ? '#e6a23c' : '#f56c6c' }
 function catColor(type) { return { recyclable: '#1a73e8', kitchen: '#ef6c00', hazardous: '#c62828', other: '#78909c' }[type] || '#78909c' }
-function deviceEmoji(d) { const s = d.onlineStatus || d.statusClass; return s === 'online' ? '🟢' : s === 'warning' ? '🟡' : '🔴' }
+function deviceEmoji(d) { const s = d.onlineStatus || d.onlineStatus || d.statusClass; return s === 'online' ? '🟢' : s === 'warning' ? '🟡' : '🔴' }
 function truncate(s, n) { return s && s.length > n ? s.substring(0, n) : s || '' }
 function formatDeviceData(list) {
   return (list || []).map(d => {
     let statusClass = 'online'
-    if (d.onlineStatus === 'offline' || d.status === 'fault') statusClass = 'offline'
+    if (d.onlineStatus === 'offline' || d.onlineStatus || d.status === 'fault') statusClass = 'offline'
     else if ((d.fullRate || 0) > 80) statusClass = 'warning'
     return { ...d, statusClass }
   })
@@ -432,8 +417,8 @@ async function renderDeviceMap() {
     const map = window.L.map(deviceMapRef.value).setView([29.6098, 106.2996], 15)
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map)
     for (const d of valid) {
-      const isFault = d.status === 'offline' || d.status === 'fault'
-      window.L.circleMarker([d.lat, d.lng], { radius: 6, fillColor: isFault ? '#ef5350' : '#1a73e8', color: '#fff', weight: 1.5, fillOpacity: 0.85 }).addTo(map).bindPopup('<b>' + d.deviceName + '</b><br>' + d.location + '<br>状态: ' + (isFault ? '故障/离线' : '正常'))
+      const isFault = d.onlineStatus || d.status === 'offline' || d.onlineStatus || d.status === 'fault'
+      window.L.circleMarker([d.lat, d.lng], { radius: 6, fillColor: isFault ? '#ef5350' : '#1a73e8', color: '#fff', weight: 1.5, fillOpacity: 0.85 }).addTo(map).bindPopup('<b>' + d.deviceName + '</b><br>' + d.location || d.area + '<br>状态: ' + (isFault ? '故障/离线' : '正常'))
     }
   } catch {}
 }
