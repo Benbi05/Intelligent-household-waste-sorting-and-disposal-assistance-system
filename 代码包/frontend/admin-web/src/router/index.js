@@ -49,19 +49,19 @@ const router = createRouter({
           path: 'rules',
           name: 'PointRule',
           component: () => import('@/views/point/PointRule.vue'),
-          meta: { title: '积分规则', requiresAdmin: true },
+          meta: { title: '积分规则' },
         },
         {
           path: 'rules/history',
           name: 'RuleHistory',
           component: () => import('@/views/point/RuleHistory.vue'),
-          meta: { title: '规则历史', requiresAdmin: true },
+          meta: { title: '规则历史' },
         },
         {
           path: 'categories',
           name: 'CategoryManage',
           component: () => import('@/views/point/CategoryManage.vue'),
-          meta: { title: '品类管理', requiresAdmin: true },
+          meta: { title: '品类管理' },
         },
         {
           path: 'statistics',

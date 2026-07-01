@@ -31,6 +31,15 @@
           <el-icon><DataAnalysis /></el-icon>
           <template #title>消费洞察</template>
         </el-menu-item>
+        <el-sub-menu index="ops-rules-group">
+          <template #title>
+            <el-icon><Coin /></el-icon>
+            <span>积分规则</span>
+          </template>
+          <el-menu-item index="/rules">当前规则</el-menu-item>
+          <el-menu-item index="/rules/history">历史版本</el-menu-item>
+          <el-menu-item index="/categories">品类管理</el-menu-item>
+        </el-sub-menu>
       </template>
 
       <!-- ========== 城管 + 物业经理 ========== -->
@@ -66,16 +75,6 @@
         <el-icon><Shop /></el-icon>
         <template #title>商家审核</template>
       </el-menu-item>
-
-      <el-sub-menu index="rules-group" v-if="isAdmin">
-        <template #title>
-          <el-icon><Coin /></el-icon>
-          <span>积分规则</span>
-        </template>
-        <el-menu-item index="/rules">当前规则</el-menu-item>
-        <el-menu-item index="/rules/history">历史版本</el-menu-item>
-        <el-menu-item index="/categories">品类管理</el-menu-item>
-      </el-sub-menu>
 
       <el-menu-item index="/statistics">
         <el-icon><TrendCharts /></el-icon>
