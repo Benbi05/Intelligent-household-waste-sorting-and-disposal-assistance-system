@@ -553,10 +553,10 @@ watch(community, () => { fetchAll() })
 .device-dot { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border-radius: 8px; background: #f5f7fa; cursor: pointer; transition: transform .2s; }
 .device-dot:hover { transform: scale(1.05); }
 .device-dot .dot { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.device-dot .dot.online { background: #e5f5da; color: #67c23a; }
-.device-dot .dot.pending_check { background: #fdf6ec; color: #e6a23c; animation: pulse 2s infinite; }
-.device-dot .dot.offline { background: #f0f0f0; color: #909399; }
-.device-dot .dot.fault { background: #fef0f0; color: #f56c6c; }
+.device-dot .dot.online { background: #67c23a; color: #fff; }
+.device-dot .dot.pending_check { background: #e6a23c; color: #fff; animation: pulse 2s infinite; }
+.device-dot .dot.offline { background: #909399; color: #fff; }
+.device-dot .dot.fault { background: #f56c6c; color: #fff; }
 .dot-label { font-size: 11px; color: #606266; text-align: center; }
 .device-summary { display: flex; justify-content: space-around; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #f0f0f0; }
 .device-summary-item { text-align: center; }
