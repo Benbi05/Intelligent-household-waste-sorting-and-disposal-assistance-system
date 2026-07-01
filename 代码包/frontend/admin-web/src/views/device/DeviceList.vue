@@ -9,10 +9,10 @@
 
     <!-- 统计卡片 -->
     <el-row :gutter="16" class="stat-row">
-      <el-col :span="6"><StatCard label="设备总数" :value="deviceStats.totalDevices || 0" unit="台" color="#1a73e8" /></el-col>
       <el-col :span="6"><StatCard label="在线" :value="deviceStats.online || 0" unit="台" color="#67c23a" /></el-col>
-      <el-col :span="6"><StatCard label="离线" :value="deviceStats.offline || 0" unit="台" color="#e6a23c" /></el-col>
+      <el-col :span="6"><StatCard label="离线" :value="deviceStats.offline || 0" unit="台" color="#909399" /></el-col>
       <el-col :span="6"><StatCard label="故障" :value="deviceStats.fault || 0" unit="台" color="#f56c6c" /></el-col>
+      <el-col :span="6"><StatCard label="待检测" :value="deviceStats.pending || 0" unit="台" color="#e6a23c" /></el-col>
     </el-row>
 
     <!-- 搜索栏 -->
@@ -49,11 +49,12 @@
           <template #default="{ row }">{{ catLabel(row.boxCategory) }}</template>
         </el-table-column>
         <el-table-column prop="area" label="区域" width="100" align="center" />
-        <el-table-column prop="onlineStatus" label="在线状态" width="100" align="center">
+        <el-table-column prop="onlineStatus" label="在线状态" width="90" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.onlineStatus === 'online' ? 'success' : 'info'" size="small">
-              {{ row.onlineStatus === 'online' ? '在线' : '离线' }}
-            </el-tag>
+            <el-tag v-if="row.onlineStatus==='online'" type="success" size="small">在线</el-tag>
+            <el-tag v-else-if="row.onlineStatus==='fault'" type="danger" size="small">故障</el-tag>
+            <el-tag v-else-if="row.onlineStatus==='pending_check'" type="warning" size="small">待检测</el-tag>
+            <el-tag v-else type="info" size="small">离线</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="fullRate" label="满溢率" width="90" align="center">
@@ -171,6 +172,8 @@ const searchForm = reactive({ keyword: '', status: '', boxCategory: '', area: ''
 const onlineStatusOptions = [
   { label: '在线', value: 'online' },
   { label: '离线', value: 'offline' },
+  { label: '故障', value: 'fault' },
+  { label: '待检测', value: 'pending_check' },
 ]
 
 const pagination = reactive({ page: 1, size: 10 })

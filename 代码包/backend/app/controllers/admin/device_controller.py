@@ -99,4 +99,5 @@ def device_stats():
     online = q.filter_by(onlineStatus="online").count()
     offline = q.filter_by(onlineStatus="offline").count()
     fault = q.filter_by(onlineStatus="fault").count()
-    return success({"totalDevices": total, "online": online, "offline": offline, "fault": fault})
+    pending = q.filter_by(onlineStatus="pending_check").count()
+    return success({"totalDevices": total, "online": online, "offline": offline, "fault": fault, "pending": pending})
