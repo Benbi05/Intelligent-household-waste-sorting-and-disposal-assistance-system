@@ -32,10 +32,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/store/user'
 import { ElMessage } from 'element-plus'
 import { getOverview } from '@/api/statistics'
 import request from '@/api/request'
 
+const userStore = useUserStore()
+const comm = computed(() => userStore.community || '')
 const overview = ref({})
 const loadingKey = ref('')
 
@@ -54,15 +57,16 @@ const summaryCards = computed(() => [
 ])
 
 onMounted(async () => {
-  try { const r = await getOverview(); overview.value = r.data } catch {}
+  try { const r = await getOverview(comm.value ? { community: comm.value } : {}); overview.value = r.data } catch {}
 })
 
 async function exportReport(key) {
   loadingKey.value = key
   try {
+    const c = comm.value ? '&community=' + comm.value : ''
     const urls = {
-      monthly: '/admin/statistics/export?type=monthly',
-      delivery: '/admin/statistics/export?type=delivery',
+      monthly: '/admin/statistics/export?type=monthly' + c,
+      delivery: '/admin/statistics/export?type=delivery' + c,
       device: '/admin/statistics/export?type=device',
       community: '/admin/statistics/export?type=community',
     }
