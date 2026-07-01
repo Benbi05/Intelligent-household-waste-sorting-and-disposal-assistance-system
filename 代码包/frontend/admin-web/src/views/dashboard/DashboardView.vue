@@ -107,7 +107,7 @@
       </div>
 
       <!-- 品类正确率 -->
-      <div class="panel" style="margin-bottom:20px">
+      <div class="panel" style="margin-bottom:20px;height:300px">
         <div class="panel-header">
           <span class="panel-title">🗂️ 四大类垃圾分类正确率</span>
           <span style="font-size:12px;color:#c0c4cc">厨余垃圾通常最难分</span>
