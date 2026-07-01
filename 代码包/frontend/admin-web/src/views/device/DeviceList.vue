@@ -15,6 +15,46 @@
       <el-col :span="6"><StatCard label="待检测" :value="deviceStats.pending || 0" unit="台" color="#e6a23c" /></el-col>
     </el-row>
 
+    <!-- 异常设备面板 -->
+    <el-row :gutter="16" style="margin-bottom:16px" v-if="faultDevices.length || offlineDevices.length || pendingDevices.length">
+      <el-col :span="8" v-if="faultDevices.length">
+        <el-card shadow="never" class="alert-card">
+          <template #header><span class="alert-title">🔴 故障设备</span><el-tag type="danger" size="small" style="margin-left:8px">{{ faultDevices.length }}</el-tag></template>
+          <div class="alert-list">
+            <div v-for="d in faultDevices.slice(0,5)" :key="d.deviceId" class="alert-item">
+              <span class="alert-name">{{ d.deviceName }}</span>
+              <span class="alert-loc">{{ d.location || d.area || '-' }}</span>
+            </div>
+            <div v-if="faultDevices.length>5" style="font-size:12px;color:#909399">...及其他 {{ faultDevices.length-5 }} 台</div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="8" v-if="offlineDevices.length">
+        <el-card shadow="never" class="alert-card">
+          <template #header><span class="alert-title">⚫ 离线设备</span><el-tag type="info" size="small" style="margin-left:8px">{{ offlineDevices.length }}</el-tag></template>
+          <div class="alert-list">
+            <div v-for="d in offlineDevices.slice(0,5)" :key="d.deviceId" class="alert-item">
+              <span class="alert-name">{{ d.deviceName }}</span>
+              <span class="alert-loc">{{ d.location || d.area || '-' }}</span>
+            </div>
+            <div v-if="offlineDevices.length>5" style="font-size:12px;color:#909399">...及其他 {{ offlineDevices.length-5 }} 台</div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="8" v-if="pendingDevices.length">
+        <el-card shadow="never" class="alert-card">
+          <template #header><span class="alert-title">🟡 待检测</span><el-tag type="warning" size="small" style="margin-left:8px">{{ pendingDevices.length }}</el-tag></template>
+          <div class="alert-list">
+            <div v-for="d in pendingDevices.slice(0,5)" :key="d.deviceId" class="alert-item">
+              <span class="alert-name">{{ d.deviceName }}</span>
+              <span class="alert-loc">{{ d.location || d.area || '-' }}</span>
+            </div>
+            <div v-if="pendingDevices.length>5" style="font-size:12px;color:#909399">...及其他 {{ pendingDevices.length-5 }} 台</div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
     <!-- 搜索栏 -->
     <SearchBar
       v-model="searchForm"
@@ -168,6 +208,10 @@ const selectedIds = ref([])
 const submitting = ref(false)
 const deviceStats = ref({})
 
+const faultDevices = computed(() => tableData.value.filter(d => d.onlineStatus === 'fault'))
+const offlineDevices = computed(() => tableData.value.filter(d => d.onlineStatus === 'offline'))
+const pendingDevices = computed(() => tableData.value.filter(d => d.onlineStatus === 'pending_check'))
+
 const searchForm = reactive({ keyword: '', status: '', boxCategory: '', area: '' })
 const onlineStatusOptions = [
   { label: '在线', value: 'online' },
@@ -287,4 +331,13 @@ async function fetchDeviceStats() {
 .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .device-tag { margin: 2px; }
 .tip-text { font-size: 13px; color: #909399; }
+.alert-card { border-left: 3px solid; }
+.alert-card:first-child { border-left-color: #f56c6c; }
+.alert-card:nth-child(2) { border-left-color: #909399; }
+.alert-card:nth-child(3) { border-left-color: #e6a23c; }
+.alert-title { font-size: 14px; font-weight: 600; color: #303133; }
+.alert-list { display: flex; flex-direction: column; gap: 6px; }
+.alert-item { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid #f5f7fa; }
+.alert-name { color: #303133; font-weight: 500; }
+.alert-loc { color: #909399; font-size: 12px; }
 </style>
