@@ -231,7 +231,7 @@ fetchList()
 fetchMerchantStats()
 
 async function fetchMerchantStats() {
-  try { const r = await getMerchantStats(); merchantStats.value = r.data } catch {}
+  try { const r = await getMerchantStats(comm.value ? { community: comm.value } : {}); merchantStats.value = r.data } catch {}
 }
 </script>
 

@@ -67,10 +67,17 @@ def audit_merchant(merchant_id):
 @admin_required
 def merchant_stats():
     """商家统计概览"""
-    pending = Merchant.query.filter_by(status="pending").count()
-    approved = Merchant.query.filter_by(status="approved").count()
-    rejected = Merchant.query.filter_by(status="rejected").count()
-    return success({"pending": pending, "approved": approved, "rejected": rejected, "frozen": Merchant.query.filter_by(status="frozen").count()})
+    community = request.args.get("community", "")
+    q = Merchant.query
+    if community:
+        comm_full_map = {'虎溪':'虎溪花园','学府':'学府悦园','康居':'康居西城','龙湖':'龙湖U城','金科':'金科廊桥水乡','富力':'富力城','恒大':'恒大未来城','融创':'融创文旅城'}
+        full_name = comm_full_map.get(community, community)
+        q = q.filter(Merchant.area.like(f'%{full_name}%'))
+    pending = q.filter_by(status="pending").count()
+    approved = q.filter_by(status="approved").count()
+    rejected = q.filter_by(status="rejected").count()
+    frozen = q.filter_by(status="frozen").count()
+    return success({"pending": pending, "approved": approved, "rejected": rejected, "frozen": frozen})
 
 
 @bp.route("/merchants/<int:merchant_id>/freeze", methods=["PUT"])

@@ -11,6 +11,6 @@ export function auditMerchant(merchantId, data) {
 }
 
 /** 获取商家统计概览 */
-export function getMerchantStats() {
-  return request.get('/admin/merchants/stats')
+export function getMerchantStats(params = {}) {
+  return request.get('/admin/merchants/stats', { params })
 }
