@@ -133,15 +133,16 @@
           <div class="panel-body">
             <div class="device-grid">
               <div class="device-dot" v-for="d in deviceData" :key="d.id">
-                <div class="dot" :class="d.onlineStatus || d.status">{{ d.onlineStatus || d.status==='online'?'🟢':d.onlineStatus || d.status==='warning'?'🟡':'🔴' }}</div>
+                <div class="dot" :class="d.onlineStatus || d.status"></div>
                 <div class="dot-label">{{ d.deviceName || d.name }}</div>
                 <div style="font-size:10px;color:#c0c4cc">{{ d.location || d.area }}</div>
               </div>
             </div>
             <div class="device-summary">
-              <div class="device-summary-item"><div class="summary-num" style="color:#67c23a">{{ deviceData.filter(d=>d.onlineStatus==='online'||d.onlineStatus || d.statusClass==='online').length }}</div><div class="summary-label">正常</div></div>
-              <div class="device-summary-item"><div class="summary-num" style="color:#e6a23c">{{ deviceData.filter(d=>d.onlineStatus==='warning'||d.onlineStatus || d.statusClass==='warning'||(d.fullRate>80)).length }}</div><div class="summary-label">即将满溢</div></div>
-              <div class="device-summary-item"><div class="summary-num" style="color:#f56c6c">{{ deviceData.filter(d=>d.onlineStatus==='offline'||d.onlineStatus || d.statusClass==='offline'||d.onlineStatus || d.status==='fault').length }}</div><div class="summary-label">故障/离线</div></div>
+              <div class="device-summary-item"><div class="summary-num" style="color:#67c23a">{{ deviceData.filter(d=>d.onlineStatus==='online').length }}</div><div class="summary-label">在线</div></div>
+              <div class="device-summary-item"><div class="summary-num" style="color:#909399">{{ deviceData.filter(d=>d.onlineStatus==='offline').length }}</div><div class="summary-label">离线</div></div>
+              <div class="device-summary-item"><div class="summary-num" style="color:#f56c6c">{{ deviceData.filter(d=>d.onlineStatus==='fault').length }}</div><div class="summary-label">故障</div></div>
+              <div class="device-summary-item"><div class="summary-num" style="color:#e6a23c">{{ deviceData.filter(d=>d.onlineStatus==='pending_check').length }}</div><div class="summary-label">待检测</div></div>
             </div>
           </div>
         </div>
@@ -307,11 +308,12 @@ const displayDeliveryCount = computed(() => overview.value.monthDeliveryCount ||
 const displayDeliveryLabel = computed(() => '本月投放总量')
 const monthTrend = computed(() => { const d = compareDelta.value; return d > 0 ? Math.abs(d) : d < 0 ? -Math.abs(d) : 0 })
 
-const deviceOnlineCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'online' || d.onlineStatus || d.statusClass === 'online').length)
-const deviceWarningCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'warning' || d.onlineStatus || d.statusClass === 'warning' || (d.fullRate > 80 && d.onlineStatus === 'online')).length)
-const deviceOfflineCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'offline' || d.onlineStatus || d.statusClass === 'offline' || d.onlineStatus || d.status === 'fault').length)
+const deviceOnlineCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'online').length)
+const deviceWarningCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'pending_check').length)
+const deviceOfflineCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'offline').length)
+const deviceFaultCount = computed(() => deviceData.value.filter(d => d.onlineStatus === 'fault').length)
 const deviceTotal = computed(() => overview.value.totalDevices || 0)
-const deviceOnlineRate = computed(() => deviceData.value.length ? Math.round(deviceOnlineCount.value / deviceData.value.length * 100) : 88)
+const deviceOnlineRate = computed(() => deviceData.value.length ? Math.round(deviceOnlineCount.value / deviceData.value.length * 100) : 0)
 const alertCount = ref(4)
 const alertSummary = ref('满溢1 · 故障1 · 待审1 · 违规1')
 
@@ -470,7 +472,7 @@ async function fetchAll() {
   } catch {}
   // 获取设备列表
   try {
-    const devRes = await request.get('/admin/devices', { params: { size: 100 } })
+    const devRes = await request.get('/admin/devices', { params: { size: 100, community: community.value || '' } })
     deviceData.value = formatDeviceData(devRes.data?.records || [])
   } catch {}
   loading.value = false
@@ -553,8 +555,9 @@ watch(community, () => { fetchAll() })
 .device-dot:hover { transform: scale(1.05); }
 .device-dot .dot { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 .device-dot .dot.online { background: #e5f5da; color: #67c23a; }
-.device-dot .dot.warning { background: #fdf6ec; color: #e6a23c; animation: pulse 2s infinite; }
-.device-dot .dot.offline { background: #fef0f0; color: #f56c6c; }
+.device-dot .dot.pending_check { background: #fdf6ec; color: #e6a23c; animation: pulse 2s infinite; }
+.device-dot .dot.offline { background: #f0f0f0; color: #909399; }
+.device-dot .dot.fault { background: #fef0f0; color: #f56c6c; }
 .dot-label { font-size: 11px; color: #606266; text-align: center; }
 .device-summary { display: flex; justify-content: space-around; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #f0f0f0; }
 .device-summary-item { text-align: center; }
