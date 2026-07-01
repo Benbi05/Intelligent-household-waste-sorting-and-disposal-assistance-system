@@ -1,7 +1,0 @@
-10 t_point_order 积分订单表 14 7
-11 t_commodity 兑换商品表 12 4
-12 t_recognition_mode
-l识别模型表 12 4
-13 t_point_rule 积分规则表 9 3
-14 t_analysis_report分析报告表 11 5
-15 t_operation_log操作⽇志表 11 5
