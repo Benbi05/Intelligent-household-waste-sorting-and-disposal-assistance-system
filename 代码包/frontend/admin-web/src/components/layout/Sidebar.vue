@@ -61,9 +61,9 @@
         <el-menu-item index="/dashboard?community=融创"><el-icon><Location /></el-icon><template #title>融创文旅城</template></el-menu-item>
       </template>
 
-      <el-menu-item index="/users" v-if="isAdmin">
-        <el-icon><User /></el-icon>
-        <template #title>用户管理</template>
+      <el-menu-item index="/statistics">
+        <el-icon><TrendCharts /></el-icon>
+        <template #title>数据统计</template>
       </el-menu-item>
 
       <el-menu-item index="/devices" v-if="isAdmin">
@@ -76,9 +76,9 @@
         <template #title>商家审核</template>
       </el-menu-item>
 
-      <el-menu-item index="/statistics">
-        <el-icon><TrendCharts /></el-icon>
-        <template #title>数据统计</template>
+      <el-menu-item index="/users" v-if="isAdmin">
+        <el-icon><User /></el-icon>
+        <template #title>用户管理</template>
       </el-menu-item>
 
       </template>  <!-- end v-if="!isOps" -->

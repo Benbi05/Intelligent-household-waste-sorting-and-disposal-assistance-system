@@ -1,1 +1,0 @@
-import{s as e}from"./request-4b_yR0O_.js";function r(t={}){return e.get("/admin/users",{params:t})}function n(t){return e.get(`/admin/users/${t}`)}function a(t={}){return e.get("/admin/users/stats",{params:t})}export{r as a,n as b,a as g};
