@@ -1,0 +1,36 @@
+# YOLOv11 ONNX Inference Configuration
+model:
+  input_width: 640
+  input_height: 640
+  confidence_threshold: 0.25
+  nms_threshold: 0.45
+  max_detections: 20
+
+# ONNX Runtime
+onnx:
+  execution_provider: CPUExecutionProvider  # or CUDAExecutionProvider
+  inter_op_threads: 4
+  intra_op_threads: 4
+  graph_optimization: enable_all
+
+# Image processing
+image:
+  allowed_mime_types:
+    - image/jpeg
+    - image/png
+    - image/webp
+  max_file_size: 10485760  # 10 MB
+  download_timeout: 10
+
+# SSRF Protection
+security:
+  allowed_domains:
+    - cdn.garbage-system.com
+    - img.garbage-system.com
+  blocked_ip_ranges:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+    - 127.0.0.0/8
+    - 169.254.0.0/16
+    - 0.0.0.0/8
