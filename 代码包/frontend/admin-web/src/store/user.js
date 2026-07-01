@@ -50,5 +50,5 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('admin_info')
   }
 
-  return { token, refreshToken, userInfo, isLoggedIn, username, role, login, doRefreshToken, logout }
+  return { token, refreshToken, userInfo, isLoggedIn, username, role, community, login, doRefreshToken, logout }
 })
