@@ -536,7 +536,7 @@ watch(community, () => { fetchAll() })
 .building-info { flex: 1; }
 .building-name { font-size: 14px; font-weight: 500; color: #303133; }
 .building-sub { font-size: 12px; color: #909399; margin-top: 2px; }
-.building-rate { font-size: 14px; font-weight: 500; } .building-rate.good { color: #67c23a; } .building-rate.mid { color: #e6a23c; } .building-rate.bad { color: #f56c6c; }
+.building-rate { font-size: 16px; font-weight: 600; } .building-rate.good { color: #67c23a; } .building-rate.mid { color: #e6a23c; } .building-rate.bad { color: #f56c6c; }
 .building-bar-wrap { flex: 1; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; max-width: 100px; }
 .building-bar { height: 100%; border-radius: 3px; transition: width .6s; }
 
