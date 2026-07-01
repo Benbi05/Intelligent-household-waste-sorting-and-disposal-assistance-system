@@ -204,7 +204,7 @@ async function fetchDevices() {
       onlineStatus: searchForm.status,
       boxCategory: searchForm.boxCategory,
       area: searchForm.area,
-      community: isAdmin.value ? comm.value : '',
+      community: comm.value,
     })
     tableData.value = res.data.records || []
     total.value = res.data.total || 0
@@ -275,7 +275,7 @@ fetchDevices()
 fetchDeviceStats()
 
 async function fetchDeviceStats() {
-  try { const r = await getDeviceStats(isAdmin.value ? { community: comm.value } : {}); deviceStats.value = r.data } catch {}
+  try { const r = await getDeviceStats(comm.value ? { community: comm.value } : {}); deviceStats.value = r.data } catch {}
 }
 </script>
 
