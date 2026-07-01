@@ -127,7 +127,8 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { useUserStore } from '@/store/user'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { getMerchantList, auditMerchant, getMerchantStats } from '@/api/merchant'
 import request from '@/api/request'
@@ -135,6 +136,9 @@ import DataTable from '@/components/table/DataTable.vue'
 import SearchBar from '@/components/search-bar/SearchBar.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
 import StatCard from '@/components/stat-card/StatCard.vue'
+
+const userStore = useUserStore()
+const comm = computed(() => userStore.community || '')
 
 const loading = ref(false)
 const tableData = ref([])
@@ -165,6 +169,7 @@ async function fetchList() {
     const res = await getMerchantList({
       page: pagination.page, size: pagination.size,
       keyword: searchForm.keyword, status: searchForm.status,
+      community: comm.value,
     })
     tableData.value = res.data.records || []
     total.value = res.data.total || 0

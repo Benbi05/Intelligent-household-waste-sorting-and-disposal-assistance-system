@@ -20,6 +20,12 @@ def list_merchants():
     if status: q = q.filter(Merchant.status == status)
     keyword = request.args.get("keyword", "")
     if keyword: q = q.filter(Merchant.storeName.contains(keyword))
+    community = request.args.get("community", "")
+    if community:
+        # 匹配商家area字段（社区全名如"虎溪花园"）或area包含前缀
+        comm_full_map = {'虎溪':'虎溪花园','学府':'学府悦园','康居':'康居西城','龙湖':'龙湖U城','金科':'金科廊桥水乡','富力':'富力城','恒大':'恒大未来城','融创':'融创文旅城'}
+        full_name = comm_full_map.get(community, community)
+        q = q.filter(Merchant.area.like(f'%{full_name}%') if full_name != community else Merchant.area.contains(community))
     q = q.order_by(Merchant.id.desc())
     pagination = q.paginate(page=p["page"], per_page=p["size"], error_out=False)
     records = []
