@@ -515,7 +515,7 @@ watch(community, () => { fetchAll() })
 /* 面板 */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
 .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-.panel { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; height: 550px; display: flex; flex-direction: column; }
+.panel { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; height: 530px; display: flex; flex-direction: column; }
 .panel-body { flex: 1; overflow-y: auto; }
 .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
 .panel-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
