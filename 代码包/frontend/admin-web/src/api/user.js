@@ -16,6 +16,6 @@ export function updateUserStatus(userId, status) {
 }
 
 /** 获取用户统计概览 */
-export function getUserStats() {
-  return request.get('/admin/users/stats')
+export function getUserStats(params = {}) {
+  return request.get('/admin/users/stats', { params })
 }
