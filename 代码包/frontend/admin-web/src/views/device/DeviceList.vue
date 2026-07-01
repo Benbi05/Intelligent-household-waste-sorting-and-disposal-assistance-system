@@ -200,10 +200,11 @@ async function fetchDevices() {
   try {
     const res = await getDeviceList({
       page: pagination.page, size: pagination.size,
-      keyword: isAdmin.value && comm.value ? comm.value : searchForm.keyword,
+      keyword: searchForm.keyword,
       onlineStatus: searchForm.status,
       boxCategory: searchForm.boxCategory,
-      area: isAdmin.value && comm.value ? '' : searchForm.area,
+      area: searchForm.area,
+      community: isAdmin.value ? comm.value : '',
     })
     tableData.value = res.data.records || []
     total.value = res.data.total || 0

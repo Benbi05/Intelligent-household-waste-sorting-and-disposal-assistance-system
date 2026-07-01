@@ -19,7 +19,8 @@ def list_devices():
         keyword=request.args.get("keyword", ""),
         online_status=request.args.get("onlineStatus", ""),
         box_category=request.args.get("boxCategory", ""),
-        area=request.args.get("area", "")
+        area=request.args.get("area", ""),
+        community=request.args.get("community", "")
     )
     return paginated(records, total, p["page"], p["size"])
 

@@ -38,8 +38,10 @@ def add_device(device_name: str, box_category: str, area: str, location: str, se
     return device_id
 
 
-def get_device_list(page=1, size=10, keyword="", online_status="", box_category="", area="") -> tuple:
+def get_device_list(page=1, size=10, keyword="", online_status="", box_category="", area="", community="") -> tuple:
     q = DeviceDAO.model.query
+    if community:
+        q = q.filter(DeviceDAO.model.deviceId.like(f'{community}%'))
     if keyword:
         q = q.filter((DeviceDAO.model.deviceId.contains(keyword)) |
                      (DeviceDAO.model.deviceName.contains(keyword)))
