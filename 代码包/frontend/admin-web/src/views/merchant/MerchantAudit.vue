@@ -23,7 +23,11 @@
     <div class="page-card">
       <DataTable :data="tableData" :loading="loading" :action-width="180">
         <el-table-column prop="merchantId" label="商家ID" width="80" align="center" />
-        <el-table-column prop="storeName" label="店铺名称" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="storeName" label="店铺名称" min-width="150" show-overflow-tooltip>
+          <template #default="{ row }">
+            <el-button type="primary" link @click="openDetail(row)">{{ row.storeName }}</el-button>
+          </template>
+        </el-table-column>
         <el-table-column prop="contactName" label="联系人" width="100" align="center" />
         <el-table-column prop="contactPhone" label="联系电话" width="140" align="center" />
         <el-table-column prop="area" label="区域" width="100" align="center" />
@@ -59,6 +63,52 @@
 
       <Pagination :total="total" v-model:page="pagination.page" v-model:size="pagination.size" @change="fetchList" />
     </div>
+
+    <!-- 商家详情弹窗 -->
+    <el-dialog v-model="detailVisible" title="商家详情" width="600px" :close-on-click-modal="false">
+      <div v-if="detailRow" class="merchant-detail">
+        <el-descriptions :column="2" border size="small">
+          <el-descriptions-item label="店铺名称" :span="2">{{ detailRow.storeName }}</el-descriptions-item>
+          <el-descriptions-item label="登录用户名">{{ detailRow.username }}</el-descriptions-item>
+          <el-descriptions-item label="所在社区">{{ detailRow.area }}</el-descriptions-item>
+          <el-descriptions-item label="联系人">{{ detailRow.contactName }}</el-descriptions-item>
+          <el-descriptions-item label="联系电话">{{ detailRow.contactPhone }}</el-descriptions-item>
+          <el-descriptions-item label="店铺地址" :span="2">{{ detailRow.storeAddress || '未填写' }}</el-descriptions-item>
+          <el-descriptions-item label="状态" :span="2">
+            <el-tag v-if="detailRow.status==='pending'" type="warning" size="small">待审核</el-tag>
+            <el-tag v-else-if="detailRow.status==='approved'" type="success" size="small">已通过</el-tag>
+            <el-tag v-else-if="detailRow.status==='frozen'" type="info" size="small">已冻结</el-tag>
+            <el-tag v-else type="danger" size="small">已拒绝</el-tag>
+          </el-descriptions-item>
+        </el-descriptions>
+        <div class="doc-section">
+          <div class="doc-title">证照文件</div>
+          <el-row :gutter="16">
+            <el-col :span="12">
+              <div class="doc-label">营业执照</div>
+              <div class="doc-img-box">
+                <img v-if="detailRow.businessLicense" :src="detailRow.businessLicense" class="doc-img" />
+                <span v-else class="doc-empty">未上传</span>
+              </div>
+            </el-col>
+            <el-col :span="12">
+              <div class="doc-label">身份证</div>
+              <div class="doc-img-box">
+                <img v-if="detailRow.idCard" :src="detailRow.idCard" class="doc-img" />
+                <span v-else class="doc-empty">未上传</span>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="detailVisible = false">关闭</el-button>
+        <template v-if="detailRow && detailRow.status === 'pending'">
+          <el-button type="success" @click="detailVisible=false;audit(detailRow,'approved')">通过</el-button>
+          <el-button type="danger" @click="detailVisible=false;openReject(detailRow)">驳回</el-button>
+        </template>
+      </template>
+    </el-dialog>
 
     <!-- 驳回理由弹窗 -->
     <el-dialog v-model="rejectVisible" title="驳回商家" width="460px" :close-on-click-modal="false">
@@ -102,8 +152,12 @@ const statusOptions = [
 
 const pagination = reactive({ page: 1, size: 10 })
 
+const detailVisible = ref(false)
+const detailRow = ref(null)
 const rejectVisible = ref(false)
 const rejectForm = reactive({ merchantId: null, storeName: '', reason: '' })
+
+function openDetail(row) { detailRow.value = row; detailVisible.value = true }
 
 async function fetchList() {
   loading.value = true
@@ -179,4 +233,10 @@ async function fetchMerchantStats() {
 <style scoped>
 .stat-row { margin-bottom: 16px; }
 .tip-text { font-size: 13px; color: #c0c4cc; }
+.doc-section { margin-top: 16px; }
+.doc-title { font-size: 14px; font-weight: 600; color: #303133; margin-bottom: 10px; }
+.doc-label { font-size: 12px; color: #909399; margin-bottom: 6px; }
+.doc-img-box { width: 100%; height: 160px; border: 1px dashed #dcdfe6; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafbfc; }
+.doc-img { width: 100%; height: 100%; object-fit: contain; }
+.doc-empty { color: #c0c4cc; font-size: 12px; }
 </style>

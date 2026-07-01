@@ -28,6 +28,10 @@ def list_merchants():
             "merchantId": m.id, "storeName": m.storeName,
             "contactName": m.contactName, "contactPhone": m.contactPhone,
             "area": m.area, "status": m.status,
+            "storeAddress": m.storeAddress or '',
+            "businessLicense": m.businessLicense or '',
+            "idCard": m.idCard or '',
+            "username": m.username,
             "applyTime": u.createTime.isoformat() if u.createTime else "",
             "auditTime": m.auditTime.isoformat() if m.auditTime else None,
         })
