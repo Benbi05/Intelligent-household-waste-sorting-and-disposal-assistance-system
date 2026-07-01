@@ -1,0 +1,39 @@
+        "recordType": "earn", 
+        "reason": "可回收物正确投放奖励 ", 
+        "relatedId": "DLV20260625001", 
+        "createTime": "2026-06-25T09:15:00+08:00" 
+      } 
+    ], 
+    "total": 36, 
+    "page": 1, 
+    "size": 10 
+  } 
+} 
+12.获取投放记录列表
+项⽬ 说明
+编号 API112
+功能描述分⻚查询历史投放记录，⽀持筛选
+请求URL GET/user/delivery/records
+完成情况待开发
+请求参数（Query）
+参数名 类型 必填 说明
+page Integer 否 默认1
+size Integer 否 默认10
+isCorrect Boolean否 true/false
+startTime String 否 ISO8601
+endTime String 否 ISO8601
+area String 否 投放区域
+响应数据
+代码块
+{ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+1

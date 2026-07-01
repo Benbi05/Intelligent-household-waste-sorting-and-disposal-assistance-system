@@ -1,0 +1,37 @@
+请求URL GET/common/captcha
+完成情况待开发
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "获取成功 ", 
+  "data": { 
+    "captchaToken": "验证码 Token （⽤于校验） ", 
+    "captchaImage": "data:image/png;base64,..." 
+  } 
+} 
+第三部分居⺠⽤⼾模块（⼩程序端）
+1.微信授权登录（获取openid）
+项⽬ 说明
+编号 API101
+功能描述
+通过微信code换取openid和session_key，若⽤⼾已注册则直接
+登录返回Token；若未注册则返回临时会话Token引导绑定⼿机
+请求URL POST/user/wx-login
+完成情况待开发
+请求参数
+代码块
+{ 
+  "wxCode": "微信授权 code" 
+} 
+响应数据（已注册⽤⼾）1
+2
+3
+4
+5
+6
+7
+8
+1
+2
+3

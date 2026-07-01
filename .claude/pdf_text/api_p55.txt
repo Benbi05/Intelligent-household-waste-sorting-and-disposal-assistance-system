@@ -1,0 +1,24 @@
+请求参数（Query）
+响应数据：⽂件流下载
+六、商家运营模块
+1.商家⼊驻申请
+请求参数
+代码块
+{ 
+  "storeName": "绿⾊家园便利店 ", 
+  "contactName": "李四 ", 
+  "contactPhone": "13900005678", 
+  "businessLicense": "https://cdn.../license.jpg", 
+  "storeAddress": "A区商业街 12 号 ", 
+  "area": "A区", 
+  "description": "主营⽇⽤百货、清洁⽤品 " 
+} 
+响应数据1
+2
+3
+4
+5
+6
+7
+8
+9

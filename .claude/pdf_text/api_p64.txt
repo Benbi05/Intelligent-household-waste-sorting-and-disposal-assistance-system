@@ -1,0 +1,42 @@
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "查询成功 ", 
+  "data": { 
+    "reportId": "RPT202606001", 
+    "statMonth": "2026-06", 
+    "statArea": "A区", 
+    "consumeTrend": "本⽉塑料类可回收物增⻓ 18% ，对应⽇⽤消费品需求上升 ", 
+    "hotProducts": ["环保垃圾袋 ", "瓶装饮⽤⽔ ", "⼀次性餐具 "], 
+    "suggestion": "建议增加⽇⽤清洁类商品库存，配合积分兑换活动引流 ", 
+    "categoryBreakdown": { 
+      "塑料类 ": { "deliveryCount": 5800, "changeRate": 0.18 }, 
+      "⾦属类 ": { "deliveryCount": 1200, "changeRate": 0.05 }, 
+      "纸类 ": { "deliveryCount": 3200, "changeRate": -0.03 } 
+    }, 
+    "fullContent": "完整报告⽂本 " 
+  } 
+} 
+13.商家运营数据看板
+响应数据
+代码块
+{ 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+1

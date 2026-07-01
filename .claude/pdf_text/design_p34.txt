@@ -1,0 +1,34 @@
+•普通索引：idx_delivery_time(delivery_time)
+•
+普通索引：idx_region_code(region_code)
+•
+普通索引：idx_is_correct(is_correct)
+•
+组合索引：idx_user_time(user_id,delivery_time)
+•
+组合索引：idx_region_time(region_code,delivery_time)
+•
+组合索引：idx_device_time(device_id,delivery_time)
+说明：投放记录表是系统的核⼼数据表，数据量将随使⽤时间持续增⻓。为保障查询性能，建议按
+⽉或按季度进⾏分表存储，或在数据库层⾯配置分区策略（按delivery_time进⾏范围分
+区）。
+9.PointFlow积分流⽔表（t_point_flow）
+记录⽤⼾积分变动的每⼀笔明细，⽀持积分账⼾的审计追溯。
+字段名 数据类型 主键 ⾮空默认值 说明
+id BIGINT 是 是 AUTO_INCREMEN
+T流⽔ID
+flow_no VARCHAR(32)否 是 - 流⽔编号（唯⼀索引）
+user_id BIGINT 否 是 - 关联t_user.id（外键）
+account_id BIGINT 否 是 - 关联
+t_point_account.id（外
+键）
+change_type TINYINT 否 是 - 变动类型：1-投放奖励，
+2-投放扣罚，3-兑换消
+费，4-兑换退款，5-系统
+调整
+change_amountINT 否 是 - 变动⾦额（正为增加，负
+为减少）
+balance_beforeINT 否 是 - 变动前余额
+balance_after INT 否 是 - 变动后余额
+source_id BIGINT 否 否 NULL 来源业务ID（投放记录
+ID/订单ID）

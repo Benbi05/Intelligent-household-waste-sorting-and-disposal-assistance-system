@@ -1,0 +1,47 @@
+  "code": 200, 
+  "message": "配置已下发，等待设备同步 ", 
+  "data": { 
+    "commandId": "CMD20260626001" 
+  } 
+} 
+16.固件升级下发
+请求参数
+代码块
+{ 
+  "deviceIds": ["DEV-A001", "DEV-A002"], 
+  "firmwareVersion": "v2.2.0", 
+  "firmwareUrl": "https://cdn.../firmware-v2.2.0.bin", 
+  "upgradeStrategy": "scheduled", 
+  "scheduledTime": "2026-06-27T02:00:00+08:00" 
+} 
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "升级指令已下发 ", 
+  "data": { 
+    "commandId": "CMD20260626002", 
+    "affectedDeviceCount": 2 
+  } 
+} 
+17.获取当前积分规则2
+3
+4
+5
+6
+7
+1
+2
+3
+4
+5
+6
+7
+1
+2
+3
+4
+5
+6
+7
+8

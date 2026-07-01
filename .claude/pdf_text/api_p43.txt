@@ -1,0 +1,49 @@
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "查询成功 ", 
+  "data": { 
+    "records": [ 
+      { 
+        "version": "v2.3", 
+        "publishTime": "2026-06-01T00:00:00+08:00", 
+        "operatorName": "admin", 
+        "status": "current" 
+      }, 
+      { 
+        "version": "v2.2", 
+        "publishTime": "2026-05-01T00:00:00+08:00", 
+        "operatorName": "admin", 
+        "status": "archived" 
+      } 
+    ], 
+    "total": 5, 
+    "page": 1, 
+    "size": 10 
+  } 
+} 
+19.发布新积分规则
+请求参数1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23

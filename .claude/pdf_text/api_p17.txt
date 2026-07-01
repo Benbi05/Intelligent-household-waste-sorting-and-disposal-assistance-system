@@ -1,0 +1,63 @@
+  "code": 200, 
+  "message": "查询成功 ", 
+  "data": { 
+    "records": [ 
+      { 
+        "recordId": "DLV20260625001", 
+        "deliveryTime": "2026-06-25T09:15:00+08:00", 
+        "location": "A区1号垃圾箱 ", 
+        "garbageTypeName": "可回收物 ", 
+        "isCorrect": true, 
+        "pointChange": 15, 
+        "deviceName": "A区1号可回收箱 " 
+      } 
+    ], 
+    "total": 28, 
+    "page": 1, 
+    "size": 10 
+  } 
+} 
+13.获取投放记录详情
+项⽬ 说明
+编号 API113
+功能描述查看单条投放记录的完整详情，包含抓拍图像
+请求URL GET/user/delivery/records/{recordId}
+完成情况待开发
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "查询成功 ", 
+  "data": { 
+    "recordId": "DLV20260625001", 
+    "deliveryTime": "2026-06-25T09:15:00+08:00", 
+    "deviceName": "A区1号可回收箱 ", 
+    "location": "A区", 
+    "boxCategory": "recyclable", 2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+1
+2
+3
+4
+5
+6
+7
+8
+9

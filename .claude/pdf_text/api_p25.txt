@@ -1,0 +1,58 @@
+请求URL POST/device/delivery/submit
+完成情况待开发
+安全变更：userId不再由客⼾端传⼊，改为传⼊API202获取的sessionToken。服务端从 
+sessionToken中解析⽤⼾⾝份，防⽌终端伪造⽤⼾⾝份。
+请求参数
+代码块
+{ 
+  "deliveryId": "DLV20260625A001", 
+  "sessionToken": "API202 返回的临时会话 Token", 
+  "imageUrl": "https://cdn.../capture.jpg", 
+  "boxCategory": "recyclable", 
+  "weight": 0.35, 
+  "deliveryTime": "2026-06-25T09:15:00+08:00" 
+} 
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "投放处理完成 ", 
+  "data": { 
+    "deliveryId": "DLV20260625A001", 
+    "isCorrect": true, 
+    "pointChange": 15, 
+    "garbageCategory": "塑料瓶 ", 
+    "voiceText": "分类正确，积分已到账 ", 
+    "correctCategory": "可回收物 ", 
+    "pointBalance": 365 
+  } 
+} 
+错误码
+•
+4101：识别失败，请重试
+•
+4102：重复提交（deliveryId已存在）
+•
+4103：sessionToken⽆效或已过期
+•
+4104：设备在线状态异常1
+2
+3
+4
+5
+6
+7
+8
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13

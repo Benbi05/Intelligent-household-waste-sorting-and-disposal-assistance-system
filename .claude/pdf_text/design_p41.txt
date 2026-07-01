@@ -1,0 +1,35 @@
+operation_typeVARCHAR(32)否是 - 操作类型：login,
+create,update,delete,
+config,audit
+operation_modu
+leVARCHAR(32)否是 - 操作模块：user,
+device,model,rule,
+merchant,commodity
+target_id BIGINT 否否 NULL 操作⽬标ID
+target_type VARCHAR(32)否否 NULL 操作⽬标类型
+request_ip VARCHAR(45)否否 NULL 请求IP
+request_paramsTEXT 否否 NULL 请求参数（JSON）
+result TINYINT 否是 1 操作结果：0-失败，1-成
+功
+error_msg VARCHAR(255)否否 NULL 错误信息
+created_at DATETIME否是 CURRENT_TIMESTAMP创建时间
+索引：
+•
+主键：id
+•
+普通索引：idx_user_id(user_id)
+•
+普通索引：idx_operation_type(operation_type)
+•
+普通索引：idx_operation_module(operation_module)
+•
+普通索引：idx_created_at(created_at)
+•
+组合索引：idx_user_time(user_id,created_at)
+
+三、表间关联关系汇总
+主表 从表 关联字段 关系类型说明
+t_user t_resident user_id 1:1 居⺠⽤⼾扩展
+t_user t_administrator user_id 1:1 管理员扩展
+t_user t_merchant user_id 1:1 商家扩展
+t_user t_point_accountuser_id 1:1 积分账⼾

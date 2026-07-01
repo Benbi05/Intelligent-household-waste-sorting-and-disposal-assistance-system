@@ -1,0 +1,43 @@
+  "message": "查询成功 ", 
+  "data": [ 
+    { 
+      "areaId": 1, 
+      "areaName": "A区", 
+      "deviceCount": 12, 
+      "status": "active" 
+    }, 
+    { 
+      "areaId": 2, 
+      "areaName": "B区", 
+      "deviceCount": 8, 
+      "status": "active" 
+    } 
+  ] 
+} 
+5.区域管理―新增/编辑/删除区域
+请求参数（新增/编辑）
+代码块
+{ 
+  "areaName": "C区", 
+  "description": "商业区东侧 " 
+} 
+6.居⺠⽤⼾列表3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+1
+2
+3
+4

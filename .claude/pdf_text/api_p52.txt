@@ -1,0 +1,50 @@
+代码块{ 
+  "status": "approved", 
+  "rejectReason": "资料不完整 " 
+} 
+响应数据 
+{ 
+  "code": 200, 
+  "message": "审核完成 ", 
+  "data": null 
+} 
+29.触发⽣成⽉度分析报告
+请求参数
+代码块
+{ 
+  "statMonth": "2026-06", 
+  "statArea": "全部区域 ", 
+  "reportType": "all" 
+} 
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "报告⽣成任务已提交 ", 
+  "data": { 
+    "reportId": "RPT202606001", 
+    "estimatedTime": 1800 
+  } 
+} 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+1
+2
+3
+4
+5
+1
+2
+3
+4
+5
+6
+7
+8

@@ -1,0 +1,52 @@
+代码块{ 
+  "code": 200, 
+  "message": "登录成功 ", 
+  "data": { 
+    "userId": 1, 
+    "token": "JWT_TOKEN", 
+    "refreshToken": "REFRESH_TOKEN", 
+    "nickName": "张三 ", 
+    "avatarUrl": "https://...", 
+    "phone": "138****8000", 
+    "pointBalance": 350 
+  } 
+} 
+响应数据（未注册⽤⼾）
+代码块
+{ 
+  "code": 200, 
+  "message": "需要绑定⼿机号 ", 
+  "data": { 
+    "needBindPhone": true, 
+    "bindToken": "临时绑定 Token （有效期 10 分钟） " 
+  } 
+} 
+安全说明：openid不返回给前端，由服务端与bindToken关联存储在Redis中，有效期 10分钟。
+bind-phone接⼝仅需传⼊bindToken，防⽌openid暴露和伪造。
+2.绑定⼿机号（新⽤⼾注册）
+项⽬ 说明
+编号 API102
+功能描述新⽤⼾绑定⼿机号，完成注册并⽣成积分账⼾
+请求URL POST/user/bind-phone
+完成情况待开发
+请求参数1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+1
+2
+3
+4
+5
+6
+7
+8

@@ -1,0 +1,45 @@
+项⽬ 说明
+编号 API201
+功能描述设备启动时使⽤DeviceId+Secret换取设备Token，后续所有请求使⽤此Token
+请求URL POST/device/auth
+完成情况待开发
+请求参数
+代码块
+{ 
+  "deviceId": "DEV-A001", 
+  "deviceSecret": "设备密钥 " 
+} 
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "鉴权成功 ", 
+  "data": { 
+    "deviceToken": "设备会话 Token", 
+    "boxCategory": "recyclable", 
+    "pointRuleVersion": "v2.3", 
+    "modelVersion": "v1.5", 
+    "heartbeatInterval": 300, 
+    "configUpdated": false 
+  } 
+} 
+2.⽤⼾⾝份核验（扫码/刷卡）
+项⽬ 说明
+编号 API202
+功能描述⽤⼾通过扫码或刷卡在终端完成⾝份核验，建⽴⽤⼾-设备临时会话，返回
+sessionToken⽤于后续投放操作1
+2
+3
+4
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12

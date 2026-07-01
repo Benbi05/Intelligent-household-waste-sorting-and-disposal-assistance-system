@@ -1,0 +1,35 @@
+    "monthCorrectRate": 0.87, 
+    "monthTotalPoint": 126500, 
+    "pendingMerchantCount": 3 
+  } 
+} 
+26.投放数据多维度统计
+请求参数（Query）
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "查询成功 ", 
+  "data": { 
+    "totalDeliveryCount": 25680, 
+    "correctRate": 0.87, 
+    "totalPointsAwarded": 385200, 
+    "totalPointsPenalized": 28600, 
+    "details": [ 
+      { 
+        "group": "A区", 9
+10
+11
+12
+13
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11

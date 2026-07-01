@@ -1,0 +1,56 @@
+      { 
+        "commodityId": 1, 
+        "commodityName": "环保垃圾袋 50 只装 ", 
+        "pointPrice": 200, 
+        "stock": 500, 
+        "status": "on", 
+        "monthExchangeCount": 86 
+      } 
+    ], 
+    "total": 12, 
+    "page": 1, 
+    "size": 10 
+  } 
+} 
+7.新增兑换商品
+请求参数
+代码块
+{ 
+  "commodityName": "可降解洗碗海绵 ", 
+  "pointPrice": 150, 
+  "stock": 320, 
+  "imageUrl": "https://...", 
+  "description": "天然⽊浆材质，可⾃然降解 ", 
+  "useRules": "每⼈每⽉限兑 2 件 " 
+} 
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "商品上架成功 ", 
+  "data": { 6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+1
+2
+3
+4
+5
+6
+7
+8
+1
+2
+3
+4

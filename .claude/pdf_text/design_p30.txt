@@ -1,0 +1,35 @@
+category_typeTINYINT 否 是 - 箱体分类：1-可回收物，
+2-厨余垃圾，3-有害垃
+圾，4-其他垃圾
+region_code VARCHAR(16)否 否 NULL 部署区域编码
+install_addressVARCHAR(255)否 否 NULL 安装地址
+longitude DECIMAL(10,7)否 否 NULL 经度
+latitude DECIMAL(10,7)否 否 NULL 纬度
+online_status TINYINT 否 是 0 在线状态：0-离线，1-在
+线
+fullness TINYINT 否 是 0 满溢度（0-100）
+camera_statusTINYINT 否 是 1 摄像头状态：0-异常，1-
+正常
+network_statusTINYINT 否 是 1 ⽹络状态：0-异常，1-正
+常
+power_status TINYINT 否 是 1 供电状态：0-异常，1-正
+常
+firmware_versi
+onVARCHAR(16)否 否 NULL 固件版本号
+status TINYINT 否 是 1 设备状态：0-停⽤，1-运
+⾏中
+last_heartbeat
+_atDATETIME 否 否 NULL 最后⼼跳时间
+created_at DATETIME 否 是 CURRENT_TIMEST
+AMP创建时间
+updated_at DATETIME 否 是 CURRENT_TIMEST
+AMPONUPDATE更新时间
+索引：
+•
+主键：id
+•
+唯⼀索引：uk_device_code(device_code)
+•
+普通索引：idx_region_code(region_code)
+•
+普通索引：idx_online_status(online_status)

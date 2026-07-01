@@ -1,0 +1,37 @@
+total_points INT 否是 - 总消耗积分=
+points_cost×
+quantity
+verify_code VARCHAR(16)否是 - 核销码（唯⼀索引）
+order_status TINYINT 否是 0 订单状态：0-待核销，
+1-已核销，2-已取消
+verify_at DATETIME否否 NULL 核销时间
+verify_by BIGINT 否否 NULL 核销操作⼈（商家⽤⼾
+ID）
+expire_at DATETIME否否 NULL 兑换码有效期
+created_at DATETIME否是 CURRENT_TIMESTAMP创建时间
+updated_at DATETIME否是 CURRENT_TIMESTAMP
+ONUPDATE更新时间
+索引：
+•
+主键：id
+•
+唯⼀索引：uk_order_no(order_no)
+•
+唯⼀索引：uk_verify_code(verify_code)
+•
+普通索引：idx_user_id(user_id)
+•
+普通索引：idx_commodity_id(commodity_id)
+•
+普通索引：idx_merchant_id(merchant_id)
+•
+普通索引：idx_order_status(order_status)
+•
+普通索引：idx_created_at(created_at)
+
+11.Commodity兑换商品表（t_commodity）
+商家上架的积分兑换商品信息。
+字段名 数据类型 主键⾮空默认值 说明
+id BIGINT 是是 AUTO_INCREMENT商品ID
+merchant_id BIGINT 否是 - 关联t_merchant.id
+（外键）

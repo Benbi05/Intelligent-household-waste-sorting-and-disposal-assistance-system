@@ -1,0 +1,43 @@
+  "reason": "违规投放 " 
+} 
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "状态更新成功 ", 
+  "data": null 
+} 
+9.⻆⾊与权限管理
+请求参数（创建⻆⾊）
+代码块
+{ 
+  "roleName": "区域管理员 ", 
+  "permissions": ["user:read", "device:read", "statistics:read", 
+"report:read"], 
+  "description": "仅可查看所辖区域数据 " 
+} 
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "⻆⾊创建成功 ", 
+  "data": { 
+    "roleId": 3, 
+    "roleName": "区域管理员 " 3
+4
+1
+2
+3
+4
+5
+1
+2
+3
+4
+5
+1
+2
+3
+4
+5
+6

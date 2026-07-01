@@ -1,0 +1,52 @@
+代码块{ 
+  "bindToken": "临时绑定 Token", 
+  "phone": "13800138000", 
+  "smsCode": "123456" 
+} 
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "注册成功 ", 
+  "data": { 
+    "userId": 1, 
+    "token": "JWT_TOKEN", 
+    "refreshToken": "REFRESH_TOKEN", 
+    "nickName": "⽤⼾ ", 
+    "avatarUrl": "", 
+    "phone": "138****8000", 
+    "pointBalance": 0 
+  } 
+} 
+错误码
+•
+3001：bindToken⽆效或已过期
+•
+3002：⼿机号已被其他账号绑定
+•
+3003：验证码错误或已过期
+•
+3004：验证码错误次数超限，请重新发送
+3.Token刷新
+项⽬ 说明
+编号 API103
+功能描述 X-Token过期后使⽤Refresh-Token换取新Token
+请求URL POST/user/refresh-token
+完成情况待开发1
+2
+3
+4
+5
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13

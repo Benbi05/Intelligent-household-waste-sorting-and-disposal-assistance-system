@@ -1,0 +1,24 @@
+# AI Service Dependencies
+# Core
+flask>=3.0
+numpy>=1.24
+Pillow>=10.0
+requests>=2.31
+
+# ONNX Runtime — model inference
+onnxruntime>=1.17
+
+# Image processing (optional, for blur detection)
+opencv-python>=4.8
+
+# LLM SDK (choose based on provider)
+# anthropic>=0.30       # For Anthropic Claude
+# openai>=1.30          # For OpenAI-compatible APIs
+
+# Async / Task Queue (optional, for production)
+# celery>=5.3
+# redis>=5.0
+
+# Testing
+pytest>=7.4
+pytest-flask>=1.3

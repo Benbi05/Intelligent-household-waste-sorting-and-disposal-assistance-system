@@ -1,0 +1,53 @@
+代码块
+{ 
+  "code": 200, 
+  "message": "训练任务已提交 ", 
+  "data": { 
+    "taskId": "TRAIN20260625001", 
+    "status": "pending", 
+    "estimatedTime": 7200 
+  } 
+} 
+24.查询模型训练任务状态
+响应数据（进⾏中）
+代码块
+{ 
+  "code": 200, 
+  "message": "查询成功 ", 
+  "data": { 
+    "taskId": "TRAIN20260625001", 
+    "status": "running", 
+    "progress": 45, 
+    "estimatedRemain": 3600 
+  } 
+} 
+响应数据（完成）
+代码块
+{ 
+  "code": 200, 
+  "message": "查询成功 ", 
+  "data": { 
+    "taskId": "TRAIN20260625001", 1
+2
+3
+4
+5
+6
+7
+8
+9
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+1
+2
+3
+4
+5

@@ -1,0 +1,56 @@
+    "status": "success", 
+    "newModelVersion": "v1.6", 
+    "modelId": 6, 
+    "accuracy": 0.93, 
+    "mapValue": 0.94, 
+    "precision": 0.94, 
+    "recall": 0.91 
+  } 
+} 
+响应数据（失败）
+代码块
+{ 
+  "code": 200, 
+  "message": "查询成功 ", 
+  "data": { 
+    "taskId": "TRAIN20260625001", 
+    "status": "failed", 
+    "errorMessage": "数据集格式校验失败：缺少  classes.txt" 
+  } 
+} 
+25.数据看板概览统计
+响应数据
+代码块
+{ 
+  "code": 200, 
+  "message": "查询成功 ", 
+  "data": { 
+    "totalUsers": 1280, 
+    "onlineDevices": 48, 
+    "totalDevices": 56, 
+    "todayDeliveryCount": 892, 6
+7
+8
+9
+10
+11
+12
+13
+14
+1
+2
+3
+4
+5
+6
+7
+8
+9
+1
+2
+3
+4
+5
+6
+7
+8
