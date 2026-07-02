@@ -1,0 +1,45 @@
+.rpt-page{min-height:100vh;background:#F7FAF8;max-width:750rpx;margin:0 auto;}
+.rpt-hero{
+  margin:20rpx 24rpx;padding:40rpx;text-align:center;
+  background:linear-gradient(135deg,#67c23a,#529b2e);border-radius:24rpx;color:#fff;
+}
+.rpt-hero-icon{margin-bottom:16rpx;}
+.rpt-hero-emoji{font-size:64rpx;}
+.rpt-hero-title{font-size:36rpx;font-weight:700;display:block;margin-bottom:8rpx;}
+.rpt-hero-date{font-size:24rpx;opacity:.8;}
+.rpt-hero-badge{
+  display:inline-block;margin-top:16rpx;padding:8rpx 20rpx;border-radius:20rpx;
+  background:rgba(255,255,255,.2);font-size:24rpx;
+}
+.rpt-section{margin:24rpx;background:#fff;border-radius:20rpx;padding:32rpx;}
+.rpt-sec-title{font-size:30rpx;font-weight:600;color:#1A261D;margin-bottom:20rpx;display:block;}
+.rpt-stats{display:flex;align-items:center;justify-content:space-around;}
+.rpt-stat{text-align:center;flex:1;}
+.rpt-stat-val{font-size:48rpx;font-weight:700;color:#1A261D;display:block;}
+.rpt-stat-val.green{color:#67c23a;}
+.rpt-stat-label{font-size:24rpx;color:#8AAB93;margin-top:6rpx;}
+.rpt-stat-vd{width:2rpx;height:64rpx;background:#F3F4F6;}
+.rpt-bar-list{display:flex;flex-direction:column;gap:20rpx;}
+.rpt-bar-item{display:flex;align-items:center;gap:16rpx;}
+.rpt-bar-label{width:110rpx;font-size:26rpx;color:#5E7E68;text-align:right;}
+.rpt-bar-track{flex:1;height:36rpx;background:#F3F4F6;border-radius:18rpx;overflow:hidden;}
+.rpt-bar-fill{height:100%;border-radius:18rpx;display:flex;align-items:center;justify-content:flex-end;padding-right:16rpx;transition:width .6s;}
+.rpt-bar-text{font-size:22rpx;color:#fff;font-weight:600;}
+.rpt-tip{
+  display:flex;align-items:flex-start;gap:12rpx;padding:20rpx;
+  border-left:6rpx solid #67c23a;border-radius:0 12rpx 12rpx 0;
+  background:#F7FAF8;margin-bottom:12rpx;font-size:26rpx;color:#5E7E68;line-height:1.6;
+}
+.rpt-tip-icon{font-size:28rpx;flex-shrink:0;}
+.rpt-actions{padding:0 24rpx 24rpx;display:flex;gap:16rpx;}
+.btn-full{
+  flex:1;height:80rpx;border-radius:40rpx;font-size:28rpx;border:none;color:#fff;
+  background:linear-gradient(135deg,#67c23a,#529b2e);line-height:80rpx;
+}
+.btn-full::after{border:none;}
+.btn-share{
+  flex:1;height:80rpx;border-radius:40rpx;font-size:28rpx;border:2rpx solid #67c23a;
+  color:#67c23a;background:transparent;line-height:80rpx;
+}
+.btn-share::after{border:none;}
+.safe-bottom{height:40rpx;}

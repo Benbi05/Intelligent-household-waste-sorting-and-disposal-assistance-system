@@ -1,1 +1,4 @@
-
+.ex-title { font-size: 32rpx; font-weight: 700; color: #303133; display: block; margin-bottom: 24rpx; }
+.ex-detail { display: flex; justify-content: space-between; padding: 20rpx 0; border-bottom: 1rpx solid #f0f0f0; }
+.ex-label { font-size: 28rpx; color: #909399; }
+.ex-value { font-size: 28rpx; color: #303133; }

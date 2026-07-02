@@ -1,1 +1,10 @@
-
+.order-card{background:#fff;border-radius:16rpx;padding:24rpx;margin:20rpx;box-shadow:0 2rpx 12rpx rgba(0,0,0,.04)}
+.oc-header{margin-bottom:16rpx}
+.oc-shop{font-size:28rpx;font-weight:600;color:#303133}
+.oc-status{font-size:24rpx}
+.oc-img{width:100rpx;height:100rpx;border-radius:12rpx;background:#f5f7fa;margin-right:16rpx;flex-shrink:0}
+.oc-name{font-size:28rpx;color:#303133;display:block;margin-bottom:6rpx}
+.oc-points{font-size:24rpx;color:#e6a23c;font-weight:600}
+.oc-time{font-size:22rpx;color:#c0c4cc;margin-top:4rpx}
+.oc-code{font-size:24rpx;color:#909399}
+.oc-footer{border-top:1rpx solid #f0f0f0;padding-top:16rpx;margin-top:16rpx}

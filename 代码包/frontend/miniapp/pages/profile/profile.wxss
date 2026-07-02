@@ -1,1 +1,38 @@
-
+.prof-page{min-height:100vh;background:#F7FAF8;max-width:750rpx;margin:0 auto;}
+.prof-hero{
+  margin:20rpx 24rpx;padding:40rpx 32rpx 32rpx;text-align:center;
+  background:linear-gradient(160deg,#1a6b3c,#0d5e3a);border-radius:24rpx;color:#fff;
+}
+.prof-avatar{
+  width:120rpx;height:120rpx;border-radius:50%;background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 20rpx;
+}
+.prof-ava-icon{font-size:60rpx;}
+.prof-name{font-size:36rpx;font-weight:700;display:block;}
+.prof-phone{font-size:26rpx;opacity:.6;margin-top:6rpx;display:block;}
+.prof-stats{display:flex;justify-content:space-around;margin-top:28rpx;background:rgba(255,255,255,.1);border-radius:16rpx;padding:24rpx 0;}
+.prof-stat-item{flex:1;text-align:center;}
+.prof-stat-val{font-size:36rpx;font-weight:700;display:block;}
+.prof-stat-label{font-size:22rpx;opacity:.6;margin-top:4rpx;}
+.prof-report-card{
+  margin:20rpx 24rpx;padding:24rpx;background:linear-gradient(135deg,#E8F8EB,#fff);border-radius:20rpx;
+  border:2rpx solid #67c23a;display:flex;align-items:center;justify-content:space-between;
+}
+.prc-left{display:flex;align-items:center;gap:16rpx;}
+.prc-icon{font-size:44rpx;}
+.prc-title{font-size:28rpx;font-weight:600;color:#1A261D;display:block;}
+.prc-sub{font-size:24rpx;color:#8AAB93;margin-top:4rpx;}
+.prc-arrow{font-size:40rpx;color:#67c23a;}
+.prof-menu{margin:0 24rpx;background:#fff;border-radius:20rpx;overflow:hidden;}
+.prof-menu-item{display:flex;align-items:center;padding:32rpx 24rpx;border-bottom:1rpx solid #F3F4F6;}
+.prof-menu-item:last-child{border-bottom:none;}
+.pmi-icon{font-size:36rpx;margin-right:20rpx;}
+.pmi-label{flex:1;font-size:30rpx;color:#1A261D;}
+.pmi-arrow{font-size:32rpx;color:#D8E8DE;}
+.prof-logout{
+  width:calc(100% - 48rpx);margin:40rpx 24rpx;height:88rpx;border-radius:44rpx;
+  background:#fff;color:#EF4444;font-size:30rpx;border:1rpx solid #FEF2F2;line-height:88rpx;
+}
+.prof-logout::after{border:none;}
+.prof-logout:active{background:#FEF2F2;}
+.safe-bottom{height:120rpx;}

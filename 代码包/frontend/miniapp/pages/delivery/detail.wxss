@@ -1,1 +1,5 @@
-
+.detail-page { min-height: 100vh; background: #f5f7fa; }
+.detail-title { font-size: 32rpx; font-weight: 700; color: #303133; margin-bottom: 24rpx; }
+.detail-row { display: flex; justify-content: space-between; padding: 20rpx 0; border-bottom: 1rpx solid #f0f0f0; }
+.d-label { font-size: 28rpx; color: #909399; }
+.d-value { font-size: 28rpx; color: #303133; }

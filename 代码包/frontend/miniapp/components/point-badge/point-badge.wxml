@@ -1,1 +1,4 @@
-
+<view class="point-badge">
+  <text class="point-icon">🪙</text>
+  <text class="point-value">{{value}}</text>
+</view>

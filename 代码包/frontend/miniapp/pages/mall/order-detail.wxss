@@ -1,1 +1,4 @@
-
+.od-title { font-size: 32rpx; font-weight: 700; color: #303133; display: block; margin-bottom: 24rpx; }
+.od-section { text-align: center; padding: 40rpx 0; }
+.od-code { font-size: 48rpx; font-weight: 700; color: #67c23a; letter-spacing: 8rpx; display: block; }
+.od-status { font-size: 28rpx; margin-top: 12rpx; display: block; }

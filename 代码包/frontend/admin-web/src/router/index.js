@@ -117,7 +117,6 @@ const router = createRouter({
           component: () => import('@/views/system/RoleManage.vue'),
           meta: { title: '角色管理', requiresAdmin: true },
         },
-        // 运维端
         {
           path: 'ops-dashboard',
           name: 'OpsDashboard',
@@ -145,7 +144,6 @@ const router = createRouter({
   ],
 })
 
-// 鉴权守卫（预览模式：直接放行）
 // 鉴权守卫
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('admin_token')

@@ -1,1 +1,8 @@
-
+<view class="orders-page">
+  <view class="page-title">我的兑换</view>
+  <order-card wx:for="{{orders}}" wx:key="id" storeName="{{item.storeName}}"
+    commodityName="{{item.commodityName}}" points="{{item.points}}"
+    createTime="{{item.createTime}}" statusText="{{item.statusText}}"
+    statusColor="{{item.statusColor}}" code="{{item.code}}" />
+  <empty wx:if="{{orders.length === 0}}" text="暂无兑换记录"></empty>
+</view>

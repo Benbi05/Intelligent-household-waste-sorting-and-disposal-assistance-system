@@ -1,1 +1,9 @@
-
+<view class="detail-page">
+  <view class="card">
+    <view class="detail-title">投递详情</view>
+    <view class="detail-row"><text class="d-label">垃圾品类</text><text class="d-value">功能开发中</text></view>
+    <view class="detail-row"><text class="d-label">投递时间</text><text class="d-value">-</text></view>
+    <view class="detail-row"><text class="d-label">分类结果</text><text class="d-value">-</text></view>
+    <view class="detail-row"><text class="d-label">获得积分</text><text class="d-value">-</text></view>
+  </view>
+</view>
