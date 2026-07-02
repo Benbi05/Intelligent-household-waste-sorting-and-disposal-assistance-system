@@ -1,1 +1,5 @@
-
+<view class="navbar" style="height:{{navBarHeight + statusBarHeight}}px;padding-top:{{statusBarHeight}}px">
+  <view class="navbar-title" wx:if="{{title}}">{{title}}</view>
+  <slot wx:else name="title"></slot>
+</view>
+<view style="height:{{navBarHeight + statusBarHeight}}px"></view>

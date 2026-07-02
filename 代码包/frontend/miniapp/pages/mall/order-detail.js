@@ -1,1 +1,1 @@
-
+Page({ onLoad() {} })

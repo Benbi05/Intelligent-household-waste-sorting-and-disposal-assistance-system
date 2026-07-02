@@ -1,0 +1,12 @@
+flask>=3.0
+numpy>=1.24
+Pillow>=10.0
+requests>=2.31
+PyYAML>=6.0
+onnxruntime>=1.17
+# LLM SDKs (optional)
+# anthropic>=0.30
+# openai>=1.30
+# Training (optional)
+# ultralytics>=8.0
+# torch>=2.0

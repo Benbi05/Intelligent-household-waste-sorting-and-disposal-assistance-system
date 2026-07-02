@@ -1,1 +1,51 @@
+<view class="recs-page">
+  <!-- 统计摘要 -->
+  <view class="summary-card">
+    <view class="sum-item">
+      <text class="sum-val">{{stats.count}}</text>
+      <text class="sum-label">投放次数</text>
+    </view>
+    <view class="sum-vd"></view>
+    <view class="sum-item">
+      <text class="sum-val" style="color:#67c23a">{{stats.rate}}%</text>
+      <text class="sum-label">正确率</text>
+    </view>
+    <view class="sum-vd"></view>
+    <view class="sum-item">
+      <text class="sum-val" style="color:#67c23a">+{{stats.points}}</text>
+      <text class="sum-label">获得积分</text>
+    </view>
+  </view>
 
+  <!-- 分类筛选 -->
+  <scroll-view class="filter-scroll" scroll-x>
+    <view class="filter-pill {{catFilter==='all'?'active':''}}" bindtap="onFilter" data-type="all">全部</view>
+    <view class="filter-pill {{catFilter==='recyclable'?'active':''}}" bindtap="onFilter" data-type="recyclable">可回收</view>
+    <view class="filter-pill {{catFilter==='hazardous'?'active':''}}" bindtap="onFilter" data-type="hazardous">有害</view>
+    <view class="filter-pill {{catFilter==='kitchen'?'active':''}}" bindtap="onFilter" data-type="kitchen">厨余</view>
+    <view class="filter-pill {{catFilter==='other'?'active':''}}" bindtap="onFilter" data-type="other">其他</view>
+  </scroll-view>
+
+  <!-- 记录列表 -->
+  <view class="recs-list">
+    <view class="recs-item" wx:for="{{records}}" wx:key="id">
+      <view class="recs-dot" style="background:{{item._color}}"></view>
+      <view class="recs-info">
+        <view class="recs-top">
+          <text class="recs-name">{{item.description || '垃圾分类投放'}}</text>
+          <text class="recs-pts" style="color:{{item._ptsColor}}">{{item._ptsText}}</text>
+        </view>
+        <view class="recs-bottom">
+          <text class="recs-loc">📍 {{item._location}}</text>
+          <view class="recs-right">
+            <text class="recs-date">{{item._date}}</text>
+            <text class="recs-tag {{item._isCorrect ? 'correct' : 'wrong'}}">{{item._isCorrect ? '正确 ✓' : '错误 ✗'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{records.length === 0}}" style="text-align:center;padding:80rpx;color:#8AAB93;font-size:28rpx">暂无投放记录</view>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

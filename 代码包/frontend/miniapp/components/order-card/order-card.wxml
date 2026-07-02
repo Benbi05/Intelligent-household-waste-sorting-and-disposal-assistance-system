@@ -1,1 +1,18 @@
-
+<view class="order-card">
+  <view class="oc-header flex-between">
+    <text class="oc-shop">{{storeName || '积分商城'}}</text>
+    <text class="oc-status" style="color:{{statusColor}}">{{statusText}}</text>
+  </view>
+  <view class="oc-body flex-row">
+    <image class="oc-img" src="{{imageUrl || '/images/placeholder.png'}}" mode="aspectFill" />
+    <view class="oc-info flex-1">
+      <text class="oc-name">{{commodityName}}</text>
+      <text class="oc-points">🪙 {{points}} 积分</text>
+      <text class="oc-time">{{createTime}}</text>
+    </view>
+  </view>
+  <view class="oc-footer flex-between" wx:if="{{code}}">
+    <text class="oc-code">核销码：{{code}}</text>
+    <slot name="action"></slot>
+  </view>
+</view>

@@ -1,1 +1,60 @@
+.login-page{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  position:relative;overflow:hidden;max-width:750rpx;margin:0 auto;
+}
+/* 背景层 */
+.bg-layer{position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,#E8F8EB 0%,#FFFFFF 100%);}
+.bg-circle{position:absolute;border-radius:50%;filter:blur(80rpx);opacity:.12;}
+.c1{width:500rpx;height:500rpx;background:#67c23a;top:-150rpx;right:-80rpx;}
+.c2{width:400rpx;height:400rpx;background:#67c23a;bottom:20%;left:-100rpx;}
+.c3{width:300rpx;height:300rpx;background:#85ce61;top:35%;right:30%;}
+.leaf-pattern{position:absolute;inset:0;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 10 C25 10 15 20 15 30 C15 35 20 40 30 40 C30 40 35 30 35 25 C35 20 32 10 30 10Z' fill='%232DB84B'/%3E%3C/svg%3E");}
+
+/* 状态栏 */
+.status-bar{height:44px;width:100%;position:relative;z-index:2;}
+
+/* 导航栏 */
+.nav-bar{width:100%;height:44px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16rpx;position:relative;z-index:2;}
+.nav-left{width:174rpx;}
+.nav-center{flex:1;text-align:center;}
+.nav-title{font-size:34rpx;font-weight:600;color:#1A261D;}
+.nav-right{width:174rpx;display:flex;justify-content:flex-end;}
+.capsule{display:flex;align-items:center;border:1rpx solid #D8E8DE;border-radius:32rpx;
+  padding:8rpx 20rpx;gap:12rpx;background:rgba(255,255,255,.8);}
+.capsule-dot{font-size:24rpx;color:#8AAB93;letter-spacing:2rpx;}
+.capsule-divider{width:1rpx;height:20rpx;background:#D8E8DE;}
+.capsule-close{font-size:24rpx;color:#8AAB93;}
+
+/* Logo */
+.logo-area{position:relative;z-index:2;text-align:center;margin-top:160rpx;}
+.logo-ring{
+  width:192rpx;height:192rpx;border-radius:50%;margin:0 auto 32rpx;
+  background:linear-gradient(135deg,#67c23a,#529b2e);
+  display:flex;align-items:center;justify-content:center;
+  animation:logoGlow 3s ease-in-out infinite;
+  box-shadow:0 8rpx 32rpx rgba(103,194,58,.35);
+}
+@keyframes logoGlow{0%,100%{box-shadow:0 8rpx 32rpx rgba(103,194,58,.35)}50%{box-shadow:0 8rpx 48rpx rgba(103,194,58,.5)}}
+.logo-inner{width:152rpx;height:152rpx;border-radius:50%;background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;}
+.logo-leaf{font-size:80rpx;}
+.logo-title{font-size:48rpx;font-weight:700;color:#1A261D;display:block;margin-bottom:16rpx;}
+.logo-subtitle{font-size:28rpx;color:#5E7E68;}
+
+.spacer{flex:1;}
+
+/* 底部操作区 */
+.bottom-actions{position:relative;z-index:2;width:100%;max-width:640rpx;padding:0 40rpx;}
+.btn-wx-login{
+  width:100%;height:96rpx;display:flex;align-items:center;justify-content:center;gap:16rpx;
+  background:linear-gradient(135deg,#67c23a,#529b2e);color:#fff;font-size:34rpx;font-weight:600;
+  border-radius:48rpx;border:none;box-shadow:0 8rpx 24rpx rgba(103,194,58,.3);
+}
+.btn-wx-login::after{border:none;}
+.btn-wx-login:active{opacity:.9;transform:scale(.98);}
+.agreement{display:block;text-align:center;font-size:24rpx;color:#8AAB93;margin-top:40rpx;line-height:1.6;}
+.safe-bottom{height:68rpx;}
 

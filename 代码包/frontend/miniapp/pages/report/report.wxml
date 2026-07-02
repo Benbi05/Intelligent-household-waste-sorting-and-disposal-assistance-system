@@ -1,0 +1,42 @@
+<view class="rpt-page">
+  <view class="rpt-hero">
+    <view class="rpt-hero-icon">
+      <view class="icon icon-chart icon-xl" style="width:64rpx;height:64rpx;margin:0 auto;display:block"></view>
+    </view>
+    <text class="rpt-hero-title">2026年6月 垃圾分类分析报告</text>
+    <text class="rpt-hero-date">生成时间: 2026-07-01</text>
+    <view class="rpt-hero-badge">✅ 已生成</view>
+  </view>
+
+  <view class="rpt-section">
+    <text class="rpt-sec-title">投放概览</text>
+    <view class="rpt-stats">
+      <view class="rpt-stat"><text class="rpt-stat-val">28</text><text class="rpt-stat-label">本月投放(次)</text></view>
+      <view class="rpt-stat-vd"></view>
+      <view class="rpt-stat"><text class="rpt-stat-val green">92%</text><text class="rpt-stat-label">分类正确率</text></view>
+      <view class="rpt-stat-vd"></view>
+      <view class="rpt-stat"><text class="rpt-stat-val green">280</text><text class="rpt-stat-label">获得积分</text></view>
+    </view>
+  </view>
+
+  <view class="rpt-section">
+    <text class="rpt-sec-title">分类详情</text>
+    <view class="rpt-bar-list">
+      <view class="rpt-bar-item" wx:for="{{catBars}}" wx:key="name">
+        <text class="rpt-bar-label">{{item.name}}</text>
+        <view class="rpt-bar-track"><view class="rpt-bar-fill" style="width:{{item.pct}}%;background:{{item.color}}"><text class="rpt-bar-text">{{item.pct}}%</text></view></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="rpt-section">
+    <text class="rpt-sec-title">改善建议</text>
+    <view class="rpt-tip" wx:for="{{tips}}" wx:key="*this"><text>💡 {{item}}</text></view>
+  </view>
+
+  <view class="rpt-actions">
+    <button class="btn-full">📄 查看完整报告</button>
+    <button class="btn-share">📤 分享报告</button>
+  </view>
+  <view class="safe-bottom"></view>
+</view>

@@ -1,1 +1,29 @@
-
+.mall-page{min-height:100vh;background:#F7FAF8;max-width:750rpx;margin:0 auto;}
+.mall-banner{
+  display:flex;align-items:center;justify-content:space-between;padding:24rpx 32rpx;
+  background:linear-gradient(135deg,#67c23a,#529b2e);color:#fff;margin:20rpx 24rpx;border-radius:20rpx;
+}
+.mb-left{display:flex;align-items:center;gap:12rpx;}
+.coins-icon{font-size:40rpx;}
+.mb-label{font-size:26rpx;}
+.mb-points{font-size:44rpx;font-weight:700;}
+.mall-tabs{white-space:nowrap;padding:0 24rpx 16rpx;}
+.mall-tab{
+  display:inline-block;padding:10rpx 28rpx;border-radius:32rpx;font-size:26rpx;color:#5E7E68;
+  background:#fff;border:1rpx solid #D8E8DE;margin-right:12rpx;
+}
+.mall-tab.active{background:#67c23a;color:#fff;border-color:#67c23a;}
+.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:16rpx;padding:0 24rpx;}
+.product-card{background:#fff;border-radius:20rpx;overflow:hidden;box-shadow:0 2rpx 8rpx rgba(0,0,0,.03);}
+.prod-img{height:240rpx;display:flex;align-items:center;justify-content:center;}
+.prod-emoji{font-size:96rpx;}
+.prod-info{padding:16rpx 20rpx;position:relative;}
+.prod-name{font-size:28rpx;color:#1A261D;font-weight:500;display:block;margin-bottom:8rpx;}
+.prod-bottom{display:flex;justify-content:space-between;align-items:center;}
+.prod-price{font-size:26rpx;color:#67c23a;font-weight:700;}
+.prod-stock{font-size:22rpx;color:#8AAB93;}
+.prod-btn{
+  position:absolute;right:20rpx;bottom:16rpx;padding:8rpx 20rpx;border-radius:24rpx;
+  border:2rpx solid #67c23a;color:#67c23a;font-size:24rpx;
+}
+.safe-bottom{height:120rpx;}

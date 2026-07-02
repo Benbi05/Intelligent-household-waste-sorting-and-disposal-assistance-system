@@ -1,1 +1,14 @@
-
+<view class="exchange-page">
+  <view class="card">
+    <text class="ex-title">确认兑换</text>
+    <view class="ex-detail">
+      <text class="ex-label">商品名称</text>
+      <text class="ex-value">功能开发中</text>
+    </view>
+    <view class="ex-detail">
+      <text class="ex-label">消耗积分</text>
+      <text class="ex-value" style="color:#e6a23c;font-weight:700">🪙 0</text>
+    </view>
+    <button class="btn-primary mt-30">立即兑换</button>
+  </view>
+</view>

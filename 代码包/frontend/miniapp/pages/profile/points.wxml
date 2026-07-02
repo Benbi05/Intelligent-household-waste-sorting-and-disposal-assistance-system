@@ -1,1 +1,43 @@
+<view class="points-page">
+  <view class="points-hero">
+    <text class="ph-label">可用积分</text>
+    <text class="ph-value">{{pointBalance}}</text>
+    <view class="ph-divider">
+      <view class="ph-stat"><text class="phs-num">+5,200</text><text class="phs-label">累计获得</text></view>
+      <view class="ph-vd"></view>
+      <view class="ph-stat"><text class="phs-num">−2,620</text><text class="phs-label">累计消耗</text></view>
+    </view>
+  </view>
 
+  <view class="ph-actions">
+    <button class="btn-primary-outline flex-1" bindtap="goMall">
+      <view class="icon icon-gift" style="width:32rpx;height:32rpx;display:inline-block;vertical-align:middle;margin-right:6rpx"></view>去兑换
+    </button>
+    <button class="btn-outline flex-1">积分规则</button>
+  </view>
+
+  <view class="filter-row">
+    <view class="filter-pill {{recordFilter==='all'?'active':''}}" bindtap="onFilterChange" data-type="all">全部</view>
+    <view class="filter-pill {{recordFilter==='earn'?'active':''}}" bindtap="onFilterChange" data-type="earn">获得</view>
+    <view class="filter-pill {{recordFilter==='penalty'?'active':''}}" bindtap="onFilterChange" data-type="penalty">扣除</view>
+    <view class="filter-pill {{recordFilter==='exchange'?'active':''}}" bindtap="onFilterChange" data-type="exchange">兑换</view>
+  </view>
+
+  <view class="points-list">
+    <view class="pl-item" wx:for="{{records}}" wx:key="id">
+      <view class="pl-icon-wrap" style="background:{{item._bgColor}}">
+        <view class="icon icon-check icon-sm" wx:if="{{item._type==='earn'}}"></view>
+        <view class="icon icon-x icon-sm" wx:elif="{{item._type==='penalty'}}"></view>
+        <view class="icon icon-gift icon-sm" wx:elif="{{item._type==='exchange'}}"></view>
+        <view class="icon icon-check icon-sm" wx:else></view>
+      </view>
+      <view class="pl-info">
+        <text class="pl-desc">{{item.description || item.recordType}}</text>
+        <text class="pl-time">{{item._time}}</text>
+      </view>
+      <text class="pl-amount" style="color:{{item._color}}">{{item._sign}}{{item.amount || item.points || 0}}</text>
+    </view>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

@@ -1,1 +1,95 @@
+<view class="home-page">
+  <!-- 用户问候卡 -->
+  <view class="greeting-card">
+    <view class="greeting-left">
+      <view class="avatar-circle">
+        <view class="icon icon-user-white" style="width:48rpx;height:48rpx"></view>
+      </view>
+      <view class="greeting-text">
+        <text class="greeting-name">你好，{{userInfo.nickName || '刘阿姨'}}！</text>
+        <view class="points-inline">
+          <view class="icon icon-trophy icon-sm"></view>
+          <text class="points-num">当前积分: {{pointBalance}}</text>
+        </view>
+      </view>
+    </view>
+    <text class="greeting-date">{{todayDate}}</text>
+  </view>
 
+  <!-- 快捷操作 2x2 -->
+  <view class="quick-grid">
+    <view class="quick-item" bindtap="goRecognize">
+      <view class="quick-icon-box" style="background:#E8F8EB">
+        <view class="icon icon-camera icon-lg"></view>
+      </view>
+      <text class="qi-label">拍照识别</text>
+    </view>
+    <view class="quick-item" bindtap="goPoints">
+      <view class="quick-icon-box" style="background:#FFF7ED">
+        <view class="icon icon-coins icon-lg"></view>
+      </view>
+      <text class="qi-label">积分查询</text>
+    </view>
+    <view class="quick-item" bindtap="goRecords">
+      <view class="quick-icon-box" style="background:#EFF6FF">
+        <view class="icon icon-list icon-lg"></view>
+      </view>
+      <text class="qi-label">投放记录</text>
+    </view>
+    <view class="quick-item" bindtap="goMall">
+      <view class="quick-icon-box" style="background:#FDF2F8">
+        <view class="icon icon-gift icon-lg"></view>
+      </view>
+      <text class="qi-label">积分商城</text>
+    </view>
+  </view>
+
+  <!-- 垃圾分类指南 -->
+  <view class="section">
+    <view class="section-header"><text class="section-title">垃圾分类指南</text></view>
+    <view class="guide-grid">
+      <view class="guide-card" style="border-left-color:#3B82F6">
+        <view class="guide-icon-box" style="background:#EFF6FF"><view class="icon icon-recycle icon-lg"></view></view>
+        <view class="guide-info"><text class="guide-cat-name" style="color:#3B82F6">可回收物</text><text class="guide-cat-desc">塑料瓶·纸张·金属</text></view>
+      </view>
+      <view class="guide-card" style="border-left-color:#EF4444">
+        <view class="guide-icon-box" style="background:#FEF2F2"><view class="icon icon-hazard icon-lg"></view></view>
+        <view class="guide-info"><text class="guide-cat-name" style="color:#EF4444">有害垃圾</text><text class="guide-cat-desc">电池·药品·灯管</text></view>
+      </view>
+      <view class="guide-card" style="border-left-color:#F59E0B">
+        <view class="guide-icon-box" style="background:#FFFBEB"><view class="icon icon-kitchen icon-lg"></view></view>
+        <view class="guide-info"><text class="guide-cat-name" style="color:#F59E0B">厨余垃圾</text><text class="guide-cat-desc">剩饭菜·果皮·茶叶</text></view>
+      </view>
+      <view class="guide-card" style="border-left-color:#6B7280">
+        <view class="guide-icon-box" style="background:#F3F4F6"><view class="icon icon-other icon-lg"></view></view>
+        <view class="guide-info"><text class="guide-cat-name" style="color:#6B7280">其他垃圾</text><text class="guide-cat-desc">卫生纸·烟蒂·陶瓷</text></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近投放 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">最近投放</text>
+      <text class="section-link" bindtap="goRecords">查看全部 ›</text>
+    </view>
+    <view class="activity-card">
+      <view class="activity-item" wx:for="{{recentDeliveries}}" wx:key="id">
+        <view class="act-icon-box" style="background:{{item._bg}}">
+          <view class="icon icon-check icon-sm" wx:if="{{item._isCorrect}}"></view>
+          <view class="icon icon-x icon-sm" wx:else></view>
+        </view>
+        <view class="act-info">
+          <text class="act-name">{{item.categoryName || '垃圾分类投放'}}</text>
+          <text class="act-time">{{item._time}}</text>
+        </view>
+        <text class="act-points" style="color:{{item._ptsColor}}">{{item._ptsText}}</text>
+      </view>
+      <view class="activity-item" wx:if="{{recentDeliveries.length === 0}}">
+        <text style="text-align:center;width:100%;color:#8AAB93;font-size:26rpx">暂无投放记录</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

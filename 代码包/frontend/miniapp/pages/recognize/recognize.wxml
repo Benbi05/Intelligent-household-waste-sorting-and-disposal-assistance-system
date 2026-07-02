@@ -1,1 +1,37 @@
+<view class="rec-page">
+  <view class="viewfinder">
+    <view class="cross-h"></view><view class="cross-v"></view>
+    <view class="bracket tl"></view><view class="bracket tr"></view>
+    <view class="bracket bl"></view><view class="bracket br"></view>
+    <view class="center-reticle"></view>
+    <text class="vf-hint" wx:if="{{!imageUrl}}">将物品对准取景框</text>
+    <image wx:if="{{imageUrl}}" src="{{imageUrl}}" mode="aspectFill" class="vf-preview" />
+    <view class="vf-controls">
+      <view class="vf-btn" bindtap="chooseImage">
+        <view class="icon icon-list" style="width:40rpx;height:40rpx;margin:0 auto;display:block"></view>
+        <text class="vf-btn-text">从相册选择</text>
+      </view>
+      <view class="vf-capture-btn" bindtap="takePhoto">
+        <view class="capture-outer"><view class="capture-inner"></view></view>
+      </view>
+      <view class="vf-btn">
+        <view class="icon" style="width:40rpx;height:40rpx;margin:0 auto;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27%3E%3Cpolyline points=%2713 2 3 14 12 14 11 22 21 10 12 10 13 2%27/%3E%3C/svg%3E');display:block"></view>
+        <text class="vf-btn-text">闪光灯</text>
+      </view>
+    </view>
+  </view>
 
+  <view class="result-card" wx:if="{{result}}">
+    <text class="result-header">识别结果：{{result.categoryName}}</text>
+    <view class="result-confidence">
+      <view class="cf-bar-wrap"><view class="cf-bar" style="width:{{result.confidence}}%;background:{{result._color}}"></view></view>
+      <text class="cf-text" style="color:{{result._color}}">置信度：{{result.confidence}}%</text>
+    </view>
+    <view class="result-badge" style="background:{{result._bgColor}};color:{{result._color}}">{{result._parentName}}</view>
+    <view class="result-tip" style="background:{{result._tipBg}}">
+      <text>{{result.guide || '请按分类投入对应垃圾桶'}}</text>
+    </view>
+    <button class="btn-confirm" bindtap="confirmDelivery">确认投放</button>
+  </view>
+  <view class="safe-bottom"></view>
+</view>

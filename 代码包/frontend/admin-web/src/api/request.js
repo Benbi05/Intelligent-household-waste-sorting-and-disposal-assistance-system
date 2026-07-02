@@ -8,8 +8,8 @@ service.interceptors.request.use((config) => {
   const host = localStorage.getItem('backend_host')
   if (host) {
     config.url = 'http://' + host + ':8082/api/v1' + config.url
-  } else if (window.location.port !== '80' && window.location.port !== '443' && window.location.port !== '') {
-    config.url = 'http://127.0.0.1:8082/api/v1' + config.url
+  } else {
+    config.url = window.location.origin + '/api/v1' + config.url
   }
 
   const token = localStorage.getItem('admin_token')
@@ -54,7 +54,7 @@ service.interceptors.response.use(
           config._retry = true
           try {
             const host = localStorage.getItem('backend_host')
-            let base = host ? 'http://' + host + ':8082/api/v1' : '/api/v1'
+            let base = host ? 'http://' + host + ':8082/api/v1' : window.location.origin + '/api/v1'
             const res = await axios.post(base + '/admin/refresh-token', {}, {
               headers: { 'X-Refresh-Token': refreshToken },
             })

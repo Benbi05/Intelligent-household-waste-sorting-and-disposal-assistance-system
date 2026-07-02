@@ -1,1 +1,49 @@
+<!-- 登录页 -->
+<view class="login-page">
+  <view class="bg-layer">
+    <view class="bg-circle c1"></view>
+    <view class="bg-circle c2"></view>
+    <view class="bg-circle c3"></view>
+    <view class="leaf-pattern"></view>
+  </view>
 
+  <view class="status-bar"></view>
+
+  <view class="nav-bar">
+    <view class="nav-left"></view>
+    <view class="nav-center">
+      <text class="nav-title">智能垃圾分类</text>
+    </view>
+    <view class="nav-right">
+      <view class="capsule">
+        <text class="capsule-dot">···</text>
+        <view class="capsule-divider"></view>
+        <text class="capsule-close">✕</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="logo-area">
+    <view class="logo-ring">
+      <view class="logo-inner">
+        <view class="icon icon-xl icon-leaf"></view>
+      </view>
+    </view>
+    <text class="logo-title">智能垃圾分类</text>
+    <text class="logo-subtitle">让垃圾分类更简单、更有趣</text>
+  </view>
+
+  <view class="spacer"></view>
+
+  <view class="bottom-actions">
+    <!-- 微信一键登录 -->
+    <button class="btn-wx-login" bindtap="handleWxLogin" loading="{{loading}}">
+      <view class="icon icon-wechat" style="width:44rpx;height:44rpx"></view>
+      <text>{{loading ? '登录中...' : '微信一键登录'}}</text>
+    </button>
+
+    <text class="agreement">登录即表示同意《用户协议》和《隐私政策》</text>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

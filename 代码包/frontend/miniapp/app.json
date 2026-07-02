@@ -1,1 +1,38 @@
-
+{
+  "pages": [
+    "pages/login/login",
+    "pages/home/home",
+    "pages/recognize/recognize",
+    "pages/delivery/list",
+    "pages/delivery/detail",
+    "pages/mall/index",
+    "pages/mall/exchange",
+    "pages/mall/orders",
+    "pages/mall/order-detail",
+    "pages/profile/profile",
+    "pages/profile/points",
+    "pages/report/report"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#1a6b3c",
+    "navigationBarTitleText": "智能垃圾分类",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f7fa",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#909399",
+    "selectedColor": "#67c23a",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/home/home", "text": "首页" },
+      { "pagePath": "pages/mall/index", "text": "商城" },
+      { "pagePath": "pages/profile/profile", "text": "我的" }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": { "desc": "你的位置信息将用于查找附近的垃圾投放点" }
+  },
+  "sitemapLocation": "sitemap.json"
+}

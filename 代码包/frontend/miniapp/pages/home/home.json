@@ -1,1 +1,8 @@
-
+{
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "point-badge": "/components/point-badge/point-badge",
+    "empty": "/components/empty/empty"
+  }
+}
