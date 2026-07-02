@@ -1,10 +1,9 @@
-"""文件上传处理"""
-import os
-import uuid
+"""文件上传处理 — base64 存储，无需本地文件系统"""
+import base64
 from flask import request
 
 ALLOWED_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
-MAX_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_SIZE = 5 * 1024 * 1024  # 5MB
 
 
 def handle() -> dict:
@@ -16,18 +15,13 @@ def handle() -> dict:
     if file.mimetype not in ALLOWED_TYPES:
         return {'ok': False, 'error_code': 2001}
 
-    file.seek(0, os.SEEK_END)
+    file.seek(0, 2)  # SEEK_END
     size = file.tell()
     file.seek(0)
     if size > MAX_SIZE:
         return {'ok': False, 'error_code': 2002}
 
-    ext = 'jpg' if file.mimetype == 'image/jpeg' else file.mimetype.split('/')[-1]
-    filename = f'{uuid.uuid4().hex}.{ext}'
-
-    # 保存到本地 uploads 目录
-    upload_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'uploads')
-    os.makedirs(upload_dir, exist_ok=True)
-    file.save(os.path.join(upload_dir, filename))
-    image_url = f'/api/v1/common/upload/file/{filename}'
-    return {'ok': True, 'error_code': 0, 'imageUrl': image_url, 'url': image_url}
+    # base64 编码存储，不依赖本地文件
+    b64 = base64.b64encode(file.read()).decode()
+    data_uri = f'data:{file.mimetype};base64,{b64}'
+    return {'ok': True, 'error_code': 0, 'imageUrl': data_uri, 'url': data_uri}

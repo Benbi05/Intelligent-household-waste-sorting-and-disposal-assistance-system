@@ -9,7 +9,7 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_AS_ASCII = False
-    MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10MB
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB（支持证照base64上传）
 
 
 class DevelopmentConfig(Config):

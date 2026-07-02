@@ -182,13 +182,13 @@
       </div>
 
       <!-- 图表弹窗 -->
-      <el-dialog :model-value="chartPopup==='rate'" @update:model-value="chartPopup = $event ? 'rate' : null" title="📈 分类正确率趋势（近12周）" width="760px" @opened="renderPopupChart('rate')"><div ref="popupRateChart" style="height:380px"></div></el-dialog>
-      <el-dialog :model-value="chartPopup==='participation'" @update:model-value="chartPopup = $event ? 'participation' : null" title="👥 参与率趋势（近12周）" width="760px" @opened="renderPopupChart('participation')">
-        <div ref="popupPartChart" style="height:380px"></div>
+      <el-dialog :model-value="chartPopup==='rate'" @update:model-value="chartPopup = $event ? 'rate' : null" title="📈 分类正确率趋势（近12周）" width="760px" class="chart-popup" @opened="renderPopupChart('rate')"><div ref="popupRateChart" style="height:200px"></div></el-dialog>
+      <el-dialog :model-value="chartPopup==='participation'" @update:model-value="chartPopup = $event ? 'participation' : null" title="👥 参与率趋势（近12周）" width="760px" class="chart-popup" @opened="renderPopupChart('participation')">
+        <div ref="popupPartChart" style="height:200px"></div>
         <div style="text-align:center;margin-top:12px;font-size:13px;color:#909399">当前参与率 <strong style="color:#409eff;font-size:18px">{{ participationRate }}%</strong> · 较上月 <span style="color:#67c23a">▲ {{ participationChange }}%</span></div>
       </el-dialog>
-      <el-dialog :model-value="chartPopup==='delivery'" @update:model-value="chartPopup = $event ? 'delivery' : null" title="📦 投放总量趋势（近12周）" width="760px" @opened="renderPopupChart('delivery')">
-        <div ref="popupDeliveryChart" style="height:380px"></div>
+      <el-dialog :model-value="chartPopup==='delivery'" @update:model-value="chartPopup = $event ? 'delivery' : null" title="📦 投放总量趋势（近12周）" width="760px" class="chart-popup" @opened="renderPopupChart('delivery')">
+        <div ref="popupDeliveryChart" style="height:200px"></div>
         <div style="text-align:center;margin-top:12px;font-size:13px;color:#909399">{{ displayDeliveryLabel }} <strong style="color:#e6a23c;font-size:18px">{{ displayDeliveryCount }}</strong> 次</div>
       </el-dialog>
 
@@ -319,7 +319,7 @@ const alertSummary = ref('满溢1 · 故障1 · 待审1 · 违规1')
 // 楼栋数据（优先使用后端数据，回退到静态模拟）
 const buildings = computed(() => {
   return bldData.value.length ? bldData.value.map(d => ({
-    name: d.building || d.deviceName || d.name, rate: d.rate || 0, participation: d.total || 0,
+    name: d.building || d.deviceName || d.name, rate: d.rate || 0, participation: d.participation || 0,
     units: d.area, households: d.total,
   })) : []
 })
@@ -361,9 +361,9 @@ function makeRateChart(el) {
   if (!el || !window.echarts) return
   const c = window.echarts.init(el)
   c.setOption({
-    tooltip: { trigger: 'axis' }, grid: { left: 50, right: 30, top: 20, bottom: 30 },
+    tooltip: { trigger: 'axis' }, grid: { left: 50, right: 30, top: 10, bottom: 25 },
     xAxis: { type: 'category', data: ['W19', 'W20', 'W21', 'W22', 'W23', 'W24', 'W25', 'W26', 'W27', 'W28', 'W29', 'W30'] },
-    yAxis: { type: 'value', min: 50, max: 100, axisLabel: { formatter: '{value}%' } },
+    yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
     series: [{ name: '正确率', type: 'line', data: [76, 78, 79, 77, 82, 83, 81, 85, 84, 86, 88, 87.3], smooth: true, symbol: 'circle', symbolSize: 8, lineStyle: { color: '#67c23a', width: 3 }, itemStyle: { color: '#67c23a' }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(103,194,58,0.25)' }, { offset: 1, color: 'rgba(103,194,58,0.02)' }]) }, markLine: { silent: true, data: [{ yAxis: 85, label: { formatter: '达标线 85%' }, lineStyle: { color: '#e6a23c', type: 'dashed' } }] } }]
   })
 }
@@ -371,9 +371,9 @@ function makePartChart(el) {
   if (!el || !window.echarts) return
   const c = window.echarts.init(el)
   c.setOption({
-    tooltip: { trigger: 'axis' }, grid: { left: 50, right: 30, top: 20, bottom: 30 },
+    tooltip: { trigger: 'axis' }, grid: { left: 50, right: 30, top: 10, bottom: 25 },
     xAxis: { type: 'category', data: ['W19', 'W20', 'W21', 'W22', 'W23', 'W24', 'W25', 'W26', 'W27', 'W28', 'W29', 'W30'] },
-    yAxis: { type: 'value', min: 30, max: 80, axisLabel: { formatter: '{value}%' } },
+    yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
     series: [{ name: '参与率', type: 'line', data: [45, 48, 47, 52, 53, 55, 50, 56, 58, 59, 60, 62.5], smooth: true, symbol: 'circle', symbolSize: 8, lineStyle: { color: '#409eff', width: 3 }, itemStyle: { color: '#409eff' }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(64,158,255,0.25)' }, { offset: 1, color: 'rgba(64,158,255,0.02)' }]) }, markLine: { silent: true, data: [{ yAxis: 60, label: { formatter: '目标线 60%' }, lineStyle: { color: '#67c23a', type: 'dashed' } }] } }]
   })
 }
@@ -385,7 +385,7 @@ function makeDeliveryChart(el) {
   const totals = trdData.value.map(d => d.total)
   c.setOption({
     tooltip: { trigger: 'axis', formatter: p => p[0].axisValue + '<br/>投放量: ' + p[0].value + '次' },
-    grid: { left: 50, right: 20, top: 20, bottom: 30 },
+    grid: { left: 50, right: 20, top: 10, bottom: 25 },
     xAxis: { type: 'category', data: dates, axisLabel: { fontSize: 10, interval: 3 } },
     yAxis: { type: 'value', name: '次' },
     series: [{ name: '投放量', type: 'bar', data: totals, itemStyle: { color: new ec.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#e6a23c' }, { offset: 1, color: '#fde2b3' }]), borderRadius: [6, 6, 0, 0] }, barWidth: 20 }]
@@ -399,7 +399,7 @@ function makeCombinedChart(el) {
   const totals = trdData.value.map(d => d.total)
   const rates = trdData.value.map(d => d.rate)
   c.setOption({
-    tooltip: { trigger: 'axis' }, legend: { data: ['投放量', '正确率'], top: 0, right: 10, textStyle: { fontSize: 12 } }, grid: { left: 40, right: 20, top: 30, bottom: 20 },
+    tooltip: { trigger: 'axis' }, legend: { data: ['投放量', '正确率'], top: 0, right: 10, textStyle: { fontSize: 12 } }, grid: { left: 40, right: 20, top: 10, bottom: 25 },
     xAxis: { type: 'category', data: dates, axisLabel: { fontSize: 10, interval: 3 } },
     yAxis: [{ type: 'value', name: '次' }, { type: 'value', name: '%' }],
     series: [{ name: '投放量', type: 'bar', data: totals, itemStyle: { color: '#b3e19d', borderRadius: [4, 4, 0, 0] }, barWidth: 16 }, { name: '正确率', type: 'line', yAxisIndex: 1, data: rates, smooth: true, symbol: 'circle', symbolSize: 6, lineStyle: { color: '#f56c6c', width: 2 }, itemStyle: { color: '#f56c6c' } }]
@@ -439,7 +439,7 @@ function renderTrendChart() {
   const chart = ec.init(trendChart.value)
   chart.setOption({
     tooltip: { trigger: 'axis', formatter: p => p[0].axisValue + '<br/>总投放: ' + p[0].value + '次<br/>正确: ' + p[1].value + '次<br/>正确率: ' + (p[1].value / p[0].value * 100).toFixed(1) + '%' },
-    legend: { data: ['总投放', '正确', '正确率'], top: 5 }, grid: { top: 40, right: 60, bottom: 40, left: 50 },
+    legend: { data: ['总投放', '正确', '正确率'], top: 5 }, grid: { top: 30, right: 60, bottom: 30, left: 50 },
     xAxis: { data: trdData.value.map(d => d.date), axisLabel: { fontSize: 10, rotate: 45, interval: 2 } },
     yAxis: [{ type: 'value', name: '次', axisLabel: { fontSize: 10 } }, { type: 'value', name: '%', min: 0, max: 100, axisLabel: { fontSize: 10, formatter: '{value}%' } }],
     series: [
@@ -585,6 +585,7 @@ watch(community, () => { fetchAll() })
 
 /* 图表 */
 .chart-box { width: 100%; height: 260px; }
+.chart-popup :deep(.el-dialog__body) { padding: 10px 20px !important; }
 
 /* 任务台 */
 .task-group { margin-bottom: 16px; } .task-group:last-child { margin-bottom: 0; }

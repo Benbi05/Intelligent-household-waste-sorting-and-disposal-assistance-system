@@ -10,7 +10,7 @@ from ...models.user import User
 from ...models.device import Device
 from ...extensions import db
 from sqlalchemy import func
-from datetime import datetime
+from datetime import datetime, timedelta
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
 
@@ -81,6 +81,8 @@ def building_compare():
             if bld not in bld_map: bld_map[bld] = []
             bld_map[bld].append(d.deviceId)
 
+    now = datetime.utcnow()
+    days30 = now - timedelta(days=30)
     result = []
     for bld in sorted(bld_map.keys(), key=lambda x: int(x.replace('栋',''))):
         dids = bld_map[bld]
@@ -88,8 +90,15 @@ def building_compare():
         total = DeliveryRecord.query.filter(DeliveryRecord.deviceId.in_(dids)).count()
         correct = DeliveryRecord.query.filter(DeliveryRecord.deviceId.in_(dids), DeliveryRecord.isCorrect==True).count()
         rate = round(correct/total*100, 1) if total > 0 else 0
+        # 参与率 = 近30天活跃用户 / 历史总用户（该楼栋）
+        active_users = db.session.query(func.count(func.distinct(DeliveryRecord.userId))).filter(
+            DeliveryRecord.deviceId.in_(dids), DeliveryRecord.deliveryTime >= days30).scalar() or 0
+        all_users = db.session.query(func.count(func.distinct(DeliveryRecord.userId))).filter(
+            DeliveryRecord.deviceId.in_(dids)).scalar() or 1
+        participation = round(active_users / all_users * 100, 1)
         pts = db.session.query(func.sum(DeliveryRecord.pointChange)).filter(DeliveryRecord.deviceId.in_(dids)).scalar() or 0
-        result.append({'building': bld, 'area': area, 'total': total, 'correct': correct, 'rate': rate, 'points': int(pts)})
+        result.append({'building': bld, 'area': area, 'total': total, 'correct': correct,
+                       'rate': rate, 'participation': participation, 'points': int(pts)})
     return success(result)
 
 @bp.route("/statistics/daily-trend", methods=["GET"])

@@ -3,9 +3,6 @@
     <el-table
       :data="data"
       :height="height"
-      v-loading="loading"
-      element-loading-text="加载中..."
-      element-loading-background="rgba(255,255,255,0.7)"
       empty-text="暂无数据"
       border
       stripe
@@ -65,6 +62,12 @@ function onSortChange(sort) {
   border-radius: 4px;
   font-size: 14px;
 }
+:deep(.el-table__body-wrapper) {
+  min-height: 200px;
+}
+:deep(.el-table__row) {
+  height: 48px;
+}
 
 :deep(.el-table th.el-table__cell) {
   background: #f5f7fa;
@@ -80,5 +83,11 @@ function onSortChange(sort) {
 :deep(.el-table__empty-text) {
   color: #c0c4cc;
   font-size: 14px;
+}
+:deep(.el-table__row) {
+  height: 52px !important;
+}
+:deep(.el-tag) {
+  transition: none !important;
 }
 </style>

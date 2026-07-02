@@ -20,7 +20,8 @@ def list_devices():
         online_status=request.args.get("onlineStatus", ""),
         box_category=request.args.get("boxCategory", ""),
         area=request.args.get("area", ""),
-        community=request.args.get("community", "")
+        community=request.args.get("community", ""),
+        full_rate_min=request.args.get("fullRateMin", type=float)
     )
     return paginated(records, total, p["page"], p["size"])
 

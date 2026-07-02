@@ -91,7 +91,6 @@ import { useRouter } from 'vue-router'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { apply } from '@/api/auth'
-import request from '@/api/request'
 
 const router = useRouter()
 const formRef = ref(null)
@@ -125,15 +124,14 @@ function beforeUpload(file) {
   return true
 }
 
-async function handleUpload(opt, field) {
-  const fd = new FormData()
-  fd.append('file', opt.file)
-  try {
-    const res = await request.post('/common/upload/public', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-    form[field] = res.data.url || res.data.fileUrl || ''
+function handleUpload(opt, field) {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    form[field] = e.target.result
     ElMessage.success('上传成功')
     formRef.value?.validateField(field)
-  } catch { ElMessage.error('上传失败') }
+  }
+  reader.readAsDataURL(opt.file)
 }
 
 async function handleSubmit() {

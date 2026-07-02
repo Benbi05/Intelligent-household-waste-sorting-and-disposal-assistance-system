@@ -34,18 +34,22 @@ def apply():
     if User.query.filter_by(phone=contact_phone).first():
         return fail(6002, '手机号已被注册')
 
-    user = User(phone=contact_phone, nickName=contact_name, userType='merchant', status='enable')
-    db.session.add(user)
-    db.session.flush()
+    try:
+        user = User(phone=contact_phone, nickName=contact_name, userType='merchant', status='enable')
+        db.session.add(user)
+        db.session.flush()
 
-    merchant = Merchant(
-        userId=user.id, username=username, passwordHash=hash_password(password),
-        storeName=store_name, contactName=contact_name, contactPhone=contact_phone,
-        storeAddress=store_address, businessLicense=business_license, idCard=id_card,
-        area=area, status='pending'
-    )
-    db.session.add(merchant)
-    db.session.commit()
+        merchant = Merchant(
+            userId=user.id, username=username, passwordHash=hash_password(password),
+            storeName=store_name, contactName=contact_name, contactPhone=contact_phone,
+            storeAddress=store_address, businessLicense=business_license, idCard=id_card,
+            area=area, status='pending'
+        )
+        db.session.add(merchant)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return fail(500, f'服务器错误: {str(e)[:100]}')
 
     return success({'merchantId': merchant.id, 'storeName': store_name, 'username': username},
                    '申请已提交，等待管理员审核（1-2个工作日）')

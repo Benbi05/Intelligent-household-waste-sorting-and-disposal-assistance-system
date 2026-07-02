@@ -38,7 +38,7 @@ def add_device(device_name: str, box_category: str, area: str, location: str, se
     return device_id
 
 
-def get_device_list(page=1, size=10, keyword="", online_status="", box_category="", area="", community="") -> tuple:
+def get_device_list(page=1, size=10, keyword="", online_status="", box_category="", area="", community="", full_rate_min=None) -> tuple:
     q = DeviceDAO.model.query
     if community:
         q = q.filter(DeviceDAO.model.deviceId.like(f'{community}%'))
@@ -51,7 +51,9 @@ def get_device_list(page=1, size=10, keyword="", online_status="", box_category=
         q = q.filter(DeviceDAO.model.boxCategory == box_category)
     if area:
         q = q.filter(DeviceDAO.model.area == area)
-    q = q.order_by(DeviceDAO.model.lastOnlineTime.desc())
+    if full_rate_min is not None:
+        q = q.filter(DeviceDAO.model.fullRate >= full_rate_min)
+    q = q.order_by(DeviceDAO.model.fullRate.desc(), DeviceDAO.model.lastOnlineTime.desc())
     pagination = q.paginate(page=page, per_page=size, error_out=False)
     return [d.to_dict() for d in pagination.items], pagination.total
 

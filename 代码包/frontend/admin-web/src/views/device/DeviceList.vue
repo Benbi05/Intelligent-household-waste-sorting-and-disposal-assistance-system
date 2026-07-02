@@ -15,40 +15,37 @@
       <el-col :span="6"><StatCard label="待检测" :value="deviceStats.pending || 0" unit="台" color="#e6a23c" /></el-col>
     </el-row>
 
-    <!-- 搜索栏 -->
-    <SearchBar
-      v-model="searchForm"
-      :show-status="true"
-      :status-options="onlineStatusOptions"
-      keyword-width="220px"
-      status-width="140px"
-      @search="onSearch"
-      @reset="onReset"
-    >
-      <template #extra="{ form }">
-        <el-form-item label="分类">
-          <el-select v-model="form.boxCategory" placeholder="全部" clearable style="width:140px" @change="onSearch" @clear="onSearch">
-            <el-option label="可回收物" value="recyclable" />
-            <el-option label="厨余垃圾" value="kitchen" />
-            <el-option label="有害垃圾" value="harmful" />
-            <el-option label="其他垃圾" value="other" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="区域">
-          <el-input v-model="form.area" placeholder="区域" clearable style="width:140px" @keyup.enter="onSearch" @clear="onSearch" />
-        </el-form-item>
-      </template>
-    </SearchBar>
+    <!-- 筛选栏 -->
+    <div style="margin-bottom:16px;display:flex;gap:12px;align-items:center">
+      <el-button :type="filterFull ? 'danger' : ''" size="small" @click="filterFull=!filterFull;pagination.page=1;fetchDevices()">
+        🗑️ 满溢告警 (≥85%)
+      </el-button>
+      <el-select v-model="searchForm.status" placeholder="在线状态" clearable style="width:140px" @change="pagination.page=1;fetchDevices()">
+        <el-option label="在线" value="online" />
+        <el-option label="离线" value="offline" />
+        <el-option label="故障" value="fault" />
+        <el-option label="待检测" value="pending_check" />
+      </el-select>
+      <el-select v-model="searchForm.boxCategory" placeholder="设备分类" clearable style="width:140px" @change="pagination.page=1;fetchDevices()">
+        <el-option label="可回收物" value="recyclable" />
+        <el-option label="厨余垃圾" value="kitchen" />
+        <el-option label="有害垃圾" value="harmful" />
+        <el-option label="其他垃圾" value="other" />
+      </el-select>
+    </div>
 
     <!-- 数据表格 -->
     <div class="page-card">
-      <DataTable :data="tableData" :loading="loading" :action-width="200" show-selection @selection-change="onSelectChange">
-        <el-table-column prop="deviceId" label="设备ID" width="150" align="center" show-overflow-tooltip />
+      <DataTable :data="tableData" :action-width="200" show-selection @selection-change="onSelectChange">
+        <el-table-column prop="deviceId" label="设备ID" width="150" align="center" show-overflow-tooltip>
+          <template #default="{ row }">
+            <span :style="{ color: (row.fullRate || 0) >= 85 ? '#f56c6c' : '', fontWeight: (row.fullRate || 0) >= 85 ? '700' : '' }">{{ row.deviceId }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="deviceName" label="设备名称" min-width="130" show-overflow-tooltip />
         <el-table-column prop="boxCategory" label="分类" width="100" align="center">
           <template #default="{ row }">{{ catLabel(row.boxCategory) }}</template>
         </el-table-column>
-        <el-table-column prop="area" label="区域" width="100" align="center" />
         <el-table-column prop="onlineStatus" label="在线状态" width="90" align="center">
           <template #default="{ row }">
             <el-tag v-if="row.onlineStatus==='online'" type="success" size="small">在线</el-tag>
@@ -57,8 +54,10 @@
             <el-tag v-else type="info" size="small">离线</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="fullRate" label="满溢率" width="90" align="center">
-          <template #default="{ row }">{{ row.fullRate ?? '-' }}%</template>
+        <el-table-column prop="fullRate" label="满溢率" width="90" align="center" sortable>
+          <template #default="{ row }">
+            <span :style="{ color: (row.fullRate || 0) >= 85 ? '#f56c6c' : '', fontWeight: (row.fullRate || 0) >= 85 ? '700' : '' }">{{ row.fullRate ?? '-' }}{{ row.fullRate != null ? '%' : '' }}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="90" align="center">
           <template #default="{ row }"><StatusTag :status="row.status" /></template>
@@ -93,9 +92,6 @@
             <el-option label="其他垃圾" value="other" />
           </el-select>
         </el-form-item>
-        <el-form-item label="区域">
-          <el-input v-model="addForm.area" placeholder="请输入区域" maxlength="64" />
-        </el-form-item>
         <el-form-item label="位置">
           <el-input v-model="addForm.location" placeholder="请输入位置" maxlength="128" />
         </el-form-item>
@@ -115,9 +111,6 @@
             <el-option label="有害垃圾" value="harmful" />
             <el-option label="其他垃圾" value="other" />
           </el-select>
-        </el-form-item>
-        <el-form-item label="区域">
-          <el-input v-model="configForm.area" placeholder="请输入区域" maxlength="64" />
         </el-form-item>
         <el-form-item label="位置">
           <el-input v-model="configForm.location" placeholder="请输入位置" maxlength="128" />
@@ -150,7 +143,7 @@ import { Plus } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { getDeviceList, createDevice, updateDeviceStatus, deleteDevice, updateDeviceConfig, firmwareUpgrade, getDeviceStats } from '@/api/device'
 import DataTable from '@/components/table/DataTable.vue'
-import SearchBar from '@/components/search-bar/SearchBar.vue'
+
 import Pagination from '@/components/pagination/Pagination.vue'
 import FormDialog from '@/components/form-dialog/FormDialog.vue'
 import StatusTag from '@/components/status-tag/StatusTag.vue'
@@ -167,8 +160,9 @@ const total = ref(0)
 const selectedIds = ref([])
 const submitting = ref(false)
 const deviceStats = ref({})
+const filterFull = ref(false)
 
-const searchForm = reactive({ keyword: '', status: '', boxCategory: '', area: '' })
+const searchForm = reactive({ status: '', boxCategory: '' })
 const onlineStatusOptions = [
   { label: '在线', value: 'online' },
   { label: '离线', value: 'offline' },
@@ -180,13 +174,13 @@ const pagination = reactive({ page: 1, size: 10 })
 
 // 新增弹窗
 const addDialogVisible = ref(false)
-const addForm = reactive({ deviceName: '', boxCategory: 'recyclable', area: '', location: '' })
+const addForm = reactive({ deviceName: '', boxCategory: 'recyclable', location: '' })
 const addRules = { deviceName: [{ required: true, message: '请输入设备名称', trigger: 'blur' }] }
 
 // 配置弹窗
 const configDialogVisible = ref(false)
 const configDeviceId = ref('')
-const configForm = reactive({ deviceName: '', boxCategory: '', area: '', location: '' })
+const configForm = reactive({ deviceName: '', boxCategory: '', location: '' })
 const configRules = { deviceName: [{ required: true, message: '请输入设备名称', trigger: 'blur' }] }
 
 // 固件升级
@@ -199,19 +193,17 @@ function catLabel(v) { return catMap[v] || v }
 function onSelectChange(sel) { selectedIds.value = sel.map(s => s.deviceId) }
 
 async function fetchDevices() {
-  loading.value = true
   try {
     const res = await getDeviceList({
       page: pagination.page, size: pagination.size,
-      keyword: searchForm.keyword,
       onlineStatus: searchForm.status,
       boxCategory: searchForm.boxCategory,
-      area: searchForm.area,
       community: comm.value,
+      fullRateMin: filterFull.value ? 85 : undefined,
     })
     tableData.value = res.data.records || []
     total.value = res.data.total || 0
-  } catch { /* handled */ } finally { loading.value = false }
+  } catch { /* handled */ }
 }
 
 function onSearch() { pagination.page = 1; fetchDevices() }
@@ -219,7 +211,7 @@ function onReset() { pagination.page = 1; fetchDevices() }
 
 // 新增
 function openAddDialog() {
-  addForm.deviceName = ''; addForm.boxCategory = 'recyclable'; addForm.area = ''; addForm.location = ''
+  addForm.deviceName = ''; addForm.boxCategory = 'recyclable'; addForm.location = ''
   addDialogVisible.value = true
 }
 async function handleAdd() {
@@ -236,7 +228,7 @@ async function handleAdd() {
 function openConfigDialog(row) {
   configDeviceId.value = row.deviceId
   configForm.deviceName = row.deviceName; configForm.boxCategory = row.boxCategory
-  configForm.area = row.area || ''; configForm.location = row.location || ''
+  configForm.location = row.location || ''
   configDialogVisible.value = true
 }
 async function handleConfig() {
